@@ -83,3 +83,41 @@ void print_dec(uint numero, int size, uint x, uint y, unsigned short attr) {
 }
 
 
+void screen_inicializar() {
+  int f, c;
+
+#define INI_F_MAPA 0
+#define FIN_F_MAPA 43
+#define INI_C_MAPA 0
+#define FIN_C_MAPA 79
+  /* Toda la pantalla a gris */
+  for (f = INI_F_MAPA; f <= FIN_F_MAPA; f++) {
+    for (c = INI_C_MAPA; c <= FIN_C_MAPA; c++) {
+      screen_pintar(0, C_BG_LIGHT_GREY, f, c);
+    }
+  }
+
+  /* Fila negra */
+
+  /* Cuadros rojo y azul para los jugadores */
+#define INI_F_ROJO 44
+#define FIN_F_ROJO 49
+#define INI_C_ROJO 32
+#define FIN_C_ROJO 39
+  /* Cuadro rojo */
+  for (f = INI_F_ROJO; f <= FIN_F_ROJO; f++) {
+    for (c = INI_C_ROJO; c <= FIN_C_ROJO; c++) {
+      screen_pintar(0, C_BG_RED, f, c);
+    }
+  }
+#define INI_F_AZUL 44
+#define FIN_F_AZUL 49
+#define INI_C_AZUL 40
+#define FIN_C_AZUL 47
+  /* Cuadro azul */
+  for (f = INI_F_AZUL; f <= FIN_F_AZUL; f++) {
+    for (c = INI_C_AZUL; c <= FIN_C_AZUL; c++) {
+      screen_pintar(0, C_BG_BLUE, f, c);
+    }
+  }
+}

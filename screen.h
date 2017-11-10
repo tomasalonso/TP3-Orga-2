@@ -2,7 +2,7 @@
 ================================================================================
  TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 ================================================================================
-  definicion de funciones del scheduler
+  definicion de funciones de la pantalla
 */
 
 #ifndef __SCREEN_H__
