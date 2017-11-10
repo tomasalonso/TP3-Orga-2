@@ -53,20 +53,25 @@ start:
     mov CR0, eax
 
     ; Saltar a modo protegido
-    jmp 0x8:mp
+    jmp (0x8 << 3):mp
 
 BITS 32
 mp:
     ; Establecer selectores de segmentos
     xor eax, eax
-    mov ax, 0b10000
+    mov ax, 0b1000000
+    mov cs, ax
+    mov ax, 0b1010000
     mov ds, ax
+    mov ss, ax
     mov es, ax
     mov gs, ax
-    mov ax, 11000b
+    ; mov ax, 11000b
     mov fs, ax
 
     ; Establecer la base de la pila
+    mov esp, 0x27000
+    mov ebp, 0x27000
 
     ; Imprimir mensaje de bienvenida
 
