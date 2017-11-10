@@ -10,9 +10,9 @@ BITS 32
 
 sched_tarea_offset:     dd 0x00
 sched_tarea_selector:   dw 0x00
-
 ;; PIC
 extern fin_intr_pic1
+extern screen_inicializar
 
 ;; Sched
 extern sched_tick
@@ -40,7 +40,13 @@ _isr%1:
 ;;
 ;; Rutina de atención de las EXCEPCIONES
 ;; -------------------------------------------------------------------------- ;;
-ISR 0
+; ISR 0
+global _isr0
+
+_isr0:
+  mov eax, 0
+  call screen_inicializar
+  iret
 
 ;;
 ;; Rutina de atención del RELOJ

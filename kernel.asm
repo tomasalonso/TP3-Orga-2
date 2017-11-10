@@ -7,6 +7,7 @@
 
 extern screen_inicializar
 extern GDT_DESC
+extern IDT_DESC                 ; para inicializar la IDT
 global start
 
 ;; Saltear seccion de datos
@@ -88,7 +89,13 @@ mp:
   ; mov eax, SELECTOR_CODE_ROOT
   ; mov ds, ax                  ; segmento de datos
 
-  call screen_inicializar
+  ; call screen_inicializar
+
+  ; Cargamos la IDT
+  lidt [IDT_DESC]
+
+  mov ecx, 0
+  div ecx
 
   ; Imprimir mensaje de bienvenida
 
