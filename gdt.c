@@ -32,7 +32,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* base[31:24]  */
   },
   [GDT_IDX_ROOT_CODE] = (gdt_entry) {
-    (unsigned short)    0xF400-1,         /* limit[0:15]  */ // 128000
+    (unsigned short)    0xF3FF,         /* limit[0:15]  */ // 128000
     (unsigned short)    0x0000,         /* base[0:15]   */ // 0
     (unsigned char)     0x00,           /* base[23:16]  */ // 0
     (unsigned char)     0b1000,         /* type         */ // Execute only
@@ -47,7 +47,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* base[31:24]  */ // 0
   },
   [GDT_IDX_ROOT_DATA] = (gdt_entry) {
-    (unsigned short)    0xF400-1,         /* limit[0:15]  */
+    (unsigned short)    0xF3FF,         /* limit[0:15]  */
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0b0010,         /* type         */ //
@@ -62,7 +62,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* base[31:24]  */
   },
   [GDT_IDX_USER_CODE] = (gdt_entry) {
-    (unsigned short)    0xF400-1,         /* limit[0:15]  */
+    (unsigned short)    0xF3FF,         /* limit[0:15]  */
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0b1000,         /* type         */
@@ -77,7 +77,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* base[31:24]  */
   },
   [GDT_IDX_USER_DATA] = (gdt_entry) {
-    (unsigned short)    0xF400-1,         /* limit[0:15]  */
+    (unsigned short)    0xF3FF,         /* limit[0:15]  */
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0b0010,         /* type         */
@@ -93,7 +93,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   /* Agregamos el descriptor de video */
   [GDT_VIDEO] = (gdt_entry) {
-    (unsigned short)    0x8000-1,         /* limit[0:15]  */ // 8000
+    (unsigned short)    0x1F3F,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x8000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x0B,           /* base[23:16]  */ // B8000
     (unsigned char)     0b0010,         /* type         */ // Read/Write Data
@@ -109,7 +109,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   /* Agregamos el descriptor para las interrupciones */
   [GDT_INT] = (gdt_entry) {
-    (unsigned short)    0x8000-1,         /* limit[0:15]  */ // 500mb-1
+    (unsigned short)    0xF3FF,         /* limit[0:15]  */ // 500mb-1
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0b1110,         /* type         */ // Interrupt Gate
