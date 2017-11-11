@@ -74,28 +74,41 @@ mp:
   mov ebp, 0x27000
 
   ; Ejercicio 1.d
-  ; mov eax, (12 << 3)
-  ; mov ds, ax                  ; segmento de datos, apunta a segmento de video
-  ; ; Borramos algunas letras de prueba
-  ; mov byte [0x00], 0
-  ; mov byte [0x01], 0
-  ; mov byte [0x02], 0
-  ; mov byte [0x03], 0
-  ; mov byte [0x04], 0
-  ; mov byte [0x05], 0
-  ; mov byte [0x06], 0
-  ; mov byte [0x07], 0
+  mov eax, (12 << 3)
+  mov fs, ax                  ; segmento de datos, apunta a segmento de video
 
-  ; mov eax, SELECTOR_CODE_ROOT
-  ; mov ds, ax                  ; segmento de datos
+; Seteamos todo a negro
+%define pos_ecx ecx
+%define i_eax eax
+%define j_ebx ebx
+  xor pos_ecx, pos_ecx
+  xor i_eax, i_eax                ; i = 0
+ciclo_i:
+
+  xor j_ebx, j_ebx                ; j = 0
+ciclo_j:
+  mov byte [fs:pos_ecx], (0x07 << 4) ; 0b0010000
+  mov byte [fs:pos_ecx+1], 0
+  lea pos_ecx, [pos_ecx + 2]
+
+  inc j_ebx
+  cmp j_ebx, 80
+  jne ciclo_j
+
+  inc i_eax
+  cmp i_eax, 50
+  jne ciclo_i
+
+  mov eax, SELECTOR_CODE_ROOT
+  mov fs, ax                  ; segmento de datos
 
   ; call screen_inicializar
 
   ; Cargamos la IDT
   lidt [IDT_DESC]
 
-  mov ecx, 0
-  div ecx
+  ; mov ecx, 0
+  ; div ecx
 
   ; Imprimir mensaje de bienvenida
 
