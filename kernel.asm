@@ -6,6 +6,7 @@
 %include "imprimir.mac"
 
 extern screen_inicializar
+extern idt_inicializar
 extern GDT_DESC                 ; para inicializar la GDT
 extern IDT_DESC                 ; para inicializar la IDT
 global start
@@ -84,11 +85,11 @@ mp:
 %define pos_ecx ecx
 %define i_eax eax
 %define j_ebx ebx
-  xor pos_ecx, pos_ecx            ; pos := 0
-  xor i_eax, i_eax                ; i := 0
+  xor pos_ecx, pos_ecx           ; pos := 0
+  xor i_eax, i_eax               ; i := 0
 ciclo_i:
 
-  xor j_ebx, j_ebx                ; j := 0
+  xor j_ebx, j_ebx               ; j := 0
 ciclo_j:
   ; el primero es de carácter y el segundo de color...
   mov byte [fs:pos_ecx], 0x00
@@ -104,14 +105,31 @@ ciclo_j:
   jne ciclo_i
 
   mov eax, SELECTOR_CODE_ROOT
-  mov fs, ax                  ; segmento de datos
+  mov fs, ax                      ; segmento de datos
 
-  xchg bx, bx                   ; Break mágico de bochs
-  ; Cargamos la IDT
-  lidt [IDT_DESC]
-  sti
-  mov ecx, 0
-  div ecx
+  ; Ejercicio 2.a
+; cargamos la IDT
+  lidt [IDT_DESC]                 ; Cargamos el pseudo-descriptor de la IDT
+  call idt_inicializar            ; Inicializamos la idt con las funciones _isr
+
+  xchg bx, bx                     ; Break mágico de bochs
+  ; Ejercicio 2.b
+%define aux_ecx ecx
+  mov aux_ecx, 0                  ; aux := 0
+  div aux_ecx                     ; división por 0
+  int 3                           ; break
+  add eax, 0x0
+  sub eax, 0xFFFFFFFF
+  into                            ; overflow
+  int 13
+  mov aux_ecx, [ds:0xFFFFFFF0]    ; se va del limite
+  int 8                           ; doble falta, 15 minutos afuera
+%assign i 0
+%rep    14
+  int i
+%assign i i+1
+%endrep
+
 
   ; Imprimir mensaje de bienvenida
 
@@ -144,6 +162,7 @@ ciclo_j:
   ; Cargar tarea inicial
 
   ; Habilitar interrupciones
+  ; sti                           ; Activamos las interrupciones enmascarables
 
   ; Saltar a la primera tarea: Idle
 
