@@ -56,4 +56,7 @@ void screen_actualizar_posicion_mapa(uint x, uint y);
 void screen_stop_game_show_winner(jugador_t *j);
 
 
+/* Agregadas */
+void screen_pintar_rect_color(unsigned char color, int fila, int columna, int alto, int ancho);
+
 #endif  /* !__SCREEN_H__ */
