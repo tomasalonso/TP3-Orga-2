@@ -6,7 +6,7 @@
 %include "imprimir.mac"
 
 extern screen_inicializar
-extern GDT_DESC
+extern GDT_DESC                 ; para inicializar la GDT
 extern IDT_DESC                 ; para inicializar la IDT
 global start
 
@@ -109,7 +109,7 @@ ciclo_j:
   xchg bx, bx                   ; Break mágico de bochs
   ; Cargamos la IDT
   lidt [IDT_DESC]
-
+  sti
   mov ecx, 0
   div ecx
 
