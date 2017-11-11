@@ -19,3 +19,58 @@
 
 /* Direcciones fisicas de directorios y tablas de paginas del KERNEL */
 /* -------------------------------------------------------------------------- */
+
+void mmu_inicializar_dir_kernel() {
+  int i;
+
+  // Seteamos todas las entradas a 0
+  for (i = 0; i < 1024; i++) {
+    pd[i] = (pd_entry) {
+      (unsigned char)   0, // present
+      (unsigned char)   1, // read/write
+      (unsigned char)   0, // user/supervisor
+      (unsigned char)   0, // write-through
+      (unsigned char)   0, // cache disabled
+      (unsigned char)   0, // accessed
+      (unsigned char)   0, // reserved
+      (unsigned char)   0, // page size
+      (unsigned char)   0, // global page
+      (unsigned char)   0, // available
+      (unsigned int)    0, // base address
+    };
+  }
+
+  // Seteamos las entradas de la primera page table
+  // Páginas para el kernel
+  for (i = 0; i < 256; i++) {
+    pt[i] = (pt_entry) {
+      (unsigned char)   0, // present
+      (unsigned char)   1, // read/write
+      (unsigned char)   0, // user/supervisor
+      (unsigned char)   0, // write-through
+      (unsigned char)   0, // cache disabled
+      (unsigned char)   0, // accessed
+      (unsigned char)   0, // dirty
+      (unsigned char)   0, // page table attribute index
+      (unsigned char)   0, // global page
+      (unsigned char)   0, // available
+      (unsigned int)    0, // base address
+    };
+  }
+  // Páginas para el área libre
+  for (i = 256; i < 1024; i++) {
+    pt[i] = (pt_entry) {
+      (unsigned char)   0, // present
+      (unsigned char)   1, // read/write
+      (unsigned char)   0, // user/supervisor
+      (unsigned char)   0, // write-through
+      (unsigned char)   0, // cache disabled
+      (unsigned char)   0, // accessed
+      (unsigned char)   0, // dirty
+      (unsigned char)   0, // page table attribute index
+      (unsigned char)   0, // global page
+      (unsigned char)   0, // available
+      (unsigned int)    0, // base address
+    };
+  }
+}
