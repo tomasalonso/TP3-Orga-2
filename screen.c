@@ -25,11 +25,11 @@ const char reloj[] = "|/-\\";
 #define INI_F_PIE 45
 #define FIN_F_PIE 49
 
-#define INI_C_ROJO 32
+#define INI_C_ROJO 33
 #define FIN_C_ROJO 39
 
 #define INI_C_AZUL 40
-#define FIN_C_AZUL 47
+#define FIN_C_AZUL 46
 
 void screen_actualizar_reloj_global()
 {
@@ -97,60 +97,37 @@ void print_dec(uint numero, int size, uint x, uint y, unsigned short attr) {
 
 
 void screen_inicializar() {
-  int f, c;
-
   /* Toda la pantalla a gris */
-  for (f = INI_F_MAPA; f <= FIN_F_MAPA; f++) {
-    for (c = INI_C_MAPA; c <= FIN_C_MAPA; c++) {
-      screen_pintar(0, C_BG_LIGHT_GREY, f, c);
-    }
-  }
+  screen_pintar_rect(0, C_BG_LIGHT_GREY, INI_F_MAPA, INI_C_MAPA, 44, 80);
 
   /* Fila negra */
-  for (c = INI_C_MAPA; c <= FIN_C_MAPA; c++) {
-    screen_pintar(0, C_BG_BLACK, 0, c);
-  }
+  screen_pintar_linea_h(0, C_BG_BLACK, 0, 0, 80);
 
   /* Cuadros rojo y azul para los jugadores */
   /* Cuadro rojo */
-  for (f = INI_F_PIE; f <= FIN_F_PIE; f++) {
-    for (c = INI_C_ROJO; c <= FIN_C_ROJO; c++) {
-      screen_pintar(0, C_BG_RED, f, c);
-    }
-  }
+  screen_pintar_rect(0, C_BG_RED, INI_F_PIE, INI_C_ROJO, 5, 7);
+
   /* Cuadro azul */
-  for (f = INI_F_PIE; f <= FIN_F_PIE; f++) {
-    for (c = INI_C_AZUL; c <= FIN_C_AZUL; c++) {
-      screen_pintar(0, C_BG_BLUE, f, c);
-    }
-  }
+  screen_pintar_rect(0, C_BG_BLUE, INI_F_PIE, INI_C_AZUL, 5, 7);
 }
 
 void screen_pintar_rect(unsigned char c, unsigned char color, int fila, int columna, int alto, int ancho) {
   int i, j;
 
-  for (i = columna; i < ancho && i < 80; i++) {
-    for (j = fila; j < alto && j < 50; j++) {
-      screen_pintar(c, color, fila, i);
+  for (i = columna; i < columna+ancho && i < 80; i++) {
+    for (j = fila; j < fila+alto && j < 50; j++) {
+      screen_pintar(c, color, j, i);
     }
   }
 
 }
 
 void screen_pintar_linea_h(unsigned char c, unsigned char color, int fila, int columna, int ancho) {
-  int i;
-
-  for (i = columna; i < ancho && i < 80; i++) {
-    screen_pintar(c, color, fila, i);
-  }
+  screen_pintar_rect(c, color, fila, columna, 1, ancho);
 }
 
 void screen_pintar_linea_v(unsigned char c, unsigned char color, int fila, int columna, int alto) {
-  int j;
-
-  for (j = fila; j < alto && j < 50; j++) {
-    screen_pintar(c, color, j, columna);
-  }
+  screen_pintar_rect(c, color, fila, columna, alto, 1);
 }
 
 void screen_pintar_puntajes() {
