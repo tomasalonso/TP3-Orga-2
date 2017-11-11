@@ -107,7 +107,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */ // B8000
   },
-  /* /\* Agregamos el descriptor para las interrupciones *\/ */
+  /* /\* Agregamos el descriptor para las interrupciones, no va, está mal *\/ */
   /* [GDT_INT] = (gdt_entry) { */
   /*   (unsigned short)    0xF3FF,         /\* limit[0:15]  *\/ // 128000 */
   /*   (unsigned short)    0x0000,         /\* base[0:15]   *\/ // 0 */

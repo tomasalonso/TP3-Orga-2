@@ -77,58 +77,57 @@ mp:
   imprimir_texto_mp iniciando_mp_msg, iniciando_mp_len, 0x07, 2, 0
 
   ; Ejercicio 1.d
-%define SELECTOR_VIDEO 12 << 3
-  mov eax, SELECTOR_VIDEO
-  mov fs, ax                  ; segmento de datos, apunta a segmento de video
+; %define SELECTOR_VIDEO 12 << 3
+;   mov eax, SELECTOR_VIDEO
+;   mov fs, ax                  ; segmento de datos, apunta a segmento de video
 
-; seteamos la pantalla a gris
-%define pos_ecx ecx
-%define i_eax eax
-%define j_ebx ebx
-  xor pos_ecx, pos_ecx           ; pos := 0
-  xor i_eax, i_eax               ; i := 0
-ciclo_i:
+; ; seteamos la pantalla a gris
+; %define pos_ecx ecx
+; %define i_eax eax
+; %define j_ebx ebx
+;   xor pos_ecx, pos_ecx           ; pos := 0
+;   xor i_eax, i_eax               ; i := 0
+; ciclo_i:
 
-  xor j_ebx, j_ebx               ; j := 0
-ciclo_j:
-  ; el primero es de carácter y el segundo de color...
-  mov byte [fs:pos_ecx], 0x00
-  mov byte [fs:pos_ecx+1], (0x7 << 4)
-  lea pos_ecx, [pos_ecx + 2]
+;   xor j_ebx, j_ebx               ; j := 0
+; ciclo_j:
+;   ; el primero es de carácter y el segundo de color...
+;   mov byte [fs:pos_ecx], 0x00
+;   mov byte [fs:pos_ecx+1], (0x7 << 4)
+;   lea pos_ecx, [pos_ecx + 2]
 
-  inc j_ebx
-  cmp j_ebx, 80
-  jne ciclo_j
+;   inc j_ebx
+;   cmp j_ebx, 80
+;   jne ciclo_j
 
-  inc i_eax
-  cmp i_eax, 50
-  jne ciclo_i
+;   inc i_eax
+;   cmp i_eax, 50
+;   jne ciclo_i
 
-  mov eax, SELECTOR_CODE_ROOT
-  mov fs, ax                      ; segmento de datos
+;   mov eax, SELECTOR_CODE_ROOT
+;   mov fs, ax                      ; segmento de datos
 
   ; Ejercicio 2.a
 ; cargamos la IDT
   lidt [IDT_DESC]                 ; Cargamos el pseudo-descriptor de la IDT
   call idt_inicializar            ; Inicializamos la idt con las funciones _isr
 
-  xchg bx, bx                     ; Break mágico de bochs
   ; Ejercicio 2.b
-%define aux_ecx ecx
-  mov aux_ecx, 0                  ; aux := 0
-  div aux_ecx                     ; división por 0
-  int 3                           ; break
-  add eax, 0x0
-  sub eax, 0xFFFFFFFF
-  into                            ; overflow
-  int 13
-  mov aux_ecx, [ds:0xFFFFFFF0]    ; se va del limite
-  int 8                           ; doble falta, 15 minutos afuera
-%assign i 0
-%rep    14
-  int i
-%assign i i+1
-%endrep
+; %define aux_ecx ecx
+;   mov aux_ecx, 0                  ; aux := 0
+;   div aux_ecx                     ; división por 0
+;   int 3                           ; break
+;   add eax, 0x0
+;   sub eax, 0xFFFFFFFF
+;   into                            ; overflow
+;   int 13
+;   mov aux_ecx, [ds:0xFFFFFFF0]    ; se va del limite
+;   int 8                           ; doble falta, 15 minutos afuera
+; %assign i 0
+; %rep    14
+;   int i
+; %assign i i+1
+; %endrep
 
 
   ; Imprimir mensaje de bienvenida
@@ -136,7 +135,7 @@ ciclo_j:
   ; Inicializar el juego
 
   ; Inicializar pantalla
-  ; call screen_inicializar
+  call screen_inicializar
 
 
   ; Inicializar el manejador de memoria

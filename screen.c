@@ -17,6 +17,19 @@ static ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO;
 const char reloj[] = "|/-\\";
 #define reloj_size 4
 
+#define INI_F_MAPA 1
+#define FIN_F_MAPA 44
+#define INI_C_MAPA 0
+#define FIN_C_MAPA 79
+
+#define INI_F_PIE 45
+#define FIN_F_PIE 49
+
+#define INI_C_ROJO 32
+#define FIN_C_ROJO 39
+
+#define INI_C_AZUL 40
+#define FIN_C_AZUL 47
 
 void screen_actualizar_reloj_global()
 {
@@ -86,10 +99,6 @@ void print_dec(uint numero, int size, uint x, uint y, unsigned short attr) {
 void screen_inicializar() {
   int f, c;
 
-#define INI_F_MAPA 0
-#define FIN_F_MAPA 43
-#define INI_C_MAPA 0
-#define FIN_C_MAPA 79
   /* Toda la pantalla a gris */
   for (f = INI_F_MAPA; f <= FIN_F_MAPA; f++) {
     for (c = INI_C_MAPA; c <= FIN_C_MAPA; c++) {
@@ -98,26 +107,92 @@ void screen_inicializar() {
   }
 
   /* Fila negra */
+  for (c = INI_C_MAPA; c <= FIN_C_MAPA; c++) {
+    screen_pintar(0, C_BG_BLACK, 0, c);
+  }
 
   /* Cuadros rojo y azul para los jugadores */
-#define INI_F_ROJO 44
-#define FIN_F_ROJO 49
-#define INI_C_ROJO 32
-#define FIN_C_ROJO 39
   /* Cuadro rojo */
-  for (f = INI_F_ROJO; f <= FIN_F_ROJO; f++) {
+  for (f = INI_F_PIE; f <= FIN_F_PIE; f++) {
     for (c = INI_C_ROJO; c <= FIN_C_ROJO; c++) {
       screen_pintar(0, C_BG_RED, f, c);
     }
   }
-#define INI_F_AZUL 44
-#define FIN_F_AZUL 49
-#define INI_C_AZUL 40
-#define FIN_C_AZUL 47
   /* Cuadro azul */
-  for (f = INI_F_AZUL; f <= FIN_F_AZUL; f++) {
+  for (f = INI_F_PIE; f <= FIN_F_PIE; f++) {
     for (c = INI_C_AZUL; c <= FIN_C_AZUL; c++) {
       screen_pintar(0, C_BG_BLUE, f, c);
     }
   }
+}
+
+void screen_pintar_rect(unsigned char c, unsigned char color, int fila, int columna, int alto, int ancho) {
+  int i, j;
+
+  for (i = columna; i < ancho && i < 80; i++) {
+    for (j = fila; j < alto && j < 50; j++) {
+      screen_pintar(c, color, fila, i);
+    }
+  }
+
+}
+
+void screen_pintar_linea_h(unsigned char c, unsigned char color, int fila, int columna, int ancho) {
+  int i;
+
+  for (i = columna; i < ancho && i < 80; i++) {
+    screen_pintar(c, color, fila, i);
+  }
+}
+
+void screen_pintar_linea_v(unsigned char c, unsigned char color, int fila, int columna, int alto) {
+  int j;
+
+  for (j = fila; j < alto && j < 50; j++) {
+    screen_pintar(c, color, j, columna);
+  }
+}
+
+void screen_pintar_puntajes() {
+
+}
+
+unsigned char screen_color_jugador(jugador_t *j) {
+  return 0;
+}
+
+unsigned char screen_caracter_pirata(unsigned int tipo) {
+  return 0;
+}
+
+void screen_pintar_pirata(jugador_t *j, pirata_t *pirata) {
+
+}
+
+void screen_borrar_pirata(jugador_t *j, pirata_t *pirata) {
+
+}
+
+void screen_actualizar_reloj_pirata (jugador_t *j, pirata_t *pirata) {
+
+}
+
+void screen_pintar_reloj_pirata(jugador_t *j, pirata_t *pirata) {
+
+}
+
+void screen_pintar_reloj_piratas(jugador_t *j) {
+
+}
+
+void screen_pintar_relojes() {
+
+}
+
+void screen_actualizar_posicion_mapa(uint x, uint y) {
+
+}
+
+void screen_stop_game_show_winner(jugador_t *j) {
+
 }

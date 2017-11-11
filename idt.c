@@ -41,7 +41,7 @@ idt_descriptor IDT_DESC = {
   idt[numero].attr = (unsigned short) 0x0000;                                                                  \
   idt[numero].offset_16_31 = (unsigned short) ((unsigned int)(&_isr ## numero) >> 16 & (unsigned int) 0xFFFF);
 */
-// Pasamos el descriptor de segmento de interrupción
+// Pasamos el descriptor de segmento de código
 #define IDT_ENTRY(numero)                                               \
   idt[numero].offset_0_15 = (unsigned short) ((unsigned int)(&_isr ## numero) & (unsigned int) 0xFFFF); \
   idt[numero].segsel = (unsigned short) (GDT_IDX_ROOT_CODE << 3); \
@@ -66,7 +66,7 @@ void idt_inicializar() {
   IDT_ENTRY(12);
   IDT_ENTRY(13);
   IDT_ENTRY(14);
-  /* IDT_ENTRY(15); */
+  /* IDT_ENTRY(15); // reservada de Intel */
   IDT_ENTRY(16);
   IDT_ENTRY(17);
   IDT_ENTRY(18);
