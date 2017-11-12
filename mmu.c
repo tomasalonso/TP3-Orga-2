@@ -20,6 +20,9 @@
 /* Direcciones fisicas de directorios y tablas de paginas del KERNEL */
 /* -------------------------------------------------------------------------- */
 
+// Ejercicio 4.a
+unsigned int proxima_pagina_libre;
+
 void mmu_inicializar_dir_kernel() {
   // Ejercicio 3.b
   int i;
@@ -68,4 +71,15 @@ void mmu_inicializar_dir_kernel() {
   // Iniciamos la primera entrada
   pd[0].p = 1;
   pd[0].base = 0b101000;
+}
+
+// Ejercicio 4.a
+void mmu_inicializar() {
+  proxima_pagina_libre = INICIO_PAGINAS_LIBRES; // 0x100000
+}
+
+unsigned int mmu_proxima_pagina_fisica_libre() {
+  unsigned int pagina_libre = proxima_pagina_libre;
+  proxima_pagina_libre += PAGE_SIZE;
+  return pagina_libre;
 }

@@ -16,6 +16,8 @@
 #define MAPA_BASE_FISICA  0x500000
 #define MAPA_BASE_VIRTUAL 0x800000
 
+#define INICIO_PAGINAS_LIBRES 0x100000
+
 // Entrada de page directory
 typedef struct str_pd_entry {
   unsigned char   p:1;    // present
@@ -51,5 +53,6 @@ void mmu_inicializar_dir_kernel();
 
 void mmu_inicializar();
 
+unsigned int mmu_proxima_pagina_fisica_libre();
 
 #endif	/* !__MMU_H__ */
