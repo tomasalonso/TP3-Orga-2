@@ -23,8 +23,8 @@
 // Ejercicio 4.a
 unsigned int proxima_pagina_libre;
 
+// Ejercicio 3.b
 void mmu_inicializar_dir_kernel() {
-  // Ejercicio 3.b
   int i;
   /* Page directory, YEAH (?) */
   pd_entry *pd = (pd_entry *) 0x27000;

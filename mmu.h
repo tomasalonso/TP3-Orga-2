@@ -49,10 +49,15 @@ typedef struct str_pt_entry {
 } __attribute__((__packed__, aligned (4))) pt_entry;
 
 
+// Ejercicio 3.b
 void mmu_inicializar_dir_kernel();
 
 void mmu_inicializar();
 
+// Ejercicio 4.a
 unsigned int mmu_proxima_pagina_fisica_libre();
+
+// Ejercicio 4.c
+
 
 #endif	/* !__MMU_H__ */

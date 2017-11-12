@@ -8,6 +8,7 @@
 #ifndef __ISR_H__
 #define __ISR_H__
 
+// Ejercicio 2.a
 void _isr0();
 void _isr1();
 void _isr2();

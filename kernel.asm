@@ -8,6 +8,7 @@
 extern screen_inicializar
 extern idt_inicializar
 extern mmu_inicializar_dir_kernel
+extern mmu_inicializar
 extern GDT_DESC                 ; para inicializar la GDT
 extern IDT_DESC                 ; para inicializar la IDT
 global start
@@ -47,6 +48,7 @@ start:
   ; Habilitar A20
   call habilitar_A20
 
+  ; Ejercicio 1.b
   ; Cargar la GDT
   lgdt [GDT_DESC]
 
@@ -131,30 +133,28 @@ mp:
 
 
   ; Imprimir mensaje de bienvenida
-
   ; Inicializar el juego
-
   ; Inicializar pantalla
   call screen_inicializar
 
-  ; Inicializar el manejador de memoria
-
   ; Inicializar el directorio de paginas
+  ; Ejercicio 3.b
+  call mmu_inicializar_dir_kernel
 
   ; Cargar directorio de paginas
-
-  ; Habilitar paginacion
-  ; ejercicio 3.b
-  call mmu_inicializar_dir_kernel
-  ; ejercicio 3.c
-  xchg bx, bx
+  ; Ejercicio 3.c
 %define page_directory 0x27000
   mov eax, page_directory
   mov cr3, eax                  ; cargamos dirección de page directory
 
+  ; Habilitar paginacion
   mov eax, cr0
   or eax, 0x80000000            ; bit paginación activado
   mov cr0, eax                  ; paginación habilitada
+
+  xchg bx, bx
+  ; Inicializar el manejador de memoria
+  call mmu_inicializar
 
   ; Inicializar tss
 

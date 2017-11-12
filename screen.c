@@ -99,6 +99,7 @@ void print_dec(uint numero, int size, uint x, uint y, unsigned short attr) {
 }
 
 
+// Ejercicio 3.a
 void screen_inicializar() {
   /* Toda la pantalla a gris */
   screen_pintar_rect(0, C_BG_LIGHT_GREY, INI_F_MAPA, INI_C_MAPA, 44, 80);
@@ -126,6 +127,7 @@ void screen_inicializar() {
   print("Pencylvester estudia en MIT", 80-28, 0, C_FG_WHITE);
 }
 
+// Ejercicio 3.a
 void screen_pintar_rect(unsigned char c, unsigned char color, int fila, int columna, int alto, int ancho) {
   int i, j;
 
@@ -136,14 +138,17 @@ void screen_pintar_rect(unsigned char c, unsigned char color, int fila, int colu
   }
 }
 
+// Ejercicio 3.a
 void screen_pintar_linea_h(unsigned char c, unsigned char color, int fila, int columna, int ancho) {
   screen_pintar_rect(c, color, fila, columna, 1, ancho);
 }
 
+// Ejercicio 3.a
 void screen_pintar_linea_v(unsigned char c, unsigned char color, int fila, int columna, int alto) {
   screen_pintar_rect(c, color, fila, columna, alto, 1);
 }
 
+// Ejercicio 3.a
 void screen_pintar_puntajes() {
   print("0", INI_C_ROJO+2, INI_F_PIE+2, (C_FG_WHITE | C_BG_RED));
   print("0", INI_C_AZUL+2, INI_F_PIE+2, (C_FG_WHITE | C_BG_BLUE));
@@ -209,6 +214,7 @@ void screen_stop_game_show_winner(jugador_t *j) {
 
 }
 
+// Ejercicio 3.a
 void screen_pintar_rect_color(unsigned char color, int fila, int columna, int alto, int ancho) {
   int i, j;
 

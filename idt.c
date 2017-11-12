@@ -41,6 +41,8 @@ idt_descriptor IDT_DESC = {
   idt[numero].attr = (unsigned short) 0x0000;                                                                  \
   idt[numero].offset_16_31 = (unsigned short) ((unsigned int)(&_isr ## numero) >> 16 & (unsigned int) 0xFFFF);
 */
+
+// Ejercicio 2.a
 // Pasamos el descriptor de segmento de código
 #define IDT_ENTRY(numero)                                               \
   idt[numero].offset_0_15 = (unsigned short) ((unsigned int)(&_isr ## numero) & (unsigned int) 0xFFFF); \

@@ -40,7 +40,9 @@ typedef unsigned int   uint;
 #define GDT_IDX_USER_DATA 11
 
 /* Las agregamos losotros */
+// Ejercicio 1.c
 #define GDT_VIDEO 12
+// Intento para el 2 (no se usa al final)
 #define GDT_INT 13
 
 /* Offsets en la gdt */

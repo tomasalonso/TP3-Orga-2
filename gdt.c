@@ -31,6 +31,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */
   },
+  // Ejercicio 1.a
   [GDT_IDX_ROOT_CODE] = (gdt_entry) {
     (unsigned short)    0xF3FF,         /* limit[0:15]  */ // 128000
     (unsigned short)    0x0000,         /* base[0:15]   */ // 0
@@ -92,6 +93,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* base[31:24]  */
   },
   /* Agregamos el descriptor de video */
+  // Ejercicio 1.c
   [GDT_VIDEO] = (gdt_entry) {
     (unsigned short)    0x1F3F,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x8000,         /* base[0:15]   */ // B8000
@@ -108,6 +110,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* base[31:24]  */ // B8000
   },
   /* /\* Agregamos el descriptor para las interrupciones, no va, está mal *\/ */
+  // Ejercicio 2 (MAL, no se usa)
   /* [GDT_INT] = (gdt_entry) { */
   /*   (unsigned short)    0xF3FF,         /\* limit[0:15]  *\/ // 128000 */
   /*   (unsigned short)    0x0000,         /\* base[0:15]   *\/ // 0 */

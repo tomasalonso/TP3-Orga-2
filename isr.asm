@@ -44,6 +44,7 @@ _isr%1:
 ;;
 ;; Rutina de atención de las EXCEPCIONES
 ;; -------------------------------------------------------------------------- ;;
+  ; Ejercicio 2.a
   ISR 0, 'Dividiste por 0, animal!'
   ISR 1, 'Excepcion para debug'
   ISR 2, 'Interrupcion de E/S (NMI)'
