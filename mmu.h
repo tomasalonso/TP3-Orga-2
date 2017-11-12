@@ -58,6 +58,11 @@ void mmu_inicializar();
 unsigned int mmu_proxima_pagina_fisica_libre();
 
 // Ejercicio 4.c
+// Dada una dirección de una page table, inicializa con p=0 las entradas
+void inicializar_tabla(pt_entry* pt);
 
+void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica);
+
+void mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3);
 
 #endif	/* !__MMU_H__ */
