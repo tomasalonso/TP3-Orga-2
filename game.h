@@ -19,6 +19,22 @@ typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD} direccion
 #define MAPA_ANCHO                       80
 #define MAPA_ALTO                        44
 
+// Ejercicio 4.b
+// esquinas superior izquierda e inferior derecha
+#define PUERTO_A  0x500000
+#define PUERTO_B  0x12C0000
+
+
+// distancia entre las posiciones en el mapa (4kb)
+#define OFFSET_COL 0x1000       //(4kb)
+#define OFFSET_FILA 0x1000*0x50 //(4kb*80)
+
+#define TASK_AE  0x10000
+#define TASK_AM  0x11000
+#define TASK_BE  0x12000
+#define TASK_BM  0x13000
+
+
 
 struct jugador_t;
 

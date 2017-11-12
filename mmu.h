@@ -66,6 +66,9 @@ void mmu_inicializar();
 // Ejercicio 4.a
 unsigned int mmu_proxima_pagina_fisica_libre();
 
+// Ejercicio 4.b
+void mmu_inicializar_dir_pirata();
+
 // Ejercicio 4.c
 // Dada una dirección de una page table, inicializa con p=0 las entradas
 void inicializar_tabla(pt_entry* pt);
