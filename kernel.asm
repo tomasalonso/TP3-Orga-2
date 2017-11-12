@@ -7,6 +7,7 @@
 
 extern screen_inicializar
 extern idt_inicializar
+extern mmu_inicializar_dir_kernel
 extern GDT_DESC                 ; para inicializar la GDT
 extern IDT_DESC                 ; para inicializar la IDT
 global start
@@ -144,6 +145,17 @@ mp:
   ; Cargar directorio de paginas
 
   ; Habilitar paginacion
+  ; ejercicio 3.b
+  call mmu_inicializar_dir_kernel
+  ; ejercicio 3.c
+  xchg bx, bx
+%define page_directory 0x27000
+  mov eax, page_directory
+  mov cr3, eax                  ; cargamos dirección de page directory
+
+  mov eax, cr0
+  or eax, 0x80000000            ; bit paginación activado
+  mov cr0, eax                  ; paginación habilitada
 
   ; Inicializar tss
 

@@ -21,7 +21,10 @@
 /* -------------------------------------------------------------------------- */
 
 void mmu_inicializar_dir_kernel() {
+  // Ejercicio 3.b
   int i;
+  /* Page directory, YEAH (?) */
+  pd_entry *pd = (pd_entry *) 0x27000;
 
   // Seteamos todas las entradas a 0
   for (i = 0; i < 1024; i++) {
@@ -40,37 +43,29 @@ void mmu_inicializar_dir_kernel() {
     };
   }
 
+
+  /* Page table, OH YEAH (?) */
+  pt_entry *pt = (pt_entry *) 0x28000;
+
   // Seteamos las entradas de la primera page table
-  // Páginas para el kernel
-  for (i = 0; i < 256; i++) {
+  // Páginas para el kernel (i < 256)y para el área libre (256 < i < 1024)
+  for (i = 0; i < 1024; i++) {
     pt[i] = (pt_entry) {
-      (unsigned char)   0, // present
+      (unsigned char)   1, // present
       (unsigned char)   1, // read/write
       (unsigned char)   0, // user/supervisor
       (unsigned char)   0, // write-through
       (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
+      (unsigned char)   1, // accessed
       (unsigned char)   0, // dirty
       (unsigned char)   0, // page table attribute index
       (unsigned char)   0, // global page
       (unsigned char)   0, // available
-      (unsigned int)    0, // base address
+      (unsigned int)    i, // base address
     };
   }
-  // Páginas para el área libre
-  for (i = 256; i < 1024; i++) {
-    pt[i] = (pt_entry) {
-      (unsigned char)   0, // present
-      (unsigned char)   1, // read/write
-      (unsigned char)   0, // user/supervisor
-      (unsigned char)   0, // write-through
-      (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
-      (unsigned char)   0, // dirty
-      (unsigned char)   0, // page table attribute index
-      (unsigned char)   0, // global page
-      (unsigned char)   0, // available
-      (unsigned int)    0, // base address
-    };
-  }
+
+  // Iniciamos la primera entrada
+  pd[0].p = 1;
+  pd[0].base = 0b101000;
 }

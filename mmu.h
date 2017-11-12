@@ -29,7 +29,7 @@ typedef struct str_pd_entry {
   unsigned char   gp:1;   // global page
   unsigned char   avl:3;  // available
   unsigned int   base:20; // base address
-} __attribute__((__packed__, aligned (8))) pd_entry;
+} __attribute__((__packed__, aligned (4))) pd_entry;
 
 // Entrada de page table
 typedef struct str_pt_entry {
@@ -44,12 +44,8 @@ typedef struct str_pt_entry {
   unsigned char   gp:1;   // global page
   unsigned char   avl:3;  // available
   unsigned int   base:20; // base address
-} __attribute__((__packed__, aligned (8))) pt_entry;
+} __attribute__((__packed__, aligned (4))) pt_entry;
 
-/* Page directory, YEAH (?) */
-extern pd_entry pd[1024];
-/* Page table, OH YEAH (?) */
-extern pt_entry pt[1024];
 
 void mmu_inicializar_dir_kernel();
 
