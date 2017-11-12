@@ -137,7 +137,6 @@ mp:
   ; Inicializar pantalla
   call screen_inicializar
 
-
   ; Inicializar el manejador de memoria
 
   ; Inicializar el directorio de paginas
