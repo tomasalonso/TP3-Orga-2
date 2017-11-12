@@ -7,17 +7,14 @@
 
 #include "mmu.h"
 #include "i386.h"
-/* Atributos paginas */
-/* -------------------------------------------------------------------------- */
 
-
-/* Direcciones fisicas de codigos */
+/* Direcciones físicas de códigos */
 /* -------------------------------------------------------------------------- */
-/* En estas direcciones estan los códigos de todas las tareas. De aqui se
+/* En estas direcciones están los códigos de todas las tareas. De aquí se
  * copiaran al destino indicado por TASK_<i>_CODE_ADDR.
  */
 
-/* Direcciones fisicas de directorios y tablas de paginas del KERNEL */
+/* Direcciones físicas de directorios y tablas de paginas del KERNEL */
 /* -------------------------------------------------------------------------- */
 
 // Ejercicio 4.a
@@ -77,7 +74,10 @@ void mmu_inicializar_dir_kernel() {
 void mmu_inicializar() {
   proxima_pagina_libre = INICIO_PAGINAS_LIBRES; // 0x100000
 
-  mmu_mapear_pagina(0x500000, rcr3(), 0x400000);
+  /* prueba de mapear y desmapear pagina */
+  mmu_mapear_pagina(0x400000, rcr3(), 0x500000);
+  breakpoint();
+  mmu_unmapear_pagina(0x400000, rcr3());
 }
 
 unsigned int mmu_proxima_pagina_fisica_libre() {
@@ -155,4 +155,25 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
 }
 
 void mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3) {
+  // Seteamos los bits restantes que no son de la dirección a 0
+  pd_entry *pd = (pd_entry *) (cr3 & 0xFFFFF000);
+
+  // Obtenemos los 10 bits más significativos
+  unsigned int pd_index = virtual >> 22;
+  // Obtenemos los bits 13 a 22
+  // Shifteamos y borramos los bits más altos
+  unsigned int pt_index = (virtual >> 12) & 0x3FF;
+  // Obtenemos los 12 bits menos significativos
+  // unsigned int page_index = virtual & 0xFFF;
+
+  pt_entry *pt;
+  if (!pd[pd_index].p) {
+    // la tabla no existe, nada que hacer
+    // preguntar
+    return;
+  }
+  pt = (pt_entry *) (pd[pd_index].base << 12);
+  pt[pt_index].p = 0;
+
+  tlbflush();
 }

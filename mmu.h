@@ -18,6 +18,8 @@
 
 #define INICIO_PAGINAS_LIBRES 0x100000
 
+/* Estructuras paginación */
+/* -------------------------------------------------------------------------- */
 // Entrada de page directory
 typedef struct str_pd_entry {
   unsigned char   p:1;    // present

@@ -152,7 +152,6 @@ mp:
   or eax, 0x80000000            ; bit paginación activado
   mov cr0, eax                  ; paginación habilitada
 
-  xchg bx, bx
   ; Inicializar el manejador de memoria
   call mmu_inicializar
 
