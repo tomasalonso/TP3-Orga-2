@@ -114,10 +114,10 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
   pd_entry *pd = (pd_entry *) (cr3 & 0xFFFFF000);
 
   // Obtenemos los 10 bits más significativos
-  unsigned int pd_index = virtual >> 22;
+  unsigned int pd_index = PDE_INDEX(virtual);
   // Obtenemos los bits 13 a 22
   // Shifteamos y borramos los bits más altos
-  unsigned int pt_index = (virtual >> 12) & 0x3FF;
+  unsigned int pt_index = PTE_INDEX(virtual);
   // Obtenemos los 12 bits menos significativos
   // unsigned int page_index = virtual & 0xFFF;
 
@@ -159,10 +159,10 @@ void mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3) {
   pd_entry *pd = (pd_entry *) (cr3 & 0xFFFFF000);
 
   // Obtenemos los 10 bits más significativos
-  unsigned int pd_index = virtual >> 22;
+  unsigned int pd_index = PDE_INDEX(virtual);
   // Obtenemos los bits 13 a 22
   // Shifteamos y borramos los bits más altos
-  unsigned int pt_index = (virtual >> 12) & 0x3FF;
+  unsigned int pt_index = PTE_INDEX(virtual);
   // Obtenemos los 12 bits menos significativos
   // unsigned int page_index = virtual & 0xFFF;
 

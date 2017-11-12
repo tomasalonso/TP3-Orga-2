@@ -18,6 +18,13 @@
 
 #define INICIO_PAGINAS_LIBRES 0x100000
 
+// Ejercicio 4.c
+// Obtenemos los 10 bits más significativos
+#define PDE_INDEX(virtual) virtual >> 22
+// Obtenemos los bits 13 a 22
+// Shifteamos y borramos los bits más altos
+#define PTE_INDEX(virtual) (virtual >> 12) & 0x3FF
+
 /* Estructuras paginación */
 /* -------------------------------------------------------------------------- */
 // Entrada de page directory
