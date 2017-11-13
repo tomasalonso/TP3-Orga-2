@@ -27,29 +27,15 @@ void mmu_inicializar_dir_kernel() {
   /* Page directory, YEAH (?) */
   pd_entry *pd = (pd_entry *) 0x27000;
 
-  // Seteamos todas las entradas a 0
-  for (i = 0; i < 1024; i++) {
-    pd[i] = (pd_entry) {
-      (unsigned char)   0, // present
-      (unsigned char)   1, // read/write
-      (unsigned char)   0, // user/supervisor
-      (unsigned char)   0, // write-through
-      (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
-      (unsigned char)   0, // reserved
-      (unsigned char)   0, // page size
-      (unsigned char)   0, // global page
-      (unsigned char)   0, // available
-      (unsigned int)    0, // base address
-    };
-  }
-
+  // Toda la page directory a 0
+  inicializar_page_struct((unsigned int *) pd);
 
   /* Page table, OH YEAH (?) */
   pt_entry *pt = (pt_entry *) 0x28000;
 
   // Seteamos las entradas de la primera page table
   // Páginas para el kernel (i < 256)y para el área libre (256 < i < 1024)
+  // identity mapping
   for (i = 0; i < 1024; i++) {
     pt[i] = (pt_entry) {
       (unsigned char)   1, // present
@@ -67,8 +53,9 @@ void mmu_inicializar_dir_kernel() {
   }
 
   // Iniciamos la primera entrada
-  pd[0].p = 1;
+  pd[0].rw = 1;
   pd[0].base = 0b101000;
+  pd[0].p = 1;
 }
 
 // Ejercicio 4.a
@@ -96,50 +83,22 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
   pd_entry* pd_pirata = (pd_entry *) mmu_proxima_pagina_fisica_libre();
 
   // Seteamos todas las entradas a 0
-  int i;
-  for (i = 0; i < 1024; i++) {
-    pd_pirata[i] = (pd_entry) {
-      (unsigned char)   0, // present
-      (unsigned char)   0, // read/write
-      (unsigned char)   0, // user/supervisor
-      (unsigned char)   0, // write-through
-      (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
-      (unsigned char)   0, // reserved
-      (unsigned char)   0, // page size
-      (unsigned char)   0, // global page
-      (unsigned char)   0, // available
-      (unsigned int)    0, // base address
-    };
-  }
+  inicializar_page_struct((unsigned int *) pd_pirata);
 
   // Iniciamos la primera entrada
   // identity mapping del kernel
-  pd_pirata[0].p = 1;
   pd_pirata[0].base = 0b101000;
+  pd_pirata[0].p = 1;
 
   // Inicializar tabla de páginas
   pt_entry *pt1_pirata = (pt_entry *) mmu_proxima_pagina_fisica_libre();
   // La linkeamo' en el page directory
-  pd_pirata[1].p = 1;
+  pd_pirata[1].rw = 1;
   pd_pirata[1].base = (unsigned int) pt1_pirata << 12;
+  pd_pirata[1].p = 1;
 
   // Todas las entradas a cerapio
-  for (i = 0; i < 1024; i++) {
-    pt1_pirata[i] = (pt_entry) {
-      (unsigned char)   0, // present
-      (unsigned char)   0, // read/write
-      (unsigned char)   0, // user/supervisor
-      (unsigned char)   0, // write-through
-      (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
-      (unsigned char)   0, // dirty
-      (unsigned char)   0, // page table attribute index
-      (unsigned char)   0, // global page
-      (unsigned char)   0, // available
-      (unsigned int)    0, // base address
-    };
-  }
+  inicializar_page_struct((unsigned int *) pt1_pirata);
 
   // Tabla de código y datos nivel 3 R/W
   unsigned int codigo;
@@ -154,7 +113,6 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
   pt1_pirata[0].rw = 1;
   pt1_pirata[0].us = 1;
   pt1_pirata[0].base = codigo << 12;
-
   pt1_pirata[0].p = 1;
 
   // Copiar código de la tarea
@@ -167,24 +125,17 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
     page_task = (unsigned int *) TASK_BE;
   }
   // Copiamos de la 10000-10ffff o 12000-12ffff
-  // según el jugador a la 4000000-4000fff
-  unsigned int *page_code = (unsigned int *) 0x400000;
-  for (i = 0; i < 0x1000; i+= 4) {
-    // Copiamos de a 4 bytes
-    *(page_code) = *(page_task);
-    page_task++;
-    page_code++;
-  }
+  // (según el jugador) a la 4000000-4000fff
+  copiarPagina((unsigned int *) 0x400000, page_task);
   mmu_unmapear_pagina(0x400000, rcr3());
 
   // Mapear posiciones ya descubiertas
   // 0x800000 virtual
-
-  unsigned int dir = 0x800000;
+  int i;
   for (i = 0; i < 0xD20; i++) {
     // Si la posición se exploró
     if (pos_piola[i]) {
-      
+      mmu_mapear_pagina(VIRT_INI_MAPA+(i<<12), (unsigned int) pd_pirata, FIS_INI_MAPA+(i<<12));
     }
   }
 
@@ -192,26 +143,6 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
 }
 
 // Ejercicio 4.c
-void inicializar_tabla(pt_entry* pt) {
-  int i;
-
-  for (i = 0; i < 1024; i++) {
-    pt[i] = (pt_entry) {
-      (unsigned char)   0, // present
-      (unsigned char)   1, // read/write
-      (unsigned char)   0, // user/supervisor
-      (unsigned char)   0, // write-through
-      (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
-      (unsigned char)   0, // dirty
-      (unsigned char)   0, // page table attribute index
-      (unsigned char)   0, // global page
-      (unsigned char)   0, // available
-      (unsigned int)    0, // base address
-    };
-  }
-}
-
 void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica) {
   // Seteamos los bits restantes que no son de la dirección a 0
   pd_entry *pd = (pd_entry *) (cr3 & 0xFFFFF000);
@@ -235,7 +166,7 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
   if (!pd[pd_index].p) {
     // crear page table
     pt = (pt_entry *) mmu_proxima_pagina_fisica_libre();
-    inicializar_tabla(pt);
+    inicializar_page_struct((unsigned int *) pt);
     pd[pd_index].p = 1;
     pd[pd_index].base = (unsigned int) pt >> 12;
   } else {
@@ -283,43 +214,21 @@ void mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3) {
   tlbflush();
 }
 
-
-void inicializar_pt(pt_entry* pt) {
+void inicializar_page_struct(unsigned int* page_struct) {
   int i;
 
   for (i = 0; i < 1024; i++) {
-    pt[i] = (pt_entry) {
-      (unsigned char)   0, // present
-      (unsigned char)   0, // read/write
-      (unsigned char)   0, // user/supervisor
-      (unsigned char)   0, // write-through
-      (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
-      (unsigned char)   0, // dirty
-      (unsigned char)   0, // page table attribute index
-      (unsigned char)   0, // global page
-      (unsigned char)   0, // available
-      (unsigned int)    0, // base address
-    };
+    page_struct[i] = 0;
   }
 }
 
-void inicializar_pd(pd_entry* pd) {
+void copiarPagina(unsigned int *page_dest, unsigned int *page_orig) {
   int i;
 
-  for (i = 0; i < 1024; i++) {
-    pt[i] = (pt_entry) {
-      (unsigned char)   0, // present
-      (unsigned char)   0, // read/write
-      (unsigned char)   0, // user/supervisor
-      (unsigned char)   0, // write-through
-      (unsigned char)   0, // cache disabled
-      (unsigned char)   0, // accessed
-      (unsigned char)   0, // dirty
-      (unsigned char)   0, // page table attribute index
-      (unsigned char)   0, // global page
-      (unsigned char)   0, // available
-      (unsigned int)    0, // base address
-    };
+  for (i = 0; i < 0x1000; i+= 4) {
+    // Copiamos de a 4 bytes
+    *(page_dest) = *(page_orig);
+    page_dest++;
+    page_orig++;
   }
 }

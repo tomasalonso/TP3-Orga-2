@@ -24,6 +24,8 @@ typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD} direccion
 #define PUERTO_A  0x500000
 #define PUERTO_B  0x12C0000
 
+#define VIRT_INI_MAPA  0x800000
+#define FIS_INI_MAPA   0x500000
 
 // distancia entre las posiciones en el mapa (4kb)
 #define OFFSET_COL 0x1000       //(4kb)
