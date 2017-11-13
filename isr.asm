@@ -65,16 +65,36 @@ _isr%1:
   ISR 17, 'Memoria desalineada'
   ISR 18, 'Problema con el bus. Tira la compu y comprate otra'
   ISR 19, 'Problema con SIMD'
+
+; Ejercicio 5.a
 ;;
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
+global _isr32
+_isr32:
+  call fin_intr_pic1
+  iret
 
 ;;
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
+global _isr33
+_isr33:
+  in al, 0x60                   ; leemos la tecla presionada
+
+  ; para pruebas, chequea si es 'a'
+  cmp al, 0x1E
+  jne .pasar
+  xchg bx, bx
+.pasar:
+  call fin_intr_pic1
+  iret
+
 
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
-
-
+global _isr46
+_isr46:
+  xchg bx, bx
+  iret

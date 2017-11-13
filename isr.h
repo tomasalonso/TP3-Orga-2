@@ -30,4 +30,12 @@ void _isr17();
 void _isr18();
 void _isr19();
 
+// Ejercicio 5.a
+// interrupción del reloj
+void _isr32();
+// interrupción de teclado
+void _isr33();
+// interrupción de software
+void _isr46();
+
 #endif  /* !__ISR_H__ */

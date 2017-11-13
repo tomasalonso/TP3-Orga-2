@@ -77,7 +77,7 @@ unsigned int mmu_proxima_pagina_fisica_libre() {
 }
 
 // Ejercicio 4.b
-// Tamaño exploradas = D1F (tamaño del mapa)
+// Tamaño pos_piola = DC0 (tamaño del mapa)
 pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
   // Inicializar directorio de páginas
   pd_entry* pd_pirata = (pd_entry *) mmu_proxima_pagina_fisica_libre();
@@ -132,8 +132,8 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
   // Mapear posiciones ya descubiertas
   // 0x800000 virtual
   int i;
-  for (i = 0; i < 0xD20; i++) {
-    // Si la posición se exploró
+  for (i = 0; i < 0xDC0; i++) {
+    // Si la posición se exploró, la mapea
     if (pos_piola[i]) {
       mmu_mapear_pagina(VIRT_INI_MAPA+(i<<12), (unsigned int) pd_pirata, FIS_INI_MAPA+(i<<12));
     }

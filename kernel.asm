@@ -9,6 +9,8 @@ extern screen_inicializar
 extern idt_inicializar
 extern mmu_inicializar_dir_kernel
 extern mmu_inicializar
+extern resetear_pic
+extern habilitar_pic
 extern GDT_DESC                 ; para inicializar la GDT
 extern IDT_DESC                 ; para inicializar la IDT
 global start
@@ -110,9 +112,10 @@ mp:
 ;   mov fs, ax                      ; segmento de datos
 
   ; Ejercicio 2.a
-; cargamos la IDT
-  lidt [IDT_DESC]                 ; Cargamos el pseudo-descriptor de la IDT
+  ; Cargar IDT
   call idt_inicializar            ; Inicializamos la idt con las funciones _isr
+  ; Inicializar la IDT
+  lidt [IDT_DESC]                 ; Cargamos el pseudo-descriptor de la IDT
 
   ; Ejercicio 2.b
 ; %define aux_ecx ecx
@@ -155,22 +158,24 @@ mp:
   ; Inicializar el manejador de memoria
   call mmu_inicializar
 
+  ; Ejercicio 5.a
+  ; Configurar controlador de interrupciones
+  call resetear_pic
+  call habilitar_pic
+
+  ; Habilitar interrupciones
+  sti                           ; Activamos las interrupciones enmascarables
+
+  ; Prueba de interrupción 46
+  ; int 46
+
   ; Inicializar tss
 
   ; Inicializar tss de la tarea Idle
 
   ; Inicializar el scheduler
 
-  ; Inicializar la IDT
-
-  ; Cargar IDT
-
-  ; Configurar controlador de interrupciones
-
   ; Cargar tarea inicial
-
-  ; Habilitar interrupciones
-  ; sti                           ; Activamos las interrupciones enmascarables
 
   ; Saltar a la primera tarea: Idle
 

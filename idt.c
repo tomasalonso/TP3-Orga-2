@@ -44,33 +44,44 @@ idt_descriptor IDT_DESC = {
 
 // Ejercicio 2.a
 // Pasamos el descriptor de segmento de código
-#define IDT_ENTRY(numero)                                               \
+#define IDT_ENTRY(numero, attribute)                                              \
   idt[numero].offset_0_15 = (unsigned short) ((unsigned int)(&_isr ## numero) & (unsigned int) 0xFFFF); \
   idt[numero].segsel = (unsigned short) (GDT_IDX_ROOT_CODE << 3); \
-  idt[numero].attr = (unsigned short) 0b1000111100000000;                           \
+  idt[numero].attr = (unsigned short) attribute;                       \
   idt[numero].offset_16_31 = (unsigned short) ((unsigned int)(&_isr ## numero) >> 16 & (unsigned int) 0xFFFF);
 
+#define TRAP      0b1000111100000000
+#define INTERRUPT 0b1000111000000000
 
 void idt_inicializar() {
   /* Cargamos las 19 entradas */
-  IDT_ENTRY(0);
-  IDT_ENTRY(1);
-  IDT_ENTRY(2);
-  IDT_ENTRY(3);
-  IDT_ENTRY(4);
-  IDT_ENTRY(5);
-  IDT_ENTRY(6);
-  IDT_ENTRY(7);
-  IDT_ENTRY(8);
-  IDT_ENTRY(9);
-  IDT_ENTRY(10);
-  IDT_ENTRY(11);
-  IDT_ENTRY(12);
-  IDT_ENTRY(13);
-  IDT_ENTRY(14);
+  IDT_ENTRY(0, TRAP);
+  IDT_ENTRY(1, TRAP);
+  IDT_ENTRY(2, TRAP);
+  IDT_ENTRY(3, TRAP);
+  IDT_ENTRY(4, TRAP);
+  IDT_ENTRY(5, TRAP);
+  IDT_ENTRY(6, TRAP);
+  IDT_ENTRY(7, TRAP);
+  IDT_ENTRY(8, TRAP);
+  IDT_ENTRY(9, TRAP);
+  IDT_ENTRY(10, TRAP);
+  IDT_ENTRY(11, TRAP);
+  IDT_ENTRY(12, TRAP);
+  IDT_ENTRY(13, TRAP);
+  IDT_ENTRY(14, TRAP);
   /* IDT_ENTRY(15); // reservada de Intel */
-  IDT_ENTRY(16);
-  IDT_ENTRY(17);
-  IDT_ENTRY(18);
-  IDT_ENTRY(19);
+  IDT_ENTRY(16, TRAP);
+  IDT_ENTRY(17, TRAP);
+  IDT_ENTRY(18, TRAP);
+  IDT_ENTRY(19, TRAP);
+
+  /* Agregamos entrada para interrupción del clock */
+  IDT_ENTRY(32, INTERRUPT);
+
+  /* Agregamos entrada para interrupción del teclado */
+  IDT_ENTRY(33, INTERRUPT);
+
+  /* Agregamos entrada para interrupción de software */
+  IDT_ENTRY(46, INTERRUPT);
 }
