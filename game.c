@@ -114,8 +114,10 @@ void game_pirata_inicializar(pirata_t *pirata, jugador_t *j, uint index, uint id
 {
 }
 
+// Ejercicio 5.b
 void game_tick(uint id_pirata)
 {
+  screen_actualizar_reloj_global();
 }
 
 
@@ -207,4 +209,45 @@ void game_terminar_si_es_hora()
 
 void game_atender_teclado(unsigned char tecla)
 {
+  switch(tecla) {
+
+    case KB_w:
+      print("     w", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_a:
+      print("     a", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_s:
+      print("     s", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_d:
+      print("     d", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_e:
+      print("     e", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_q:
+      print("     q", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_i:
+      print("     i", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_k:
+      print("     k", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_j:
+      print("     j", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_l:
+      print("     l", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_shiftL:
+      print("ShiftL", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+    case KB_shiftR:
+      print("ShiftR", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      break;
+
+  }
+
 }

@@ -124,7 +124,7 @@ void screen_inicializar() {
   screen_pintar_pirata(NULL,NULL);
 
   /* Ejercicio 3.d Escribir nombre del grupo en pantalla */
-  print("Pencylvester estudia en MIT", 80-28, 0, C_FG_WHITE);
+  print("| Pencylvester estudia en MIT |", 80-32-10, 0, C_FG_WHITE);
 }
 
 // Ejercicio 3.a
@@ -224,4 +224,3 @@ void screen_pintar_rect_color(unsigned char color, int fila, int columna, int al
     }
   }
 }
-

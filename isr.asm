@@ -18,6 +18,10 @@ extern fin_intr_pic1
 extern sched_tick
 extern sched_tarea_actual
 
+; Ejercicio 5.b
+extern game_tick
+; Ejercicio 5.c
+extern game_atender_teclado
 
 ;;
 ;; Definición de MACROS
@@ -72,7 +76,11 @@ _isr%1:
 ;; -------------------------------------------------------------------------- ;;
 global _isr32
 _isr32:
+  pushad
   call fin_intr_pic1
+  ; Ejercicio 5.b
+  call game_tick
+  popad
   iret
 
 ;;
@@ -80,14 +88,22 @@ _isr32:
 ;; -------------------------------------------------------------------------- ;;
 global _isr33
 _isr33:
-  in al, 0x60                   ; leemos la tecla presionada
-
-  ; para pruebas, chequea si es 'a'
-  cmp al, 0x1E
-  jne .pasar
-  xchg bx, bx
-.pasar:
+  pushad
   call fin_intr_pic1
+  xor eax, eax
+  in al, 0x60                   ; leemos la tecla presionada
+  push eax
+  call game_atender_teclado
+  pop eax
+
+  ; Ejercicio 5.a
+  ; para pruebas, chequea si es 'a'
+  ; cmp al, 0x1E
+  ; jne .pasar
+  ; xchg bx, bx
+; .pasar:
+
+  popad
   iret
 
 
@@ -96,6 +112,9 @@ _isr33:
 ;; -------------------------------------------------------------------------- ;;
 global _isr46
 _isr46:
+  pushad
+
+  popad
   ; Ejercicio 5.d
   mov eax, 0x42
   iret

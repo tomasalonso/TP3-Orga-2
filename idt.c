@@ -54,6 +54,7 @@ idt_descriptor IDT_DESC = {
 #define INTERRUPT 0b1000111000000000
 
 void idt_inicializar() {
+  // Ejercicio 2.a
   /* Cargamos las 19 entradas */
   IDT_ENTRY(0, TRAP);
   IDT_ENTRY(1, TRAP);
@@ -76,6 +77,7 @@ void idt_inicializar() {
   IDT_ENTRY(18, TRAP);
   IDT_ENTRY(19, TRAP);
 
+  // Ejercicio 5.a
   /* Agregamos entrada para interrupción del clock */
   IDT_ENTRY(32, INTERRUPT);
 

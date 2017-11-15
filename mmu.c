@@ -64,7 +64,7 @@ void mmu_inicializar() {
 
   /* prueba de mapear y desmapear pagina */
   mmu_mapear_pagina(0x400000, rcr3(), 0x500000);
-  breakpoint();
+  // breakpoint();
   mmu_unmapear_pagina(0x400000, rcr3());
 }
 

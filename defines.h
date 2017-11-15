@@ -43,7 +43,11 @@ typedef unsigned int   uint;
 // Ejercicio 1.c
 #define GDT_VIDEO 12
 // Intento para el 2 (no se usa al final)
-#define GDT_INT 13
+#define GDT_INT 13 // NO SE USA
+
+// Ejercicio 6.a
+#define GDT_TSS_INICIAL 13
+#define GDT_TSS_IDLE 14
 
 /* Offsets en la gdt */
 /* -------------------------------------------------------------------------- */

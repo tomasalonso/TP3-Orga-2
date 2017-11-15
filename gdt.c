@@ -126,6 +126,39 @@ gdt_entry gdt[GDT_COUNT] = {
   /*   (unsigned char)     0x01,           /\* g            *\/ // De a 4kb */
   /*   (unsigned char)     0x00,           /\* base[31:24]  *\/ // 0 */
   /* }, */
+  // Ejercicio 6.a
+  // Tarea inicial
+  [GDT_TSS_INICIAL] = (gdt_entry) {
+    (unsigned short)    0x0067,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
+  // Tarea idle
+  [GDT_TSS_IDLE] = (gdt_entry) {
+    (unsigned short)    0x0067,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
 };
 
 gdt_descriptor GDT_DESC = {
