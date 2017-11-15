@@ -171,7 +171,10 @@ mp:
 
   ; Inicializar tss
 
+  call inicializar_tss
+
   ; Inicializar tss de la tarea Idle
+  call inicializar_tss_idle
 
   ; Inicializar el scheduler
 
