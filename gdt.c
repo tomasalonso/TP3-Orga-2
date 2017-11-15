@@ -129,7 +129,7 @@ gdt_entry gdt[GDT_COUNT] = {
   // Ejercicio 6.a
   // Tarea inicial
   [GDT_TSS_INICIAL] = (gdt_entry) {
-    (unsigned short)    0x0067,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000
     (unsigned char)     0b1001,         /* type         */ // Read/Write Data
@@ -145,7 +145,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   // Tarea idle
   [GDT_TSS_IDLE] = (gdt_entry) {
-    (unsigned short)    0x0067,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000
     (unsigned char)     0b1001,         /* type         */ // Read/Write Data

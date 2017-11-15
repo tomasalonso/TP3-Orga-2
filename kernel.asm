@@ -5,6 +5,7 @@
 
 %include "imprimir.mac"
 
+extern tss_inicializar
 extern screen_inicializar
 extern idt_inicializar
 extern mmu_inicializar_dir_kernel
@@ -13,6 +14,7 @@ extern resetear_pic
 extern habilitar_pic
 extern GDT_DESC                 ; para inicializar la GDT
 extern IDT_DESC                 ; para inicializar la IDT
+extern pagina_tss
 global start
 
 ;; Saltear seccion de datos
@@ -170,17 +172,21 @@ mp:
   ; int 46
 
   ; Inicializar tss
-
-  call inicializar_tss
+  call tss_inicializar
 
   ; Inicializar tss de la tarea Idle
-  call inicializar_tss_idle
+  ; call inicializar_tss_idle
 
   ; Inicializar el scheduler
 
   ; Cargar tarea inicial
+%define GDT_TSS_INITIAL 0xD
+  mov ax, GDT_TSS_INITIAL << 3
+  ltr ax
 
+%define GDT_TSS_IDLE 0xE
   ; Saltar a la primera tarea: Idle
+  jmp (GDT_TSS_IDLE << 3):0
 
   ; Ciclar infinitamente (por si algo sale mal...)
   mov eax, 0xFFFF
