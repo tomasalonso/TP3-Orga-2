@@ -38,13 +38,16 @@ typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD} direccion
 
 
 
+
 struct jugador_t;
 
 typedef struct pirata_t
 {
     uint index;
     struct jugador_t *jugador;
-
+    uint posicionX;
+    uint posicionY;
+    uint tipo;
     // id unica, posicion, tipo, reloj
 } pirata_t;
 
@@ -53,6 +56,10 @@ typedef struct jugador_t
 {
     uint index;
     pirata_t piratas[MAX_CANT_PIRATAS_VIVOS];
+    uint activo;
+    uint pirataActual;
+    uint monedas;
+
     // coordenadas puerto, posiciones exploradas, mineros pendientes, etc
 } jugador_t;
 
@@ -67,7 +74,7 @@ pirata_t* id_pirata2pirata(uint id);
 void game_pirata_inicializar(pirata_t *pirata, jugador_t *jugador, uint index, uint id);
 void game_pirata_erigir(pirata_t *pirata, jugador_t *j, uint tipo);
 void game_pirata_habilitar_posicion(jugador_t *j, pirata_t *pirata, int x, int y);
-void game_pirata_exploto(uint id);
+void game_pirata_exploto();
 
 void game_jugador_inicializar(jugador_t *j);
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y);
@@ -80,7 +87,8 @@ void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y)
 pirata_t* game_pirata_en_posicion(uint x, uint y);
 
 uint game_syscall_pirata_posicion(uint id, int idx);
-uint game_syscall_pirata_mover(uint id, direccion key);
+uint game_syscall_pirata_mover(direccion key);
+uint game_syscall_cavar();
 uint game_syscall_manejar(uint syscall, uint param1);
 void game_tick(uint id_pirata);
 void game_terminar_si_es_hora();

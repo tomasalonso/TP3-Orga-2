@@ -36,6 +36,6 @@ void _isr32();
 // interrupción de teclado
 void _isr33();
 // interrupción de software
-void _isr46();
+void _isr70();
 
 #endif  /* !__ISR_H__ */

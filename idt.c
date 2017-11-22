@@ -85,5 +85,5 @@ void idt_inicializar() {
   IDT_ENTRY(33, INTERRUPT);
 
   /* Agregamos entrada para interrupción de software */
-  IDT_ENTRY(46, INTERRUPT);
+  IDT_ENTRY(70, INTERRUPT);
 }

@@ -22,6 +22,9 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 
 #define BOTINES_CANTIDAD 8
 
+#define EXPLORADOR 0
+#define MINERO 1
+
 uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
                                         {30,  3, 50}, {31, 38, 50}, {15, 21, 100}, {45, 21, 100} ,
                                         {49,  3, 50}, {48, 38, 50}, {64, 21, 100}, {34, 21, 100}
@@ -29,6 +32,7 @@ uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
 
 jugador_t jugadorA;
 jugador_t jugadorB;
+
 
 
 void* error()
@@ -147,23 +151,93 @@ void game_explorar_posicion(jugador_t *jugador, int c, int f)
 }
 
 
-uint game_syscall_pirata_mover(uint id, direccion dir)
+uint game_syscall_pirata_mover(direccion dir)
 {
-    // ~ completar
+    unsigned int *posActual;
+    pirata_t pirAux;
+    if(JUGADOR_A.activo){
+        pirAux = JUGADOR_A.piratas[JUGADOR_A.pirataActual];
+    } else {
+        pirAux = JUGADOR_B.piratas[JUGADOR_B.pirataActual];
+    }
+
+    uint x;
+    uint y;
+
+    uint res = game_dir2xy(dir, &x, &y);
+
+    if(res == 0){
+      uint valida = game_posicion_valida(pirAux.posicionX+x, pirAux.posicionY+y);
+      if(valida){
+        uint posLineal = game_xy2lineal(pirAux.posicionX, pirAux.posicionY);
+        posActual = posLineal*0x1000 + 0x800000;
+
+        pirAux.posicionX += x;
+        pirAux.posicionY += y;
+        posLineal = game_xy2lineal(pirAux.posicionX, pirAux.posicionY);
+        posDest = posLineal*0x1000 + 0x800000;
+
+        copiarPagina(posDest, posActual);
+      } else {
+        game_pirata_exploto();
+      }
+    }
     return 0;
 }
 
-uint game_syscall_cavar(uint id)
+uint game_syscall_cavar()
 {
-    // ~ completar ~
+  unsigned int *posActual;
+  pirata_t pirAux;
+  jugador_t *jugadorActual;
+  if(JUGADOR_A.activo){
+      jugadorActual = &JUGADOR_A;
+      pirAux = JUGADOR_A.piratas[JUGADOR_A.pirataActual];
+  } else {
+      jugadorActual = &JUGADOR_B;
+      pirAux = JUGADOR_B.piratas[JUGADOR_B.pirataActual];
+  }
+  uint valor = game_valor_tesoro(pirAux.posicionX, pirAux.posicionY);
 
-	return 0;
+  if(pirAux.tipo == EXPLORADOR) {
+    game_pirata_exploto();
+  } else {
+    if(valor) {
+      *jugadorActual.monedas += 1; // sumaPunto()
+      int i;
+    	for (i = 0; i < BOTINES_CANTIDAD; i++) {
+    		if (botines[i][0] == x && botines[i][1] == y) {
+    		  botines[i][2]--;
+    	  }
+      }
+    } else {
+      //cuando termina de minar, automaticamente lo cambio por un explorador
+      game_pirata_relanzar(pirAux, *jugadorActual, EXPLORADOR);
+    }
+  }
+
+  return 0;
 }
 
 uint game_syscall_pirata_posicion(uint id, int idx)
 {
-    // ~ completar ~
-    return 0;
+  jugador_t *jugadorActual;
+  pirata_t pirAux;
+  uint result;
+  if(JUGADOR_A.activo){
+      jugadorActual = &JUGADOR_A;
+  } else {
+      jugadorActual = &JUGADOR_B;
+  }
+  if(idx == -1) {
+    pirAux = jugadorActual.piratas[jugadorActual.pirataActual];
+  } else { //asumimos que idx esta bien definido
+    pirAux = jugadorActual.piratas[idx];
+  }
+
+  result = pirAux.posicionY << 8 | pirAux.posicionX;
+
+  return result;
 }
 
 uint game_syscall_manejar(uint syscall, uint param1)
@@ -172,7 +246,7 @@ uint game_syscall_manejar(uint syscall, uint param1)
     return 0;
 }
 
-void game_pirata_exploto(uint id)
+void game_pirata_exploto()
 {
 }
 
