@@ -153,37 +153,39 @@ void game_explorar_posicion(jugador_t *jugador, int c, int f)
 
 uint game_syscall_pirata_mover(direccion dir)
 {
-    pirata_t pirAux;
+    pirata_t *pirAux = NULL;
 
     if(jugadorA.activo){
-        pirAux = jugadorA.piratas[jugadorA.pirataActual];
+        pirAux = &jugadorA.piratas[jugadorA.pirataActual];
     } else {
-        pirAux = jugadorB.piratas[jugadorB.pirataActual];
+        pirAux = &jugadorB.piratas[jugadorB.pirataActual];
     }
 
     int x;
     int y;
 
-    uint res = game_dir2xy(dir, &x, &y);
+    uint dirValida = game_dir2xy(dir, &x, &y);
 
-    if(res == 0){
-      // si es valida
-      if(game_posicion_valida(pirAux.posicionX+x, pirAux.posicionY+y)){
-        uint posLineal;
+    // si se pasó una dirección válida y la posición nueva es valida
+    if(dirValida == 0 && game_posicion_valida(pirAux->posicionX+x, pirAux->posicionY+y)) {
+      uint posLineal;
 
-        posLineal = game_xy2lineal(pirAux.posicionX, pirAux.posicionY);
-        unsigned int posActual = posLineal*0x1000 + 0x800000;
+      posLineal = game_xy2lineal(pirAux->posicionX, pirAux->posicionY);
+      // convertimos a posición en memoria
+      unsigned int posActual = posLineal*0x1000 + 0x800000;
 
-        pirAux.posicionX += x;
-        pirAux.posicionY += y;
+      pirAux->posicionX += x;
+      pirAux->posicionY += y;
 
-        posLineal = game_xy2lineal(pirAux.posicionX, pirAux.posicionY);
-        uint posDest = posLineal*0x1000 + 0x800000;
+      posLineal = game_xy2lineal(pirAux->posicionX, pirAux->posicionY);
+      // convertimos a posición en memoria
+      uint posDest = posLineal*0x1000 + 0x800000;
 
-        copiarPagina((unsigned int*) posDest, (unsigned int*) posActual);
-      } else {
-        game_pirata_exploto();
-      }
+      copiarPagina((unsigned int*) posDest, (unsigned int*) posActual);
+    } else {
+      game_pirata_exploto();
+
+      return -1;
     }
 
     return 0;
@@ -191,32 +193,33 @@ uint game_syscall_pirata_mover(direccion dir)
 
 uint game_syscall_cavar()
 {
-  pirata_t pirAux;
+  pirata_t *pirAux;
   jugador_t *jugadorActual;
 
   if(jugadorA.activo){
-      jugadorActual = &jugadorA;
+    jugadorActual = &jugadorA;
   } else {
-      jugadorActual = &jugadorB;
+    jugadorActual = &jugadorB;
   }
-  pirAux = jugadorActual->piratas[jugadorActual->pirataActual];
+  pirAux = &jugadorActual->piratas[jugadorActual->pirataActual];
 
-  if(pirAux.tipo == EXPLORADOR) {
+  if(pirAux->tipo == EXPLORADOR) {
     game_pirata_exploto();
   } else {
     // si hay monedas
-    if(game_valor_tesoro(pirAux.posicionX, pirAux.posicionY) > 0) {
+    if(game_valor_tesoro(pirAux->posicionX, pirAux->posicionY) > 0) {
       jugadorActual->monedas += 1; // sumaPunto()
 
+      // resta un botín de la posición
       int i;
     	for (i = 0; i < BOTINES_CANTIDAD; i++) {
-    		if (botines[i][0] == pirAux.posicionX && botines[i][1] == pirAux.posicionY) {
-    		  botines[i][2]--;
+    		if (botines[i][0] == pirAux->posicionX && botines[i][1] == pirAux->posicionY) {
+    		  botines[i][2]--; break;
     	  }
       }
     } else {
-      //cuando termina de minar, automaticamente lo cambio por un explorador
-      game_pirata_relanzar(pirAux, *jugadorActual, EXPLORADOR);
+      //cuando termina de minar, automáticamente lo cambio por un explorador
+      game_pirata_relanzar(pirAux, jugadorActual, EXPLORADOR);
     }
   }
 
@@ -226,7 +229,7 @@ uint game_syscall_cavar()
 uint game_syscall_pirata_posicion(int idx)
 {
   jugador_t *jugadorActual;
-  pirata_t pirAux;
+  pirata_t *pirAux;
 
   if(jugadorA.activo){
       jugadorActual = &jugadorA;
@@ -235,12 +238,12 @@ uint game_syscall_pirata_posicion(int idx)
   }
 
   if(idx == -1) {
-    pirAux = jugadorActual->piratas[jugadorActual->pirataActual];
+    pirAux = &jugadorActual->piratas[jugadorActual->pirataActual];
   } else { //asumimos que idx esta bien definido
-    pirAux = jugadorActual->piratas[idx];
+    pirAux = &jugadorActual->piratas[idx];
   }
 
-  return pirAux.posicionY << 8 | pirAux.posicionX;
+  return pirAux->posicionY << 8 | pirAux->posicionX;
 }
 
 uint game_syscall_manejar(uint syscall, uint param1)

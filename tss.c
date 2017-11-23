@@ -76,3 +76,57 @@ void tss_inicializar() {
     (unsigned short)  0xFFFF, //iomap
   };
 }
+
+void tss_libre() {
+  gdt[GDT_TSS_INICIAL].p = 1;
+  gdt[GDT_TSS_INICIAL].base_0_15 = base_0_15(&tss_libre);
+  gdt[GDT_TSS_INICIAL].base_23_16 = base_23_16(&tss_libre);
+  gdt[GDT_TSS_INICIAL].base_31_24 = base_31_24(&tss_libre);
+
+  unsigned int nueva_pagina = mmu_proxima_pagina_fisica_libre();
+  unsigned int page_directory = (unsigned int) mmu_inicializar_dir_pirata(0, );
+
+  tss_idle = (tss) {
+    (unsigned short)  0x00, // ptl
+    (unsigned short)  0x00,
+    (unsigned int)    nueva_pagina + 0x1000, // esp0 = pila nivel 0
+    (unsigned short)  GDT_IDX_ROOT_CODE << 3, // ss0 = segmento de codigo root
+    (unsigned short)  0x00,
+    (unsigned int)    0x00, // esp1
+    (unsigned short)  0x00, // ss1
+    (unsigned short)  0x00,
+    (unsigned int)    0x00, // esp2
+    (unsigned short)  0x00, // ss2
+    (unsigned short)  0x00,
+    (unsigned int)    , // cr3 = cr3 actual = cr3 kernel
+    (unsigned int)    0x00016000, // eip
+    (unsigned int)    0x00000202, // eflags
+    (unsigned int)    0x00, // eax
+    (unsigned int)    0x00, // ecx
+    (unsigned int)    0x00, // edx
+    (unsigned int)    0x00, // ebx
+    (unsigned int)    0x27000, // esp
+    (unsigned int)    0x27000, // ebp
+    (unsigned int)    0x00, // esi
+    (unsigned int)    0x00, //edi
+    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // es
+    (unsigned short)  0x00,
+    (unsigned short)  GDT_IDX_ROOT_CODE << 3, // cs
+    (unsigned short)  0x00,
+    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // ss
+    (unsigned short)  0x00,
+    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // ds
+    (unsigned short)  0x00,
+    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // fs
+    (unsigned short)  0x00,
+    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // gs
+    (unsigned short)  0x00,
+    (unsigned short)  0x00, //ldt
+    (unsigned short)  0x00,
+    (unsigned short)  0x00, // dtrap
+    (unsigned short)  0xFFFF, //iomap
+  };
+
+
+  
+}

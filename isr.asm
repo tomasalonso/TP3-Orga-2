@@ -23,6 +23,12 @@ extern game_tick
 ; Ejercicio 5.c
 extern game_atender_teclado
 
+; Ejercicio 6.g
+extern game_syscall_pirata_mover
+extern game_syscall_cavar
+extern game_syscall_pirata_posicion
+
+
 ;;
 ;; Definición de MACROS
 ;; -------------------------------------------------------------------------- ;;
@@ -110,34 +116,29 @@ _isr33:
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
-#define MOVERSE 0x1
-#define CAVAR 0x2
-#define POSICION 0x3
+%define MOVERSE 0x1
+%define CAVAR 0x2
+%define POSICION 0x3
 
 global _isr70 ; 0x46
 _isr70:
   pushad
-  push eax
+  cmp eax, MOVERSE
+  jne .cavar
   push ecx
-  call game_syscall_manejar
-  pop eax
-  pop ecx
+  call game_syscall_pirata_mover
+  add esp, 4                    ; restablezco la pila
+  jmp .fin
+.cavar:
+  cmp eax, CAVAR
+  call game_syscall_cavar
+  jne .posicion
 
-;   cmp eax, MOVERSE
-;   jne .cavar
-;   push ecx
-;   call game_syscall_pirata_mover
-;   jmp .fin
-; .cavar:
-;   cmp eax, CAVAR
-;   call game_syscall_cavar
-;   jne .posicion
+.posicion:
+  cmp eax, POSICION
+  call game_syscall_pirata_posicion
 
-; .posicion:
-;   cmp eax, POSICION
-;   call game_syscall_pirata_posicion
-
-; .fin:
+.fin:
   popad
   ; Ejercicio 5.d
   ; mov eax, 0x42

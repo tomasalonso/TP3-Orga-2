@@ -49,6 +49,9 @@ typedef unsigned int   uint;
 #define GDT_TSS_INICIAL 13
 #define GDT_TSS_IDLE 14
 
+// Ejercicio 6.b
+#define GDT_TSS_FREE 15
+
 /* Offsets en la gdt */
 /* -------------------------------------------------------------------------- */
 #define GDT_OFF_NULL_DESC           (GDT_IDX_NULL_DESC      << 3)
