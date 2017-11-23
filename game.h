@@ -86,7 +86,7 @@ uint game_valor_tesoro(uint x, uint y);
 void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y);
 pirata_t* game_pirata_en_posicion(uint x, uint y);
 
-uint game_syscall_pirata_posicion(uint id, int idx);
+uint game_syscall_pirata_posicion(int idx);
 uint game_syscall_pirata_mover(direccion key);
 uint game_syscall_cavar();
 uint game_syscall_manejar(uint syscall, uint param1);

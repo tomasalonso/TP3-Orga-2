@@ -117,21 +117,27 @@ _isr33:
 global _isr70 ; 0x46
 _isr70:
   pushad
-  cmp eax, MOVERSE
-  jne .cavar
+  push eax
   push ecx
-  call game_syscall_pirata_mover
-  jmp .fin
-.cavar:
-  cmp eax, CAVAR
-  call game_syscall_cavar
-  jne .posicion
+  call game_syscall_manejar
+  pop eax
+  pop ecx
 
-.posicion:
-  cmp eax, POSICION
-  call game_syscall_pirata_posicion
+;   cmp eax, MOVERSE
+;   jne .cavar
+;   push ecx
+;   call game_syscall_pirata_mover
+;   jmp .fin
+; .cavar:
+;   cmp eax, CAVAR
+;   call game_syscall_cavar
+;   jne .posicion
 
-.fin:
+; .posicion:
+;   cmp eax, POSICION
+;   call game_syscall_pirata_posicion
+
+; .fin:
   popad
   ; Ejercicio 5.d
   ; mov eax, 0x42
