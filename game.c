@@ -99,6 +99,27 @@ void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y)
 
 void game_inicializar()
 {
+  uint mapaA[4];
+  uint mapaB[4];
+
+  /* Pedimos 4 páginas para las page table del mapa
+     de cada jugador */
+  uint i;
+  for (i = 0; i < 4; i++) {
+    mapaA[i] = mmu_proxima_pagina_fisica_libre();
+    mapaB[i] = mmu_proxima_pagina_fisica_libre();
+  }
+
+  /* Mapeamos a las direcciones del mapa */
+
+  jugadorA.index = JUGADOR_A;
+  /* jugadorA.piratas = ; */
+  jugadorA.activo = 0;
+  jugadorA.pirataActual = 0;
+  jugadorA.monedas = 0;
+  jugadorA.mapa = {
+    
+  }
 }
 
 void game_jugador_inicializar_mapa(jugador_t *jug)
