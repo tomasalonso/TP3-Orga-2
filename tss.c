@@ -83,13 +83,13 @@ void tss_libre() {
   gdt[GDT_TSS_INICIAL].base_23_16 = base_23_16(&tss_libre);
   gdt[GDT_TSS_INICIAL].base_31_24 = base_31_24(&tss_libre);
 
-  unsigned int nueva_pagina = mmu_proxima_pagina_fisica_libre();
-  unsigned int page_directory = (unsigned int) mmu_inicializar_dir_pirata(0, );
+  unsigned int pila_nivel_0 = mmu_proxima_pagina_fisica_libre();
+  pd_entry* page_directory = mmu_inicializar_dir_pirata(jugadorA);
 
   tss_idle = (tss) {
     (unsigned short)  0x00, // ptl
     (unsigned short)  0x00,
-    (unsigned int)    nueva_pagina + 0x1000, // esp0 = pila nivel 0
+    (unsigned int)    pila_nivel_0 + 0x1000, // esp0 = pila nivel 0
     (unsigned short)  GDT_IDX_ROOT_CODE << 3, // ss0 = segmento de codigo root
     (unsigned short)  0x00,
     (unsigned int)    0x00, // esp1
@@ -98,7 +98,7 @@ void tss_libre() {
     (unsigned int)    0x00, // esp2
     (unsigned short)  0x00, // ss2
     (unsigned short)  0x00,
-    (unsigned int)    , // cr3 = cr3 actual = cr3 kernel
+    (unsigned int)    page_directory, // cr3 = cr3 actual = cr3 kernel
     (unsigned int)    0x00016000, // eip
     (unsigned int)    0x00000202, // eflags
     (unsigned int)    0x00, // eax
@@ -126,7 +126,4 @@ void tss_libre() {
     (unsigned short)  0x00, // dtrap
     (unsigned short)  0xFFFF, //iomap
   };
-
-
-  
 }

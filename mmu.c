@@ -18,6 +18,9 @@
 /* Direcciones físicas de directorios y tablas de paginas del KERNEL */
 /* -------------------------------------------------------------------------- */
 
+// Ejercicio 6.g
+unsigned int mapa[4]; // direcciones a las page table del mapa
+
 // Ejercicio 4.a
 unsigned int proxima_pagina_libre;
 
@@ -78,7 +81,7 @@ unsigned int mmu_proxima_pagina_fisica_libre() {
 
 // Ejercicio 4.b
 // Tamaño pos_piola = DC0 (tamaño del mapa)
-pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
+pd_entry* mmu_inicializar_dir_pirata(jugador_t jugador) {
   // Inicializar directorio de páginas
   pd_entry* pd_pirata = (pd_entry *) mmu_proxima_pagina_fisica_libre();
 
@@ -103,7 +106,7 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
   // Tabla de código y datos nivel 3 R/W
   unsigned int codigo;
   // Obtenemos dirección del puerto donde comienza la tarea
-  if (jugador == JUGADOR_A) {
+  if (jugador.index == JUGADOR_A) {
     codigo = PUERTO_A+OFFSET_COL+OFFSET_FILA; // posición (1,1) del mapa
   } else {
     // (jugador == JUGADOR_B)
@@ -118,7 +121,7 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
   // Copiar código de la tarea
   mmu_mapear_pagina(0x400000, rcr3(), codigo);
   unsigned int *page_task;
-  if (jugador == JUGADOR_A) {
+  if (jugador.index == JUGADOR_A) {
     page_task = (unsigned int *) TASK_AE;
   } else {
     // (jugador == JUGADOR_B)
@@ -131,12 +134,22 @@ pd_entry* mmu_inicializar_dir_pirata(uchar jugador, uchar* pos_piola) {
 
   // Mapear posiciones ya descubiertas
   // 0x800000 virtual
+  // asigna las mismas page table del mapa para todas las tareas
   int i;
-  for (i = 0; i < 0xDC0; i++) {
-    // Si la posición se exploró, la mapea
-    if (pos_piola[i]) {
-      mmu_mapear_pagina(VIRT_INI_MAPA+(i<<12), (unsigned int) pd_pirata, FIS_INI_MAPA+(i<<12));
-    }
+  for (i = 0; i < 4; i++) {
+    pd_pirata[i+4] = (pd_entry) {
+      (unsigned char)  1,  // present
+      (unsigned char)  1,  // read/write
+      (unsigned char)  0,  // user/supervisor
+      (unsigned char)  0,  // write-through
+      (unsigned char)  0,  // cache disabled
+      (unsigned char)  0,  // accessed
+      (unsigned char)  0,  // reserved
+      (unsigned char)  0,  // page size
+      (unsigned char)  0,  // global page
+      (unsigned char)  0,  // available
+      (unsigned int)   jugador.mapa[i], // base address
+    };
   }
 
   return pd_pirata;

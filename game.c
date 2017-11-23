@@ -182,6 +182,8 @@ uint game_syscall_pirata_mover(direccion dir)
       uint posDest = posLineal*0x1000 + 0x800000;
 
       copiarPagina((unsigned int*) posDest, (unsigned int*) posActual);
+      // actualizamos su posición del código en la dirección 0x400000
+      mmu_mapear_pagina(posDest, rcr3(), 0x400000);
     } else {
       game_pirata_exploto();
 
@@ -205,6 +207,7 @@ uint game_syscall_cavar()
 
   if(pirAux->tipo == EXPLORADOR) {
     game_pirata_exploto();
+    return -1;
   } else {
     // si hay monedas
     if(game_valor_tesoro(pirAux->posicionX, pirAux->posicionY) > 0) {
@@ -218,8 +221,9 @@ uint game_syscall_cavar()
     	  }
       }
     } else {
-      //cuando termina de minar, automáticamente lo cambio por un explorador
+      // cuando termina de minar, automáticamente lo cambio por un explorador
       game_pirata_relanzar(pirAux, jugadorActual, EXPLORADOR);
+      return -1;
     }
   }
 

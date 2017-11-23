@@ -59,6 +59,10 @@ typedef struct jugador_t
     uint activo;
     uint pirataActual;
     uint monedas;
+    // Agregadas al hacer ejercicio 6.g
+    uint mapa[4]; // direcciones a las page table del mapa
+    /* uint puertoX; */
+    /* uint puertoY; */
 
     // coordenadas puerto, posiciones exploradas, mineros pendientes, etc
 } jugador_t;

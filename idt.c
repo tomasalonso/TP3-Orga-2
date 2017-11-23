@@ -84,6 +84,6 @@ void idt_inicializar() {
   /* Agregamos entrada para interrupción del teclado */
   IDT_ENTRY(33, INTERRUPT);
 
-  /* Agregamos entrada para interrupción de software */
+  /* Agregamos entrada para interrupción de software 0x46 */
   IDT_ENTRY(70, INTERRUPT);
 }

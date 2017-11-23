@@ -168,8 +168,8 @@ mp:
   ; Habilitar interrupciones
   sti                           ; Activamos las interrupciones enmascarables
 
-  ; Prueba de interrupción 46
-  ; int 46
+  ; Prueba de interrupción 0x46
+  ; int 0x46
 
   ; Inicializar tss
   call tss_inicializar
