@@ -103,6 +103,6 @@ void game_atender_teclado(unsigned char tecla);
 /* Resta un botin de la posicion x, y */
 void game_minar_botin(uint x, uint y);
 uint game_lineal2virtual(uint posLineal);
-void game_actualizar_codigo(uint x, uint y);
+void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1);
 
 #endif  /* !__GAME_H__ */

@@ -186,9 +186,9 @@ void game_explorar_posicion(pirata_t *pirata, int x, int y)
   }
 
   // copia el codigo en su nueva posicion
-  game_actualizar_codigo(x, y);
+  game_actualizar_codigo(pirata->posicionX, pirata->posicionY, x, y);
 
-  // actualizamos la posicion del pirata
+  // actualizamos la posición del pirata
   pirata->posicionX = x;
   pirata->posicionY = y;
 }
@@ -314,17 +314,22 @@ uint game_lineal2virtual(uint lineal) {
   return lineal*0x1000 + 0x800000;
 }
 
-void game_actualizar_codigo(uint x, uint y) {
-  uint posLineal = game_xy2lineal(x, y);
+void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1) {
+  uint posLineal;
+
+  posLineal = game_xy2lineal(x0, y0);
+  // convertimos a posición en memoria
+  uint posActual = game_lineal2virtual(posLineal);
+
+  posLineal = game_xy2lineal(x1, y1);
   // convertimos a posición en memoria
   uint posDest = game_lineal2virtual(posLineal);
 
-  mmu_activar_rw_pagina(posDest, rcr3());
-  // copia el codigo a su nueva posicion
-  copiarPagina((unsigned int*) posDest, (unsigned int*) 0x400000);
-
   // actualizamos la posición del código en la dirección 0x400000
-  mmu_mapear_pagina(posDest, rcr3(), 0x400000);
+  mmu_mapear_pagina(0x400000, rcr3(), posDest, RW);
+
+  // copia el codigo a su nueva posicion
+  copiarPagina((unsigned int*) 0x400000, (unsigned int*) posActual);
 }
 
 #define KB_w        0x11 // 0x91

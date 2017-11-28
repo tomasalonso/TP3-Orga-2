@@ -25,6 +25,11 @@
 // Shifteamos y borramos los bits más altos
 #define PTE_INDEX(virtual) (virtual >> 12) & 0x3FF
 
+
+// Parámetro para mapear pagina
+#define RO       0
+#define RW       1
+
 /* Estructuras paginación */
 /* -------------------------------------------------------------------------- */
 // Entrada de page directory
