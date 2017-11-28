@@ -25,6 +25,11 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #define EXPLORADOR 0
 #define MINERO 1
 
+// Para syscall 0x46
+#define MOVERSE 0x1
+#define CAVAR 0x2
+#define POSICION 0x3
+
 uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
                                         {30,  3, 50}, {31, 38, 50}, {15, 21, 100}, {45, 21, 100} ,
                                         {49,  3, 50}, {48, 38, 50}, {64, 21, 100}, {34, 21, 100}
@@ -51,7 +56,7 @@ uint game_posicion_valida(int x, int y) {
 
 pirata_t* id_pirata2pirata(uint id_pirata)
 {
-    // ~ completar ~
+  // ~ completar ~
 	return NULL;
 }
 
@@ -99,27 +104,10 @@ void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y)
 
 void game_inicializar()
 {
-  uint mapaA[4];
-  uint mapaB[4];
-
-  /* Pedimos 4 páginas para las page table del mapa
-     de cada jugador */
-  uint i;
-  for (i = 0; i < 4; i++) {
-    mapaA[i] = mmu_proxima_pagina_fisica_libre();
-    mapaB[i] = mmu_proxima_pagina_fisica_libre();
-  }
-
-  /* Mapeamos a las direcciones del mapa */
-
-  jugadorA.index = JUGADOR_A;
-  /* jugadorA.piratas = ; */
-  jugadorA.activo = 0;
-  jugadorA.pirataActual = 0;
-  jugadorA.monedas = 0;
-  jugadorA.mapa = {
-    
-  }
+  /* Inicializar jugador A */
+  game_jugador_inicializar(&jugadorA);
+  /* Inicializar jugador B */
+  game_jugador_inicializar(&jugadorB);
 }
 
 void game_jugador_inicializar_mapa(jugador_t *jug)
@@ -131,8 +119,19 @@ void game_jugador_inicializar(jugador_t *j)
 	static int index = 0;
 
 	j->index = index++;
-    // ~ completar ~
+  /* jugadorA.piratas = ; */
+  j->activo = 0;
+  j->pirataActual = 0;
+  j->monedas = 0;
 
+  // Armamos page tables que mapean a las posiciones del mapa
+  uint i;
+  for (i = 0; i < 4; i++) {
+    /* Pedimos 4 páginas para las page table del mapa
+       de cada jugador */
+    j->mapa[i] = mmu_proxima_pagina_fisica_libre();
+    /* Mapeamos a las direcciones del mapa */
+  }
 }
 
 void game_pirata_inicializar(pirata_t *pirata, jugador_t *j, uint index, uint id)
@@ -172,15 +171,9 @@ void game_explorar_posicion(jugador_t *jugador, int c, int f)
 }
 
 
-uint game_syscall_pirata_mover(direccion dir)
+uint game_syscall_pirata_mover(jugador_t *j, direccion dir)
 {
-    pirata_t *pirAux = NULL;
-
-    if(jugadorA.activo){
-        pirAux = &jugadorA.piratas[jugadorA.pirataActual];
-    } else {
-        pirAux = &jugadorB.piratas[jugadorB.pirataActual];
-    }
+    pirata_t *pirata = &j->piratas[j->pirataActual];
 
     int x;
     int y;
@@ -188,17 +181,17 @@ uint game_syscall_pirata_mover(direccion dir)
     uint dirValida = game_dir2xy(dir, &x, &y);
 
     // si se pasó una dirección válida y la posición nueva es valida
-    if(dirValida == 0 && game_posicion_valida(pirAux->posicionX+x, pirAux->posicionY+y)) {
+    if(dirValida == 0 && game_posicion_valida(pirata->posicionX+x, pirata->posicionY+y)) {
       uint posLineal;
 
-      posLineal = game_xy2lineal(pirAux->posicionX, pirAux->posicionY);
+      posLineal = game_xy2lineal(pirata->posicionX, pirata->posicionY);
       // convertimos a posición en memoria
       unsigned int posActual = posLineal*0x1000 + 0x800000;
 
-      pirAux->posicionX += x;
-      pirAux->posicionY += y;
+      pirata->posicionX += x;
+      pirata->posicionY += y;
 
-      posLineal = game_xy2lineal(pirAux->posicionX, pirAux->posicionY);
+      posLineal = game_xy2lineal(pirata->posicionX, pirata->posicionY);
       // convertimos a posición en memoria
       uint posDest = posLineal*0x1000 + 0x800000;
 
@@ -214,36 +207,25 @@ uint game_syscall_pirata_mover(direccion dir)
     return 0;
 }
 
-uint game_syscall_cavar()
+uint game_syscall_cavar(jugador_t *j)
 {
-  pirata_t *pirAux;
-  jugador_t *jugadorActual;
+  pirata_t *pirata = &j->piratas[j->pirataActual];
 
-  if(jugadorA.activo){
-    jugadorActual = &jugadorA;
-  } else {
-    jugadorActual = &jugadorB;
-  }
-  pirAux = &jugadorActual->piratas[jugadorActual->pirataActual];
-
-  if(pirAux->tipo == EXPLORADOR) {
+  if(pirata->tipo == EXPLORADOR) {
     game_pirata_exploto();
+
     return -1;
   } else {
     // si hay monedas
-    if(game_valor_tesoro(pirAux->posicionX, pirAux->posicionY) > 0) {
-      jugadorActual->monedas += 1; // sumaPunto()
+    if(game_valor_tesoro(pirata->posicionX, pirata->posicionY) > 0) {
+      game_jugador_anotar_punto(j);
 
-      // resta un botín de la posición
-      int i;
-    	for (i = 0; i < BOTINES_CANTIDAD; i++) {
-    		if (botines[i][0] == pirAux->posicionX && botines[i][1] == pirAux->posicionY) {
-    		  botines[i][2]--; break;
-    	  }
-      }
+      game_minar_botin(pirata->posicionX, pirata->posicionY);
     } else {
+      // Lo hago explotar y libero el slot TODO
       // cuando termina de minar, automáticamente lo cambio por un explorador
-      game_pirata_relanzar(pirAux, jugadorActual, EXPLORADOR);
+      game_pirata_relanzar(pirata, j, EXPLORADOR);
+
       return -1;
     }
   }
@@ -251,36 +233,37 @@ uint game_syscall_cavar()
   return 0;
 }
 
-uint game_syscall_pirata_posicion(int idx)
+uint game_syscall_pirata_posicion(jugador_t *j, int idx)
 {
-  jugador_t *jugadorActual;
-  pirata_t *pirAux;
-
-  if(jugadorA.activo){
-      jugadorActual = &jugadorA;
-  } else {
-      jugadorActual = &jugadorB;
-  }
+  pirata_t *pirata;
 
   if(idx == -1) {
-    pirAux = &jugadorActual->piratas[jugadorActual->pirataActual];
-  } else { //asumimos que idx esta bien definido
-    pirAux = &jugadorActual->piratas[idx];
+    pirata = &j->piratas[j->pirataActual];
+  } else if (idx >= 0 && idx <= 7){
+    pirata = &j->piratas[idx];
+  } else {
+    game_pirata_exploto();
   }
 
-  return pirAux->posicionY << 8 | pirAux->posicionX;
+  return pirata->posicionY << 8 | pirata->posicionX;
 }
 
 uint game_syscall_manejar(uint syscall, uint param1)
 {
-  /* if (syscall == MOVERSE) { */
-    
-  /* } else if (syscall == CAVAR) { */
-    
-  /* } else { */
-    
-  /* } */
-    return 0;
+  jugador_t *jugadorActual = (jugadorA.activo) ? &jugadorA : &jugadorB;
+
+  if (syscall == MOVERSE) {
+    game_syscall_pirata_mover(jugadorActual, param1);
+  } else if (syscall == CAVAR) {
+    game_syscall_cavar(jugadorActual);
+  } else if (syscall == POSICION) {
+    game_syscall_pirata_posicion(jugadorActual, param1);
+  } else {
+    // si se llamo con un parámetro erróneo
+    game_pirata_exploto();
+  }
+
+  return 0;
 }
 
 void game_pirata_exploto()
@@ -295,6 +278,7 @@ pirata_t* game_pirata_en_posicion(uint x, uint y)
 
 void game_jugador_anotar_punto(jugador_t *j)
 {
+  j->monedas += 1; // sumaPunto()
 }
 
 
@@ -303,6 +287,15 @@ void game_terminar_si_es_hora()
 {
 }
 
+/* Resta un botin de la posicion x, y */
+void game_minar_botin(uint x, uint y) {
+  int i;
+  for (i = 0; i < BOTINES_CANTIDAD; i++) {
+    if (botines[i][0] == x && botines[i][1] == y) {
+      botines[i][2]--; break;
+    }
+  }
+}
 
 #define KB_w        0x11 // 0x91
 #define KB_s        0x1f // 0x9f
