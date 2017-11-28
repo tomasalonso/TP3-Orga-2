@@ -137,8 +137,6 @@ mp:
 ; %endrep
 
 
-  ; Imprimir mensaje de bienvenida
-  ; Inicializar el juego
   ; Inicializar pantalla
   call screen_inicializar
 
@@ -167,6 +165,9 @@ mp:
 
   ; Habilitar interrupciones
   sti                           ; Activamos las interrupciones enmascarables
+
+  ; Imprimir mensaje de bienvenida
+  ; Inicializar el juego
 
   ; Prueba de interrupción 0x46
   ; int 0x46

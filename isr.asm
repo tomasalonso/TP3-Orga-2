@@ -123,22 +123,12 @@ _isr33:
 global _isr70 ; 0x46
 _isr70:
   pushad
-  cmp eax, MOVERSE
-  jne .cavar
+
   push ecx
-  call game_syscall_pirata_mover
-  add esp, 4                    ; restablezco la pila
-  jmp .fin
-.cavar:
-  cmp eax, CAVAR
-  call game_syscall_cavar
-  jne .posicion
+  push eax
+  call game_syscall_manejar
+  add esp, 8             ; restablezco la pila
 
-.posicion:
-  cmp eax, POSICION
-  call game_syscall_pirata_posicion
-
-.fin:
   popad
   ; Ejercicio 5.d
   ; mov eax, 0x42
