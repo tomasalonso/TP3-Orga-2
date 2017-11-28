@@ -161,13 +161,36 @@ void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y)
 {
 }
 
-void game_pirata_habilitar_posicion(jugador_t *j, pirata_t *pirata, int x, int y)
+void game_pirata_habilitar_posicion(int x, int y)
 {
+  uint posLineal = game_xy2lineal(x, y);
+  // convertimos a posición en memoria virtual
+  uint posDest = game_lineal2virtual(posLineal);
+
+  // actualizamos su posición del código en la dirección 0x400000
+  mmu_activar_pagina(posDest, rcr3());
 }
 
 
-void game_explorar_posicion(jugador_t *jugador, int c, int f)
+void game_explorar_posicion(pirata_t *pirata, int x, int y)
 {
+  // mapea el mapa, cuak
+  int v_x[9];
+  int v_y[9];
+
+  game_calcular_posiciones_vistas(v_x, v_y, x, y);
+  // mapeamos las posiciones del mapa nuevas
+  int i;
+  for (i = 0; i < 9; i++) {
+    game_pirata_habilitar_posicion(v_x[i], v_y[i]);
+  }
+
+  // copia el codigo en su nueva posicion
+  game_actualizar_codigo(x, y);
+
+  // actualizamos la posicion del pirata
+  pirata->posicionX = x;
+  pirata->posicionY = y;
 }
 
 
@@ -175,29 +198,17 @@ uint game_syscall_pirata_mover(jugador_t *j, direccion dir)
 {
     pirata_t *pirata = &j->piratas[j->pirataActual];
 
-    int x;
-    int y;
+    int mov_x, mov_y;
 
-    uint dirValida = game_dir2xy(dir, &x, &y);
+    uint dirValida = !game_dir2xy(dir, &mov_x, &mov_y); // si es 0 es valida
+
+    // posiciones nuevas
+    uint x = pirata->posicionX + mov_x;
+    uint y = pirata->posicionY + mov_y;
 
     // si se pasó una dirección válida y la posición nueva es valida
-    if(dirValida == 0 && game_posicion_valida(pirata->posicionX+x, pirata->posicionY+y)) {
-      uint posLineal;
-
-      posLineal = game_xy2lineal(pirata->posicionX, pirata->posicionY);
-      // convertimos a posición en memoria
-      unsigned int posActual = posLineal*0x1000 + 0x800000;
-
-      pirata->posicionX += x;
-      pirata->posicionY += y;
-
-      posLineal = game_xy2lineal(pirata->posicionX, pirata->posicionY);
-      // convertimos a posición en memoria
-      uint posDest = posLineal*0x1000 + 0x800000;
-
-      copiarPagina((unsigned int*) posDest, (unsigned int*) posActual);
-      // actualizamos su posición del código en la dirección 0x400000
-      mmu_mapear_pagina(posDest, rcr3(), 0x400000);
+    if(dirValida && game_posicion_valida(x, y)) {
+      game_explorar_posicion(pirata, x, y);
     } else {
       game_pirata_exploto();
 
@@ -210,6 +221,8 @@ uint game_syscall_pirata_mover(jugador_t *j, direccion dir)
 uint game_syscall_cavar(jugador_t *j)
 {
   pirata_t *pirata = &j->piratas[j->pirataActual];
+  uint x = pirata->posicionX;
+  uint y = pirata->posicionY;
 
   if(pirata->tipo == EXPLORADOR) {
     game_pirata_exploto();
@@ -217,10 +230,10 @@ uint game_syscall_cavar(jugador_t *j)
     return -1;
   } else {
     // si hay monedas
-    if(game_valor_tesoro(pirata->posicionX, pirata->posicionY) > 0) {
+    if(game_valor_tesoro(x, y) > 0) {
       game_jugador_anotar_punto(j);
 
-      game_minar_botin(pirata->posicionX, pirata->posicionY);
+      game_minar_botin(x, y);
     } else {
       // Lo hago explotar y libero el slot TODO
       // cuando termina de minar, automáticamente lo cambio por un explorador
@@ -295,6 +308,23 @@ void game_minar_botin(uint x, uint y) {
       botines[i][2]--; break;
     }
   }
+}
+
+uint game_lineal2virtual(uint lineal) {
+  return lineal*0x1000 + 0x800000;
+}
+
+void game_actualizar_codigo(uint x, uint y) {
+  uint posLineal = game_xy2lineal(x, y);
+  // convertimos a posición en memoria
+  uint posDest = game_lineal2virtual(posLineal);
+
+  mmu_activar_rw_pagina(posDest, rcr3());
+  // copia el codigo a su nueva posicion
+  copiarPagina((unsigned int*) posDest, (unsigned int*) 0x400000);
+
+  // actualizamos la posición del código en la dirección 0x400000
+  mmu_mapear_pagina(posDest, rcr3(), 0x400000);
 }
 
 #define KB_w        0x11 // 0x91

@@ -156,7 +156,7 @@ pd_entry* mmu_inicializar_dir_pirata(jugador_t jugador) {
 }
 
 // Ejercicio 4.c
-void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica) {
+void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica, unsigned int rw) {
   // Seteamos los bits restantes que no son de la dirección a 0
   pd_entry *pd = (pd_entry *) (cr3 & 0xFFFFF000);
 
@@ -181,13 +181,14 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
     pt = (pt_entry *) mmu_proxima_pagina_fisica_libre();
     inicializar_page_struct((unsigned int *) pt);
     pd[pd_index].p = 1;
+    pd[pd_index].rw = 1;
     pd[pd_index].base = (unsigned int) pt >> 12;
   } else {
     pt = (pt_entry *) (pd[pd_index].base << 12);
   }
 
   pt[pt_index].p = 1;
-  pt[pt_index].rw = 1;
+  pt[pt_index].rw = rw;
   pt[pt_index].us = 1;
   pt[pt_index].wt = 0;
   pt[pt_index].cd = 0;

@@ -71,7 +71,7 @@ pd_entry* mmu_inicializar_dir_pirata(jugador_t jugador);
 
 // Ejercicio 4.c
 // lo hace con permisos de lectura/escritura
-void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica);
+void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica, unsigned int rw);
 
 void mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3);
 

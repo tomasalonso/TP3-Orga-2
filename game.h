@@ -77,14 +77,14 @@ pirata_t* id_pirata2pirata(uint id);
 // ~ auxiliares sugeridas o requeridas (segun disponga enunciado) ~
 void game_pirata_inicializar(pirata_t *pirata, jugador_t *jugador, uint index, uint id);
 void game_pirata_erigir(pirata_t *pirata, jugador_t *j, uint tipo);
-void game_pirata_habilitar_posicion(jugador_t *j, pirata_t *pirata, int x, int y);
+void game_pirata_habilitar_posicion(int x, int y);
 void game_pirata_exploto();
 
 void game_jugador_inicializar(jugador_t *j);
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y);
 pirata_t* game_jugador_erigir_pirata(jugador_t *j, uint tipo);
 void game_jugador_anotar_punto(jugador_t *j);
-void game_explorar_posicion(jugador_t *jugador, int x, int y);
+void game_explorar_posicion(pirata_t *pirata, int x, int y);
 
 uint game_valor_tesoro(uint x, uint y);
 void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y);
@@ -102,5 +102,7 @@ void game_atender_teclado(unsigned char tecla);
 
 /* Resta un botin de la posicion x, y */
 void game_minar_botin(uint x, uint y);
+uint game_lineal2virtual(uint posLineal);
+void game_actualizar_codigo(uint x, uint y);
 
 #endif  /* !__GAME_H__ */

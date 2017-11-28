@@ -116,10 +116,6 @@ _isr33:
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
-%define MOVERSE 0x1
-%define CAVAR 0x2
-%define POSICION 0x3
-
 global _isr70 ; 0x46
 _isr70:
   pushad
