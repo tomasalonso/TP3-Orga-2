@@ -72,7 +72,7 @@ void mmu_inicializar();
 unsigned int mmu_proxima_pagina_fisica_libre();
 
 // Ejercicio 4.b
-pd_entry* mmu_inicializar_dir_pirata(jugador_t jugador);
+pd_entry* mmu_inicializar_dir_pirata(pirata_t *p);
 
 // Ejercicio 4.c
 // lo hace con permisos de lectura/escritura
@@ -86,8 +86,5 @@ void inicializar_page_struct(unsigned int* page_struct);
 
 // Copia el contenido de la página page_orig en page_dest
 void copiarPagina(unsigned int *page_dest, unsigned int *page_orig);
-
-// Activa una pagina falopa
-void mmu_activar_pagina(unsigned int virtual, unsigned int cr3);
 
 #endif	/* !__MMU_H__ */

@@ -22,9 +22,6 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 
 #define BOTINES_CANTIDAD 8
 
-#define EXPLORADOR 0
-#define MINERO 1
-
 // Para syscall 0x46
 #define MOVERSE 0x1
 #define CAVAR 0x2
@@ -106,39 +103,36 @@ void game_jugador_inicializar(jugador_t *j) {
 	static int index = 0;
 
 	j->index = index++;
-  /* jugadorA.piratas se inicializan con la tarea */
+  /* j->piratas se inicializan con la tarea */
   j->activo = 0;
   j->pirataActual = 0;
   j->monedas = 0;
 
-  /* if (index == 1) { */
-  /*   j->puertoX = PUERTO_A; */
-  /* } else { */
-
-  /* } */
+  if (index == JUGADOR_A) {
+    // JUGADOR_A
+    j->codExplorador = TASK_AE;
+    j->codMinero = TASK_AM;
+    j->puertoX = POS_INIT_A_X;
+    j->puertoY = POS_INIT_A_Y;
+  } else {
+    // JUGADOR_B
+    j->codExplorador = TASK_BE;
+    j->codMinero = TASK_BM;
+    j->puertoX = POS_INIT_B_X;
+    j->puertoY = POS_INIT_B_Y;
+  }
 
   game_jugador_inicializar_mapa(j);
 }
 
 void game_jugador_inicializar_mapa(jugador_t *j) {
   uint i;
-  // Mapeamos todo el mapa en el kernel
-  // cuidado revisar <=
-  for (i = 0x800000; i <= 0x15C0000; i += 0x1000) {
-    mmu_mapear_pagina(i, rcr3(), i-0x300000, RO);
-  }
+  // Pedimos 4 páginas para las page table del mapa,
+  // que compartirán todas las tareas
+  for (i = 0; i <= 4; i++) {
+    j->mapa[i] = mmu_proxima_pagina_fisica_libre();
 
-  // Obtenemos el page directory
-  pd_entry* pd = (pd_entry*) rcr3();
-
-  // Copiamos las direcciones de las 4 page table del mapa
-  for (i = 2; i <= 5; i++) {
-    j->mapa[i] = pd[i].base;
-  }
-
-  // Desmapeamos el mapa del kernel
-  for (i = 0x800000; i < 0x15C0000; i += 0x1000) {
-    mmu_unmapear_pagina(i, rcr3());
+    inicializar_page_struct((unsigned int*) j->mapa[i]);
   }
 }
 
@@ -155,7 +149,6 @@ void game_tick(uint id_pirata) {
   screen_actualizar_reloj_global();
 }
 
-
 void game_pirata_relanzar(pirata_t *pirata, jugador_t *j, uint tipo) {
 }
 
@@ -165,19 +158,8 @@ pirata_t* game_jugador_erigir_pirata(jugador_t *j, uint tipo) {
 	return NULL;
 }
 
-
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
 }
-
-void game_pirata_habilitar_posicion(int x, int y) {
-  uint posLineal = game_xy2lineal(x, y);
-  // convertimos a posición en memoria virtual
-  uint posDest = game_lineal2virtual(posLineal);
-
-  // actualizamos su posición del código en la dirección 0x400000
-  mmu_activar_pagina(posDest, rcr3());
-}
-
 
 void game_explorar_posicion(pirata_t *pirata, int x, int y) {
   // mapea el mapa, cuak
@@ -197,6 +179,18 @@ void game_explorar_posicion(pirata_t *pirata, int x, int y) {
   // actualizamos la posición del pirata
   pirata->posicionX = x;
   pirata->posicionY = y;
+}
+
+void game_pirata_habilitar_posicion(int x, int y) {
+  uint posLineal = game_xy2lineal(x, y);
+  // convertimos a posición en memoria virtual y física
+  uint virtual = game_lineal2virtual(posLineal);
+  uint fisica = game_lineal2physical(posLineal);
+
+  // mapeamos la posición del mapa
+  // (tranquilamente podría ya haber sido mapeada
+  //  por otro explorador)
+  mmu_mapear_pagina(virtual, rcr3(), fisica, RO);
 }
 
 uint game_syscall_pirata_mover(jugador_t *j, direccion dir) {
@@ -291,7 +285,6 @@ pirata_t* game_pirata_en_posicion(uint x, uint y) {
 	return NULL;
 }
 
-
 void game_jugador_anotar_punto(jugador_t *j) {
   j->monedas += 1; // sumaPunto()
 }
@@ -347,7 +340,6 @@ void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1) {
 #define KB_l        0x26 // 0xa6
 #define KB_shiftL   0x2a // 0xaa
 #define KB_shiftR   0x36 // 0xb6
-
 
 void game_atender_teclado(unsigned char tecla) {
   switch(tecla) {

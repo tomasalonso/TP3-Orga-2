@@ -36,6 +36,9 @@ typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD} direccion
 #define TASK_BE  0x12000
 #define TASK_BM  0x13000
 
+#define EXPLORADOR 0
+#define MINERO 1
+
 
 
 
@@ -59,10 +62,13 @@ typedef struct jugador_t
     uint activo;
     uint pirataActual;
     uint monedas;
-    // Agregadas al hacer ejercicio 6.g
-    uint mapa[4]; // direcciones a las page table del mapa
+    // Agregadas al hacer Ejercicio 6.g
+    unsigned int mapa[4]; // direcciones a las page table del mapa
     uint puertoX;
     uint puertoY;
+
+    uint codExplorador;
+    uint codMinero;
 
     // coordenadas puerto, posiciones exploradas, mineros pendientes, etc
 } jugador_t;
@@ -71,7 +77,7 @@ typedef struct jugador_t
 extern jugador_t jugadorA, jugadorB;
 
 // ~ auxiliares dadas ~
-uint game_xy2lineal();
+uint game_xy2lineal(uint x, uint y);
 pirata_t* id_pirata2pirata(uint id);
 
 // ~ auxiliares sugeridas o requeridas (segun disponga enunciado) ~
