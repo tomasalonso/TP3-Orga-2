@@ -61,8 +61,8 @@ typedef struct jugador_t
     uint monedas;
     // Agregadas al hacer ejercicio 6.g
     uint mapa[4]; // direcciones a las page table del mapa
-    /* uint puertoX; */
-    /* uint puertoY; */
+    uint puertoX;
+    uint puertoY;
 
     // coordenadas puerto, posiciones exploradas, mineros pendientes, etc
 } jugador_t;
@@ -105,5 +105,6 @@ void game_minar_botin(uint x, uint y);
 uint game_lineal2virtual(uint posLineal);
 void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1);
 uint game_lineal2physical(uint lineal);
+void game_jugador_inicializar_mapa(jugador_t *j);
 
 #endif  /* !__GAME_H__ */
