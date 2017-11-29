@@ -77,7 +77,6 @@ unsigned int mmu_proxima_pagina_fisica_libre() {
 }
 
 // Ejercicio 4.b
-// Tamaño pos_piola = DC0 (tamaño del mapa)
 pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
   // Inicializar directorio de páginas
   pd_entry* pd_pirata = (pd_entry*) mmu_proxima_pagina_fisica_libre();
@@ -227,6 +226,7 @@ void copiarPagina(unsigned int *page_dest, unsigned int *page_orig) {
   for (i = 0; i < 0x1000; i+= 4) {
     // Copiamos de a 4 bytes
     *(page_dest) = *(page_orig);
+
     page_dest++;
     page_orig++;
   }

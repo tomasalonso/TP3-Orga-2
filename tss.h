@@ -59,4 +59,6 @@ void tss_inicializar();
 
 void tss_libre();
 
+void inicializar_tss_pirata();
+
 #endif  /* !__TSS_H__ */

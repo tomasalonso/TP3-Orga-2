@@ -137,11 +137,13 @@ void game_jugador_inicializar_mapa(jugador_t *j) {
 }
 
 void game_pirata_inicializar(jugador_t *j, pirata_t *pirata, uint index, uint tipo) {
-  //pirata[index] = index;
+  pirata->index = index;
   pirata->jugador = j;
   pirata->posicionX = j->puertoX;
   pirata->posicionY = j->puertoY;
   pirata->tipo = tipo;
+
+  inicializar_tss_pirata();
 }
 
 // Ejercicio 5.b
@@ -271,7 +273,7 @@ uint game_syscall_manejar(uint syscall, uint param1) {
     return game_syscall_pirata_posicion(jugadorActual, param1);
   }
 
-  // si se llamo con un parámetro erróneo
+  // si se llamó con un parámetro erróneo
   game_pirata_exploto();
 
   return -1;
