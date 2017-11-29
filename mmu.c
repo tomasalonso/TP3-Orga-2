@@ -246,3 +246,24 @@ void copiarPagina(unsigned int *page_dest, unsigned int *page_orig) {
     page_orig++;
   }
 }
+
+void mmu_activar_pagina(unsigned int virtual, unsigned int cr3) {
+  // Seteamos los bits restantes que no son de la dirección a 0
+  pd_entry *pd = (pd_entry *) (cr3 & 0xFFFFF000);
+
+  // Obtenemos los 10 bits más significativos
+  unsigned int pd_index = PDE_INDEX(virtual);
+  // Obtenemos los bits 13 a 22
+  // Shifteamos y borramos los bits más altos
+  unsigned int pt_index = PTE_INDEX(virtual);
+  // Obtenemos los 12 bits menos significativos
+  // unsigned int page_index = virtual & 0xFFF;
+  unsigned int pt_base = fisica >> 12;
+
+  pt_entry *pt = (pt_entry *) (pd[pd_index].base << 12);
+
+  pt[pt_index].p = 1;
+
+  // Se reescribe cr3 y se refrescan las tlb
+  tlbflush();
+}

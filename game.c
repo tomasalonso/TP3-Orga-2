@@ -39,7 +39,6 @@ jugador_t jugadorA;
 jugador_t jugadorB;
 
 
-
 void* error()
 {
 	__asm__ ("int3");
@@ -110,8 +109,25 @@ void game_inicializar()
   game_jugador_inicializar(&jugadorB);
 }
 
-void game_jugador_inicializar_mapa(jugador_t *jug)
+void game_jugador_inicializar_mapa(jugador_t *j)
 {
+  uint i;
+  // Mapeamos todo el mapa en el kernel
+  for (i = 0x800000; i < 0x1520000; i += 0x1000) {
+    mmu_mapear_pagina(i, rcr3(), i-0x300000);
+  }
+
+  // Obtenemos el page directory
+  pd_entry* pd = rcr3();
+
+  for (i = 2; i <= 5; i++) {
+    j->mapa[i] = pd[i].base;
+  }
+
+  // Desmapeamos el mapa del kernel
+  for (i = 0x800000; i < 0x1520000; i += 0x1000) {
+    mmu_unmapear_pagina(i, rcr3(), i-0x300000);
+  }
 }
 
 void game_jugador_inicializar(jugador_t *j)
@@ -119,23 +135,17 @@ void game_jugador_inicializar(jugador_t *j)
 	static int index = 0;
 
 	j->index = index++;
-  /* jugadorA.piratas = ; */
+  /* jugadorA.piratas se inicializan con la tarea */
   j->activo = 0;
   j->pirataActual = 0;
   j->monedas = 0;
 
-  // Armamos page tables que mapean a las posiciones del mapa
-  uint i;
-  for (i = 0; i < 4; i++) {
-    /* Pedimos 4 páginas para las page table del mapa
-       de cada jugador */
-    j->mapa[i] = mmu_proxima_pagina_fisica_libre();
-    /* Mapeamos a las direcciones del mapa */
-  }
+  game_jugador_inicializar_mapa(j);
 }
 
-void game_pirata_inicializar(pirata_t *pirata, jugador_t *j, uint index, uint id)
+void game_pirata_inicializar(jugador_t *j, pirata_t *pirata, uint index, uint id)
 {
+  j->piratas[index] = pirata;
 }
 
 // Ejercicio 5.b
@@ -232,7 +242,6 @@ uint game_syscall_cavar(jugador_t *j)
     // si hay monedas
     if(game_valor_tesoro(x, y) > 0) {
       game_jugador_anotar_punto(j);
-
       game_minar_botin(x, y);
     } else {
       // Lo hago explotar y libero el slot TODO
@@ -281,6 +290,7 @@ uint game_syscall_manejar(uint syscall, uint param1)
 
 void game_pirata_exploto()
 {
+
 }
 
 pirata_t* game_pirata_en_posicion(uint x, uint y)
@@ -314,6 +324,10 @@ uint game_lineal2virtual(uint lineal) {
   return lineal*0x1000 + 0x800000;
 }
 
+uint game_lineal2physical(uint lineal) {
+  return lineal*0x1000 + 0x500000;
+}
+
 void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1) {
   uint posLineal;
 
@@ -323,7 +337,7 @@ void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1) {
 
   posLineal = game_xy2lineal(x1, y1);
   // convertimos a posición en memoria
-  uint posDest = game_lineal2virtual(posLineal);
+  uint posDest = game_lineal2physical(posLineal);
 
   // actualizamos la posición del código en la dirección 0x400000
   mmu_mapear_pagina(0x400000, rcr3(), posDest, RW);

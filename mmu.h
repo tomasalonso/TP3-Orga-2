@@ -87,4 +87,7 @@ void inicializar_page_struct(unsigned int* page_struct);
 // Copia el contenido de la página page_orig en page_dest
 void copiarPagina(unsigned int *page_dest, unsigned int *page_orig);
 
+// Activa una pagina falopa
+void mmu_activar_pagina(unsigned int virtual, unsigned int cr3);
+
 #endif	/* !__MMU_H__ */

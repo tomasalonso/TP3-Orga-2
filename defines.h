@@ -52,6 +52,24 @@ typedef unsigned int   uint;
 // Ejercicio 6.b
 #define GDT_TSS_FREE 15
 
+//Ejercicio 7.a
+#define GDT_TSS_PIRATA_INICIAL 16
+#define GDT_TSS_A1 16
+#define GDT_TSS_B1 17
+#define GDT_TSS_A2 18
+#define GDT_TSS_B2 19
+#define GDT_TSS_A3 20
+#define GDT_TSS_B3 21
+#define GDT_TSS_A4 22
+#define GDT_TSS_B4 23
+#define GDT_TSS_A5 24
+#define GDT_TSS_B5 25
+#define GDT_TSS_A6 26
+#define GDT_TSS_B6 27
+#define GDT_TSS_A7 28
+#define GDT_TSS_B7 29
+#define GDT_TSS_A8 30
+#define GDT_TSS_B8 31
 /* Offsets en la gdt */
 /* -------------------------------------------------------------------------- */
 #define GDT_OFF_NULL_DESC           (GDT_IDX_NULL_DESC      << 3)

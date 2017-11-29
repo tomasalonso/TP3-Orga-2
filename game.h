@@ -75,7 +75,7 @@ uint game_xy2lineal();
 pirata_t* id_pirata2pirata(uint id);
 
 // ~ auxiliares sugeridas o requeridas (segun disponga enunciado) ~
-void game_pirata_inicializar(pirata_t *pirata, jugador_t *jugador, uint index, uint id);
+void game_pirata_inicializar(jugador_t *j, pirata_t *pirata, uint index, uint id);
 void game_pirata_erigir(pirata_t *pirata, jugador_t *j, uint tipo);
 void game_pirata_habilitar_posicion(int x, int y);
 void game_pirata_exploto();
@@ -104,5 +104,6 @@ void game_atender_teclado(unsigned char tecla);
 void game_minar_botin(uint x, uint y);
 uint game_lineal2virtual(uint posLineal);
 void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1);
+uint game_lineal2physical(uint lineal);
 
 #endif  /* !__GAME_H__ */
