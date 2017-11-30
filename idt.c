@@ -52,6 +52,7 @@ idt_descriptor IDT_DESC = {
 
 #define TRAP      0b1000111100000000
 #define INTERRUPT 0b1000111000000000
+#define USER_INTERRUPT 0b1110111000000000
 
 void idt_inicializar() {
   // Ejercicio 2.a
@@ -85,5 +86,5 @@ void idt_inicializar() {
   IDT_ENTRY(33, INTERRUPT);
 
   /* Agregamos entrada para interrupción de software 0x46 */
-  IDT_ENTRY(70, INTERRUPT);
+  IDT_ENTRY(70, USER_INTERRUPT);
 }

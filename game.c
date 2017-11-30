@@ -109,7 +109,7 @@ void game_jugador_inicializar(jugador_t *j) {
   j->pirataActual = 0;
   j->monedas = 0;
 
-  if (index == JUGADOR_A) {
+  if (j->index == JUGADOR_A) {
     // JUGADOR_A
     j->codigo[EXPLORADOR] = TASK_AE;
     j->codigo[MINERO] = TASK_AM;
@@ -124,13 +124,15 @@ void game_jugador_inicializar(jugador_t *j) {
   }
 
   game_jugador_inicializar_mapa(j);
+  print_hex(jugadorA.puertoX, 20, 0, 0, 0x0F);
+  print_hex(jugadorA.puertoY, 20, 0, 1, 0x0F);
 }
 
 void game_jugador_inicializar_mapa(jugador_t *j) {
   uint i;
   // Pedimos 4 páginas para las page table del mapa,
   // que compartirán todas las tareas
-  for (i = 0; i <= 4; i++) {
+  for (i = 0; i < 4; i++) {
     j->mapa[i] = mmu_proxima_pagina_fisica_libre();
 
     inicializar_page_struct((unsigned int*) j->mapa[i]);

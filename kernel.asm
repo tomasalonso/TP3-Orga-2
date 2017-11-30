@@ -168,6 +168,7 @@ mp:
   sti                           ; Activamos las interrupciones enmascarables
 
   ; Prueba de interrupción 0x46
+  ; xchg bx, bx
   ; int 0x46
 
   ; Inicializar tss de la tarea inicial

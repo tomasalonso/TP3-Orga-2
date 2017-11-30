@@ -8,6 +8,7 @@
 #include "mmu.h"
 #include "i386.h"
 #include "game.h"
+#include "screen.h"
 
 /* Direcciones físicas de códigos */
 /* -------------------------------------------------------------------------- */
@@ -107,13 +108,12 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
 
   // Pusheamos los parámetros a manopla
   unsigned int* esp = (unsigned int*) 0x402000;
-  *(--esp) = 0;
   *(--esp) = p->jugador->puertoY;
   *(--esp) = p->jugador->puertoX;
+  *(--esp) = 0;
 
   // Desmapeamos la dirección del mapa
   mmu_unmapear_pagina(0x401000, rcr3());
-
 
   // Mapeamos la dirección física del código de la tarea
   // en la dirección virtual 0x400000 como lectura/escritura

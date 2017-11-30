@@ -21,7 +21,7 @@ OBJ=$(KERNEL_OBJ) gdt.o pic.o idt.o isr.o mmu.o sched.o tss.o screen.o game.o #e
 DISK_IMG=diskette.img
 DISK_IMG_BZ=diskette.img.bz2
 
-CFLAGS=-m32 -g -ggdb -Wall -Werror -O0 \
+CFLAGS=-fno-pie -m32 -g -ggdb -Wall -Werror -O0 \
   -fno-zero-initialized-in-bss -fno-stack-protector -ffreestanding
 
 
@@ -48,7 +48,7 @@ NASMFLAGS=-felf32
 OBJCOPY=objcopy
 NM=nm
 LD=ld
-LDTASKFLAGS=-s -static -m elf_i386 -b elf32-i386 -e task -Ttext $(TASKSTARTADDR)
+LDTASKFLAGS=-s -static -m elf_i386 --oformat binary -b elf32-i386 -e task -Ttext $(TASKSTARTADDR) 
 LDFLAGS=-static -m elf_i386 -b elf32-i386 -e start -Ttext 0x1200
 
 QUIET = @

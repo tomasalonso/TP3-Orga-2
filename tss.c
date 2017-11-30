@@ -97,7 +97,7 @@ void inicializar_tss_pirata(pirata_t* p) {
     (unsigned short)  0x00, // ptl
     (unsigned short)  0x00,
     (unsigned int)    pila_nivel_0, // esp0 = pila nivel 0
-    (unsigned short)  GDT_IDX_ROOT_CODE << 3, // ss0 = segmento de codigo root
+    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // ss0 = segmento de codigo root
     (unsigned short)  0x00,
     (unsigned int)    0x00, // esp1
     (unsigned short)  0x00, // ss1
