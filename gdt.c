@@ -167,7 +167,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000
     (unsigned char)     0b1001,         /* type         */ // Read/Write Data
-    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* s            */ // Es de sistema
     (unsigned char)     0x00,           /* dpl          */ // Nivel 0
     (unsigned char)     0x00,           /* p            */ // Presente!
     (unsigned char)     0x00,           /* limit[16:19] */ // 8000

@@ -112,21 +112,21 @@ void inicializar_tss_pirata(pirata_t* p) {
     (unsigned int)    0x00, // ecx
     (unsigned int)    0x00, // edx
     (unsigned int)    0x00, // ebx
-    (unsigned int)    0x400000+0xFFF, // esp
-    (unsigned int)    0x400000+0xFFF, // ebp
+    (unsigned int)    0x400000+0x1000-0xC, // esp
+    (unsigned int)    0x400000+0x1000-0xC, // ebp
     (unsigned int)    0x00, // esi
     (unsigned int)    0x00, //edi
-    (unsigned short)  GDT_IDX_USER_DATA << 3, // es
+    (unsigned short)  (GDT_IDX_USER_DATA << 3) + 0x3, // es
     (unsigned short)  0x00,
-    (unsigned short)  GDT_IDX_ROOT_CODE << 3, // cs
+    (unsigned short)  (GDT_IDX_USER_CODE << 3) + 0x3, // cs
     (unsigned short)  0x00,
-    (unsigned short)  (GDT_IDX_ROOT_DATA << 3), // ss
+    (unsigned short)  (GDT_IDX_USER_DATA << 3) + 0x3, // ss
     (unsigned short)  0x00,
-    (unsigned short)  GDT_IDX_USER_DATA << 3, // ds
+    (unsigned short)  (GDT_IDX_USER_DATA << 3) + 0x3, // ds
     (unsigned short)  0x00,
-    (unsigned short)  GDT_IDX_USER_DATA << 3, // fs
+    (unsigned short)  (GDT_IDX_USER_DATA << 3) + 0x3, // fs
     (unsigned short)  0x00,
-    (unsigned short)  GDT_IDX_USER_DATA << 3, // gs
+    (unsigned short)  (GDT_IDX_USER_DATA << 3) + 0x3, // gs
     (unsigned short)  0x00,
     (unsigned short)  0x00, //ldt
     (unsigned short)  0x00,

@@ -63,14 +63,14 @@ start:
   mov CR0, eax
 
   ; Saltar a modo protegido
-  jmp (0x8 << 3):mp           ; carga el cs con 8:000
+  jmp (8 << 3):mp           ; carga el cs con 8:000
 
 BITS 32
 mp:
   ; Establecer selectores de segmentos
   xor eax, eax
-%define SELECTOR_CODE_ROOT 0x09 << 3
-  mov eax, SELECTOR_CODE_ROOT
+%define GDT_IDX_ROOT_DATA 9 << 3
+  mov eax, GDT_IDX_ROOT_DATA
   mov ds, ax                  ; segmento de datos
   mov ss, ax                  ; segmento de pila, apunta igual que el segmento de datos
   mov es, ax
@@ -185,7 +185,7 @@ mp:
   mov ax, GDT_TSS_INITIAL << 3
   ltr ax
 
-  ; saltar al pirata
+  ; Asaltar al pirata
   xchg bx, bx
   jmp (14 << 3):0
 

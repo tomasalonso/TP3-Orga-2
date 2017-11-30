@@ -94,16 +94,25 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
   unsigned int codigo;
   codigo = game_lineal2physical(game_xy2lineal(p->jugador->puertoX, p->jugador->puertoY));
 
-  // Mapea la dirección del puerto en la 0x400000
-  // para copiar el código
-  unsigned int *page_task = (unsigned int*) 0x16000; //(unsigned int*)p->jugador->codigo[p->tipo];
+  // Obtenemos la dirección donde se encuentra
+  // el código de la tarea
+  unsigned int *page_task = (unsigned int*) p->jugador->codigo[p->tipo];
 
-  mmu_mapear_pagina(0x400000, rcr3(), codigo, RW);
+  // Mapeamos la dirección del mapa para copiar
+  // en la dirección 0x400000 sin uso
+  mmu_mapear_pagina(0x401000, rcr3(), codigo, RW);
   // Copiamos de la 10000-10ffff o 12000-12ffff
   // (según el jugador) a la 4000000-4000fff
-  copiarPagina((unsigned int*) 0x400000, page_task);
+  copiarPagina((unsigned int*) 0x401000, page_task);
+
+  // Pusheamos los parámetros a manopla
+  unsigned int* esp = (unsigned int*) 0x402000;
+  *(--esp) = 0;
+  *(--esp) = p->jugador->puertoY;
+  *(--esp) = p->jugador->puertoX;
+
   // Desmapeamos la dirección del mapa
-  mmu_unmapear_pagina(0x400000, rcr3());
+  mmu_unmapear_pagina(0x401000, rcr3());
 
 
   // Mapeamos la dirección física del código de la tarea
@@ -117,7 +126,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
   int i;
   for (i = 0; i < 4; i++) {
     pd_pirata[i+4] = (pd_entry) {
-      (unsigned char)  1,  // present
+      (unsigned char)  0,  // present
       (unsigned char)  1,  // read/write
       (unsigned char)  1,  // user/supervisor
       (unsigned char)  0,  // write-through
@@ -144,14 +153,8 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
   // Obtenemos los bits 13 a 22
   // Shifteamos y borramos los bits más altos
   unsigned int pt_index = PTE_INDEX(virtual);
-  // Obtenemos los 12 bits menos significativos
-  // unsigned int page_index = virtual & 0xFFF;
 
-  // CUIDADO con esto, chequea que el offset de la página sea igual en ambos
-  /* if ((virtual & 0xFFF) != (fisica & 0xFFF)) { */
-  /*   __asm __volatile("int \2"); */
-  /* } */
-
+  // Obtenemos los 20 bits mas significativos
   unsigned int pt_base = fisica >> 12;
 
   pt_entry *pt;
@@ -159,6 +162,7 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
     // crear page table
     pt = (pt_entry *) mmu_proxima_pagina_fisica_libre();
     inicializar_page_struct((unsigned int *) pt);
+
     pd[pd_index].p = 1;
     pd[pd_index].us = 1;
     pd[pd_index].rw = 1;
