@@ -97,27 +97,28 @@ void game_inicializar() {
   game_jugador_inicializar(&jugadorA);
   /* Inicializar jugador B */
   game_jugador_inicializar(&jugadorB);
+  game_jugador_lanzar_pirata(&jugadorA, EXPLORADOR);
 }
 
 void game_jugador_inicializar(jugador_t *j) {
 	static int index = 0;
 
 	j->index = index++;
-  /* j->piratas se inicializan con la tarea */
+  game_pirata_inicializar(j);
   j->activo = 0;
   j->pirataActual = 0;
   j->monedas = 0;
 
   if (index == JUGADOR_A) {
     // JUGADOR_A
-    j->codExplorador = TASK_AE;
-    j->codMinero = TASK_AM;
+    j->codigo[EXPLORADOR] = TASK_AE;
+    j->codigo[MINERO] = TASK_AM;
     j->puertoX = POS_INIT_A_X;
     j->puertoY = POS_INIT_A_Y;
   } else {
     // JUGADOR_B
-    j->codExplorador = TASK_BE;
-    j->codMinero = TASK_BM;
+    j->codigo[EXPLORADOR] = TASK_BE;
+    j->codigo[MINERO] = TASK_BM;
     j->puertoX = POS_INIT_B_X;
     j->puertoY = POS_INIT_B_Y;
   }
@@ -136,14 +137,14 @@ void game_jugador_inicializar_mapa(jugador_t *j) {
   }
 }
 
-void game_pirata_inicializar(jugador_t *j, pirata_t *pirata, uint index, uint tipo) {
-  pirata->index = index;
-  pirata->jugador = j;
-  pirata->posicionX = j->puertoX;
-  pirata->posicionY = j->puertoY;
-  pirata->tipo = tipo;
+void game_pirata_inicializar(jugador_t *j) {
+  int i;
 
-  inicializar_tss_pirata();
+  for (i = 0; i < 8; i++) {
+    j->piratas[i].index = i;
+    j->piratas[i].jugador = j;
+    j->piratas[i].enEjecucion = 0;
+  }
 }
 
 // Ejercicio 5.b
@@ -160,7 +161,24 @@ pirata_t* game_jugador_erigir_pirata(jugador_t *j, uint tipo) {
 	return NULL;
 }
 
-void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
+void game_jugador_lanzar_pirata(jugador_t *j, uint tipo) {
+  int slot = -1;
+
+  int i;
+  for (i = 0; i < 8; i++) {
+    if (!j->piratas[i].enEjecucion) {
+      slot = i; break;
+    }
+  }
+
+  pirata_t *pirata = &j->piratas[slot];
+
+  pirata->tipo = tipo;
+  pirata->posicionX = j->puertoX;
+  pirata->posicionY = j->puertoY;
+  pirata->enEjecucion = 1;
+
+  inicializar_tss_pirata(pirata);
 }
 
 void game_explorar_posicion(pirata_t *pirata, int x, int y) {

@@ -57,8 +57,8 @@ typedef struct str_tss {
 
 void tss_inicializar();
 
-void tss_libre();
+void inicializar_tss_pirata(pirata_t* p);
 
-void inicializar_tss_pirata();
+tss* tss_pirata(pirata_t* p);
 
 #endif  /* !__TSS_H__ */

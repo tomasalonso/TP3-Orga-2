@@ -96,14 +96,9 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
 
   // Mapea la dirección del puerto en la 0x400000
   // para copiar el código
+  unsigned int *page_task = (unsigned int*) 0x16000; //(unsigned int*)p->jugador->codigo[p->tipo];
+
   mmu_mapear_pagina(0x400000, rcr3(), codigo, RW);
-  unsigned int *page_task; // obtiene la dirección del código de la tarea
-  if (p->tipo == EXPLORADOR) {
-    page_task = (unsigned int*) p->jugador->codExplorador;
-  } else {
-    // (tipo == MINERO)
-    page_task = (unsigned int*) p->jugador->codMinero;
-  }
   // Copiamos de la 10000-10ffff o 12000-12ffff
   // (según el jugador) a la 4000000-4000fff
   copiarPagina((unsigned int*) 0x400000, page_task);
@@ -124,7 +119,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
     pd_pirata[i+4] = (pd_entry) {
       (unsigned char)  1,  // present
       (unsigned char)  1,  // read/write
-      (unsigned char)  0,  // user/supervisor
+      (unsigned char)  1,  // user/supervisor
       (unsigned char)  0,  // write-through
       (unsigned char)  0,  // cache disabled
       (unsigned char)  0,  // accessed
@@ -165,6 +160,7 @@ void mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisi
     pt = (pt_entry *) mmu_proxima_pagina_fisica_libre();
     inicializar_page_struct((unsigned int *) pt);
     pd[pd_index].p = 1;
+    pd[pd_index].us = 1;
     pd[pd_index].rw = 1;
     pd[pd_index].base = (unsigned int) pt >> 12;
   } else {

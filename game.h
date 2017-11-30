@@ -51,6 +51,8 @@ typedef struct pirata_t
     uint posicionX;
     uint posicionY;
     uint tipo;
+    uint enEjecucion;
+
     // id unica, posicion, tipo, reloj
 } pirata_t;
 
@@ -67,8 +69,7 @@ typedef struct jugador_t
     uint puertoX;
     uint puertoY;
 
-    uint codExplorador;
-    uint codMinero;
+    unsigned int codigo[]; // dirección al código de las tareas
 
     // coordenadas puerto, posiciones exploradas, mineros pendientes, etc
 } jugador_t;
@@ -81,13 +82,13 @@ uint game_xy2lineal(uint x, uint y);
 pirata_t* id_pirata2pirata(uint id);
 
 // ~ auxiliares sugeridas o requeridas (segun disponga enunciado) ~
-void game_pirata_inicializar(jugador_t *j, pirata_t *pirata, uint index, uint id);
+void game_pirata_inicializar(jugador_t *j);
 void game_pirata_erigir(pirata_t *pirata, jugador_t *j, uint tipo);
 void game_pirata_habilitar_posicion(int x, int y);
 void game_pirata_exploto();
 
 void game_jugador_inicializar(jugador_t *j);
-void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y);
+void game_jugador_lanzar_pirata(jugador_t *j, uint tipo);
 pirata_t* game_jugador_erigir_pirata(jugador_t *j, uint tipo);
 void game_jugador_anotar_punto(jugador_t *j);
 void game_explorar_posicion(pirata_t *pirata, int x, int y);

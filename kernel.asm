@@ -5,6 +5,7 @@
 
 %include "imprimir.mac"
 
+extern game_inicializar
 extern tss_inicializar
 extern screen_inicializar
 extern idt_inicializar
@@ -166,26 +167,29 @@ mp:
   ; Habilitar interrupciones
   sti                           ; Activamos las interrupciones enmascarables
 
-  ; Imprimir mensaje de bienvenida
-  ; Inicializar el juego
-
   ; Prueba de interrupción 0x46
   ; int 0x46
 
-  ; Inicializar tss
+  ; Inicializar tss de la tarea inicial
+  ; Inicializar tss de la tarea Idle
   call tss_inicializar
 
-  ; Inicializar tss de la tarea Idle
-  ; call inicializar_tss_idle
+  ; Imprimir mensaje de bienvenida
+  ; Inicializar el juego
+  call game_inicializar
 
   ; Inicializar el scheduler
 
   ; Cargar tarea inicial
-%define GDT_TSS_INITIAL 0xD
+%define GDT_TSS_INITIAL 12
   mov ax, GDT_TSS_INITIAL << 3
   ltr ax
 
-%define GDT_TSS_IDLE 0xE
+  ; saltar al pirata
+  xchg bx, bx
+  jmp (14 << 3):0
+
+%define GDT_TSS_IDLE 13
   ; Saltar a la primera tarea: Idle
   jmp (GDT_TSS_IDLE << 3):0
 

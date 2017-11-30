@@ -24,6 +24,7 @@ extern game_tick
 extern game_atender_teclado
 
 ; Ejercicio 6.g
+extern game_syscall_manejar
 extern game_syscall_pirata_mover
 extern game_syscall_cavar
 extern game_syscall_pirata_posicion
