@@ -97,7 +97,9 @@ void game_inicializar() {
   game_jugador_inicializar(&jugadorA);
   /* Inicializar jugador B */
   game_jugador_inicializar(&jugadorB);
+
   game_jugador_lanzar_pirata(&jugadorA, EXPLORADOR);
+  jugadorA.activo = 1;
 }
 
 void game_jugador_inicializar(jugador_t *j) {
@@ -124,8 +126,6 @@ void game_jugador_inicializar(jugador_t *j) {
   }
 
   game_jugador_inicializar_mapa(j);
-  print_hex(jugadorA.puertoX, 20, 0, 0, 0x0F);
-  print_hex(jugadorA.puertoY, 20, 0, 1, 0x0F);
 }
 
 void game_jugador_inicializar_mapa(jugador_t *j) {
@@ -192,18 +192,19 @@ void game_explorar_posicion(pirata_t *pirata, int x, int y) {
   // mapeamos las posiciones del mapa nuevas
   int i;
   for (i = 0; i < 9; i++) {
-    game_pirata_habilitar_posicion(v_x[i], v_y[i]);
+    game_pirata_habilitar_posicion(v_x[i], v_y[i], rcr3());
   }
 
   // copia el codigo en su nueva posicion
   game_actualizar_codigo(pirata->posicionX, pirata->posicionY, x, y);
+
 
   // actualizamos la posición del pirata
   pirata->posicionX = x;
   pirata->posicionY = y;
 }
 
-void game_pirata_habilitar_posicion(int x, int y) {
+void game_pirata_habilitar_posicion(int x, int y, unsigned int cr3) {
   uint posLineal = game_xy2lineal(x, y);
   // convertimos a posición en memoria virtual y física
   uint virtual = game_lineal2virtual(posLineal);
@@ -212,7 +213,7 @@ void game_pirata_habilitar_posicion(int x, int y) {
   // mapeamos la posición del mapa
   // (tranquilamente podría ya haber sido mapeada
   //  por otro explorador)
-  mmu_mapear_pagina(virtual, rcr3(), fisica, RO);
+  mmu_mapear_pagina(virtual, cr3, fisica, RO);
 }
 
 uint game_syscall_pirata_mover(jugador_t *j, direccion dir) {
@@ -229,6 +230,8 @@ uint game_syscall_pirata_mover(jugador_t *j, direccion dir) {
     // si se pasó una dirección válida y la posición nueva es valida
     if(dirValida && game_posicion_valida(x, y)) {
       game_explorar_posicion(pirata, x, y);
+      breakpoint();
+      screen_pintar_pirata(j, pirata);
     } else {
       game_pirata_exploto();
 

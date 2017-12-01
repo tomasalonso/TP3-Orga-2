@@ -140,6 +140,16 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
     };
   }
 
+  // mapea el mapa, cuak
+  int v_x[9];
+  int v_y[9];
+
+  game_calcular_posiciones_vistas(v_x, v_y, p->jugador->puertoX, p->jugador->puertoY);
+  // mapeamos las posiciones del mapa nuevas
+  for (i = 0; i < 9; i++) {
+    game_pirata_habilitar_posicion(v_x[i], v_y[i], (unsigned int) pd_pirata);
+  }
+
   return pd_pirata;
 }
 

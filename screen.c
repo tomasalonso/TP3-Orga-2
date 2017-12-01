@@ -7,6 +7,7 @@ definicion de funciones del scheduler
 
 #include "screen.h"
 #include "game.h"
+#include "i386.h"
 
 
 extern jugador_t jugadorA, jugadorB;
@@ -120,9 +121,6 @@ void screen_inicializar() {
   /* Pintar relojes vacíos */
   screen_pintar_relojes();
 
-  /* Prueba */
-  screen_pintar_pirata(NULL,NULL);
-
   /* Ejercicio 3.d Escribir nombre del grupo en pantalla */
   print("| Pencylvester estudia en MIT |", 80-32-10, 0, C_FG_WHITE);
 }
@@ -163,15 +161,17 @@ unsigned char screen_caracter_pirata(unsigned int tipo) {
 }
 
 void screen_pintar_pirata(jugador_t *j, pirata_t *pirata) {
-  unsigned int x;
-  unsigned int y;
-  unsigned char tipo;
+  unsigned int x = pirata->posicionX;
+  unsigned int y = pirata->posicionY;
+  unsigned char tipo = (pirata->tipo == EXPLORADOR) ? 'E' : 'M';
 
   /* Prueba */
+  /*
   x = y = 10;
   tipo = 'E';
-  screen_pintar(tipo, screen_color_jugador(j), y, x);
-  screen_pintar_rect_color(C_BG_GREEN, y-1, x-1, 3, 3);
+  */
+  screen_pintar(tipo, screen_color_jugador(j), y+1, x-1);
+  screen_pintar_rect_color(C_BG_GREEN, y, x-2, 3, 3);
   /* Fin prueba */
 
   /* screen_pintar_rect_color(screen_color_jugador(j), y-1, x-1, 3, 3); */
