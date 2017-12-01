@@ -170,8 +170,8 @@ void screen_pintar_pirata(jugador_t *j, pirata_t *pirata) {
   x = y = 10;
   tipo = 'E';
   */
-  screen_pintar(tipo, screen_color_jugador(j), y+1, x-1);
-  screen_pintar_rect_color(C_BG_GREEN, y, x-2, 3, 3);
+  screen_pintar(tipo, screen_color_jugador(j), y+1, x);
+  screen_pintar_rect_color(C_BG_GREEN, y, x-1, 3, 3);
   /* Fin prueba */
 
   /* screen_pintar_rect_color(screen_color_jugador(j), y-1, x-1, 3, 3); */
