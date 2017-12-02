@@ -6,7 +6,6 @@
 */
 
 #include "tss.h"
-#include "mmu.h"
 
 #define base_0_15(dir) ((unsigned int) dir) & 0x0000FFFF
 #define base_31_24(dir) (((unsigned int) dir) >> 24) & 0x000000FF
@@ -89,15 +88,14 @@ void tss_inicializar() {
   }
 }
 
-void inicializar_tss_pirata(pirata_t* p) {
-  pd_entry* pd = mmu_inicializar_dir_pirata(p);
+void inicializar_tss_pirata(pirata_t* p, pd_entry* pd) {
   unsigned int pila_nivel_0 = mmu_proxima_pagina_fisica_libre();
 
   *tss_pirata(p) = (tss) {
     (unsigned short)  0x00, // ptl
     (unsigned short)  0x00,
     (unsigned int)    pila_nivel_0, // esp0 = pila nivel 0
-    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // ss0 = segmento de codigo root
+    (unsigned short)  GDT_IDX_ROOT_DATA << 3, // ss0 = segmento de datos root
     (unsigned short)  0x00,
     (unsigned int)    0x00, // esp1
     (unsigned short)  0x00, // ss1

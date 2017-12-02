@@ -72,7 +72,7 @@ void mmu_inicializar();
 unsigned int mmu_proxima_pagina_fisica_libre();
 
 // Ejercicio 4.b
-pd_entry* mmu_inicializar_dir_pirata(pirata_t *p);
+pd_entry* mmu_inicializar_dir_pirata(pirata_t *p, uint x, uint y);
 
 // Ejercicio 4.c
 // lo hace con permisos de lectura/escritura

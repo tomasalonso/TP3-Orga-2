@@ -78,7 +78,7 @@ unsigned int mmu_proxima_pagina_fisica_libre() {
 }
 
 // Ejercicio 4.b
-pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
+pd_entry* mmu_inicializar_dir_pirata(pirata_t *p, uint x, uint y) {
   // Inicializar directorio de páginas
   pd_entry* pd_pirata = (pd_entry*) mmu_proxima_pagina_fisica_libre();
 
@@ -88,6 +88,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
   // Iniciamos la primera entrada
   // identity mapping del kernel
   pd_pirata[0].base = 0x28; // pt compartida con el kernel
+  pd_pirata[0].us = 0;
   pd_pirata[0].p = 1;
 
 
@@ -108,8 +109,8 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
 
   // Pusheamos los parámetros a manopla
   unsigned int* esp = (unsigned int*) 0x402000;
-  *(--esp) = p->jugador->puertoY;
-  *(--esp) = p->jugador->puertoX;
+  *(--esp) = y;
+  *(--esp) = x;
   *(--esp) = 0;
 
   // Desmapeamos la dirección del mapa
@@ -126,7 +127,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
   int i;
   for (i = 0; i < 4; i++) {
     pd_pirata[i+4] = (pd_entry) {
-      (unsigned char)  0,  // present
+      (unsigned char)  1,  // present
       (unsigned char)  1,  // read/write
       (unsigned char)  1,  // user/supervisor
       (unsigned char)  0,  // write-through
@@ -136,7 +137,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p) {
       (unsigned char)  0,  // page size
       (unsigned char)  0,  // global page
       (unsigned char)  0,  // available
-      (unsigned int)   p->jugador->mapa[i], // base address
+      (unsigned int)   p->jugador->mapa[i] >> 12, // base address
     };
   }
 

@@ -12,6 +12,7 @@
 #include "i386.h"
 #include "gdt.h"
 #include "game.h"
+#include "mmu.h"
 
 
 typedef struct str_tss {
@@ -57,7 +58,7 @@ typedef struct str_tss {
 
 void tss_inicializar();
 
-void inicializar_tss_pirata(pirata_t* p);
+void inicializar_tss_pirata(pirata_t* p, pd_entry* pd);
 
 tss* tss_pirata(pirata_t* p);
 
