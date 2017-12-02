@@ -188,7 +188,7 @@ void game_jugador_lanzar_explorador(jugador_t *j) {
   game_jugador_lanzar_pirata(j, EXPLORADOR, 0, 0);
 }
 
-void game_explorar_posicion(uint x, uint y) {
+void game_explorar_posicion(pirata_t *pirata, uint x, uint y) {
   // mapea el mapa, cuak
   int v_x[9];
   int v_y[9];
@@ -201,7 +201,7 @@ void game_explorar_posicion(uint x, uint y) {
       game_pirata_habilitar_posicion(v_x[i], v_y[i], rcr3());
       // Si hay botin, a minar!
       if (game_valor_tesoro(x, y)) {
-        /* game_jugador_lanzar_minero(pirata->jugador, x, y); */
+        game_jugador_lanzar_minero(pirata->jugador, x, y);
       }
     }
   }
@@ -244,7 +244,7 @@ uint game_syscall_pirata_mover(jugador_t *j, direccion dir) {
     // si se pasó una dirección válida y la posición nueva es valida
     if(dirValida && game_posicion_valida(x, y)) {
       if (pirata->tipo == EXPLORADOR) {
-        game_explorar_posicion(x, y);
+        game_explorar_posicion(pirata, x, y);
       }
       game_pirata_mover(pirata, x, y);
     } else {
