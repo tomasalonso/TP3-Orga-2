@@ -213,11 +213,6 @@ void game_pirata_habilitar_posicion(uint x, uint y, unsigned int cr3) {
   uint virtual = game_lineal2virtual(posLineal);
   uint fisica = game_lineal2physical(posLineal);
 
-  /* print_hex(x, 20, 0, 1, 0xF0); */
-  /* print_hex(y, 20, 0, 2, 0xF0); */
-  /* print_hex(virtual, 20, 0, 3, 0xF0); */
-  /* print_hex(fisica, 20, 0, 4, 0xF0); */
-
   // mapeamos la posición del mapa
   // (tranquilamente podría ya haber sido mapeada
   //  por otro explorador)
@@ -248,7 +243,6 @@ uint game_syscall_pirata_mover(jugador_t *j, direccion dir) {
 
     // si se pasó una dirección válida y la posición nueva es valida
     if(dirValida && game_posicion_valida(x, y)) {
-      breakpoint();
       if (pirata->tipo == EXPLORADOR) {
         game_explorar_posicion(x, y);
       }
@@ -303,7 +297,6 @@ uint game_syscall_pirata_posicion(jugador_t *j, int idx) {
 }
 
 uint game_syscall_manejar(uint syscall, uint param1) {
-  breakpoint();
   jugador_t *jugadorActual = (jugadorA.activo) ? &jugadorA : &jugadorB;
 
   if (syscall == MOVERSE) {
