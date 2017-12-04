@@ -5,6 +5,7 @@
 
 %include "imprimir.mac"
 
+extern sched_inicializar
 extern game_inicializar
 extern tss_inicializar
 extern screen_inicializar
@@ -180,15 +181,16 @@ mp:
   call game_inicializar
 
   ; Inicializar el scheduler
+  call sched_inicializar
 
   ; Cargar tarea inicial
 %define GDT_TSS_INITIAL 12
   mov ax, GDT_TSS_INITIAL << 3
   ltr ax
 
-  ; Asaltar al pirata
-  xchg bx, bx
-  jmp (14 << 3):0
+  ; ; Asaltar al pirata (prueba)
+  ; xchg bx, bx
+  ; jmp (14 << 3):0
 
 %define GDT_TSS_IDLE 13
   ; Saltar a la primera tarea: Idle

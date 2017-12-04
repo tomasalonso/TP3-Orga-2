@@ -8,6 +8,7 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #include "mmu.h"
 #include "tss.h"
 #include "screen.h"
+#include "sched.h"
 
 #include <stdarg.h>
 
@@ -92,9 +93,6 @@ void game_inicializar() {
   game_jugador_inicializar(&jugadorA);
   /* Inicializar jugador B */
   game_jugador_inicializar(&jugadorB);
-
-  game_jugador_lanzar_explorador(&jugadorA);
-  jugadorA.activo = 1;
 }
 
 void game_jugador_inicializar(jugador_t *j) {
@@ -102,8 +100,6 @@ void game_jugador_inicializar(jugador_t *j) {
 
 	j->index = index++;  // asigna 0, 1, 2, 3, ...
   game_pirata_inicializar(j);
-  j->activo = 0;
-  j->pirataActual = 0;
   j->monedas = 0;
 
   if (j->index == JUGADOR_A) {
@@ -140,7 +136,6 @@ void game_pirata_inicializar(jugador_t *j) {
   for (i = 0; i < 8; i++) {
     j->piratas[i].index = i;
     j->piratas[i].jugador = j;
-    j->piratas[i].enEjecucion = 0;
   }
 }
 
@@ -152,29 +147,14 @@ void game_tick(uint id_pirata) {
 void game_pirata_relanzar(pirata_t *pirata, jugador_t *j, uint tipo) {
 }
 
-pirata_t* game_jugador_erigir_pirata(jugador_t *j, uint tipo) {
-    // ~ completar ~
-
-	return NULL;
-}
-
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
-  /* int sched_proximo_a_lanzar(); */
-  int slot = -1;
-
-  int i;
-  for (i = 0; i < 8; i++) {
-    if (!j->piratas[i].enEjecucion) {
-      slot = i; break;
-    }
-  }
+  uint slot = sched_proximo_slot_libre(j->index);
 
   pirata_t *pirata = &j->piratas[slot];
 
   pirata->tipo = tipo;
   pirata->posicionX = j->puertoX;
   pirata->posicionY = j->puertoY;
-  pirata->enEjecucion = 1;
 
   inicializar_tss_pirata(pirata, mmu_inicializar_dir_pirata(pirata, x, y));
 
@@ -231,9 +211,7 @@ void game_pirata_mover(pirata_t *pirata, uint x, uint y) {
   screen_pintar_pirata(pirata->jugador, pirata);
 }
 
-uint game_syscall_pirata_mover(jugador_t *j, direccion dir) {
-    pirata_t *pirata = &j->piratas[j->pirataActual];
-
+uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir) {
     int mov_x, mov_y;
 
     int dirValida = !game_dir2xy(dir, &mov_x, &mov_y); // si es 0 es valida
@@ -257,8 +235,7 @@ uint game_syscall_pirata_mover(jugador_t *j, direccion dir) {
     return 0;
 }
 
-uint game_syscall_cavar(jugador_t *j) {
-  pirata_t *pirata = &j->piratas[j->pirataActual];
+uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
   uint x = pirata->posicionX;
   uint y = pirata->posicionY;
 
@@ -287,7 +264,7 @@ uint game_syscall_pirata_posicion(jugador_t *j, int idx) {
   pirata_t *pirata;
 
   if(idx == -1) {
-    pirata = &j->piratas[j->pirataActual];
+    pirata = sched_pirata_actual();
   } else if (idx >= 0 && idx <= 7){
     pirata = &j->piratas[idx];
   } else {
@@ -298,18 +275,19 @@ uint game_syscall_pirata_posicion(jugador_t *j, int idx) {
 }
 
 uint game_syscall_manejar(uint syscall, uint param1) {
-  jugador_t *jugadorActual = (jugadorA.activo) ? &jugadorA : &jugadorB;
+  jugador_t *jugador = sched_jugador_actual();
+  pirata_t *pirata = sched_pirata_actual();
 
   if (syscall == MOVERSE) {
-    return game_syscall_pirata_mover(jugadorActual, param1);
+    return game_syscall_pirata_mover(pirata, param1);
   }
 
   if (syscall == CAVAR) {
-    return game_syscall_cavar(jugadorActual);
+    return game_syscall_cavar(jugador, pirata);
   }
 
   if (syscall == POSICION) {
-    return game_syscall_pirata_posicion(jugadorActual, param1);
+    return game_syscall_pirata_posicion(jugador, param1);
   }
 
   // si se llamó con un parámetro erróneo
@@ -416,12 +394,16 @@ void game_atender_teclado(unsigned char tecla) {
       print("     l", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
     case KB_shiftL:
+      if (sched_hay_slot_libre(jugadorA.index)) {
+        game_jugador_lanzar_explorador(&jugadorA);
+      }
       print("ShiftL", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
     case KB_shiftR:
+      if (sched_hay_slot_libre(jugadorB.index)) {
+        game_jugador_lanzar_explorador(&jugadorB);
+      }
       print("ShiftR", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
-
   }
-
 }

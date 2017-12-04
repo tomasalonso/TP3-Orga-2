@@ -7,49 +7,49 @@ definicion de funciones del scheduler
 
 #include "sched.h"
 #include "i386.h"
+#include "screen.h"
 
-void inicializar_scheduler(){
+void sched_inicializar() {
   int i;
-  scheduler.selectorIdle = GDT_TSS_IDLE;
+  int j;
 
-  for(i = 0; i < 16; i++){
-    if(i%2 == 0){
-      scheduler.selectorsPirates[i%8] = (GDT_TSS_PIRATA_INICIAL + i);
-    } else {
-      scheduler.selectorsPirates[i%8 + 8] = (GDT_TSS_PIRATA_INICIAL + i);
+  scheduler.jugadorActual = 0;
+
+  for (i = 0; i < 2; i++) {
+    scheduler.slotActual[i] = 7; // último para usar la lógica de slot_libre
+
+    for (j = 0; j < 8; j++) {
+      scheduler.slots[i][j] = LIBRE;
     }
   }
+
+  for(i = 0; i < 16; i++){
+    scheduler.selectores[i] = (GDT_TSS_PIRATA_INICIAL + i);
+  }
+
+  scheduler.selectores[16] = GDT_TSS_IDLE;
 }
 
 uint sched_proxima_a_ejecutar() {
-  if (!jugadorA.activo && !jugadorB.activo) {
-    return 16; // tarea IDLE
+  uint jActivo = scheduler.jugadorActual;
+  uint jInactivo = (jActivo == 0) ? 1 : 0;
+  uint proximo = 16; // IDLE por defecto
+
+  if (sched_hay_slot_a_ejecutar(jInactivo)) {
+    scheduler.jugadorActual = jInactivo;
+
+    proximo = sched_proximo_slot_a_ejecutar(jInactivo);
+  } else if (sched_hay_slot_a_ejecutar(jActivo)){
+    proximo = sched_proximo_slot_a_ejecutar(jActivo);
   }
-
-  jugador_t *jActivo = (jugadorA.activo) ? &jugadorA : &jugadorB;
-  jugador_t *jInactivo = (jugadorA.activo) ? &jugadorB : &jugadorA;
-  uint proximo;
-
-  if (sched_hay_proximo_pirata(jInactivo)) {
-    jActivo->activo = 0;
-    jInactivo->activo = 1;
-
-    proximo = sched_proximo_pirata(jInactivo);
-  } else {
-    proximo = sched_proximo_pirata(jActivo);
-  }
-
-  if (jugadorB.activo)
-    proximo += 8;
 
   return proximo;
 }
 
-uint sched_hay_proximo_pirata(jugador_t *j) {
+uint sched_hay_slot_a_ejecutar(uint j) {
   uint i;
-  for (i = j->pirataActual+1; i < j->pirataActual+8+1; i++) {
-    // encontrar al primero que sea en ejecución
-    if (j->piratas[i % 8].enEjecucion == 1) {
+  for (i = 0; i < 8; i++) {
+    if (scheduler.slots[j][i] == EJECUCION) {
       return 1;
     }
   }
@@ -57,14 +57,16 @@ uint sched_hay_proximo_pirata(jugador_t *j) {
   return 0;
 }
 
-uint sched_proximo_pirata(jugador_t *j) {
-  uint proximo = 0;
+uint sched_proximo_slot_a_ejecutar(uint j) {
+  uint proximo;
+  uint slotIni = scheduler.slotActual[j]+1;
 
   uint i;
-  for (i = j->pirataActual+1; i < j->pirataActual+8+1; i++) {
-    // encontrar al primero que sea en ejecución
-    if (j->piratas[i % 8].enEjecucion == 1) {
-      proximo = i%8; break;
+  for (i = slotIni; i < slotIni+8; i++) {
+    if (scheduler.slots[j][i%8] == EJECUCION) {
+      proximo = i%8;
+      scheduler.slotActual[j] = proximo;
+      break;
     }
   }
 
@@ -76,11 +78,45 @@ uint sched_tick() {
 
   uint proxTarea = sched_proxima_a_ejecutar();
 
-  if (proxTarea == 16) {
-    return scheduler.selectorIdle;
+  return scheduler.selectores[proxTarea];
+}
+
+uint sched_hay_slot_libre(uint j) {
+  uint i;
+  for (i = 0; i < 8; i++) {
+    if (scheduler.slots[j][i] == LIBRE) {
+      return 1;
+    }
   }
 
-  uint selector = scheduler.selectorsPirates[proxTarea];
+  return 0;
+}
 
-  return scheduler.selectorsPirates[selector];
+uint sched_proximo_slot_libre(uint j) {
+  uint proximo;
+  uint slotIni = scheduler.slotActual[j]+1;
+
+  print_hex(slotIni, 20, 0, 0, 0xF0);
+  uint i;
+  for (i = slotIni; i < slotIni+8; i++) {
+    if (scheduler.slots[j][i%8] == LIBRE) {
+      scheduler.slots[j][i%8] = EJECUCION;
+      proximo = i%8;
+break;
+    }
+  }
+
+  return proximo;
+}
+
+pirata_t * sched_pirata_actual() {
+  jugador_t *j = (scheduler.jugadorActual == 0) ? &jugadorA : & jugadorB;
+
+  return &(j->piratas[scheduler.slotActual[scheduler.jugadorActual]]);
+}
+
+jugador_t * sched_jugador_actual() {
+  jugador_t *j = (scheduler.jugadorActual == 0) ? &jugadorA : & jugadorB;
+
+  return j;
 }

@@ -39,6 +39,10 @@ typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD} direccion
 #define EXPLORADOR 0
 #define MINERO 1
 
+#define LIBRE 0
+#define MUERTO -1
+#define EJECUCION 1
+
 
 struct jugador_t;
 
@@ -49,7 +53,6 @@ typedef struct pirata_t
     uint posicionX;
     uint posicionY;
     uint tipo;
-    uint enEjecucion;
 
     // id unica, posicion, tipo, reloj
 } pirata_t;
@@ -59,15 +62,13 @@ typedef struct jugador_t
 {
     uint index;
     pirata_t piratas[MAX_CANT_PIRATAS_VIVOS];
-    uint activo;
-    uint pirataActual;
     uint monedas;
     // Agregadas al hacer Ejercicio 6.g
     unsigned int mapa[4]; // direcciones a las page table del mapa
     uint puertoX;
     uint puertoY;
 
-    unsigned int codigo[]; // dirección al código de las tareas
+    unsigned int codigo[2]; // dirección al código de las tareas
 
     // coordenadas puerto, posiciones exploradas, mineros pendientes, etc
 } jugador_t;
@@ -95,9 +96,9 @@ uint game_valor_tesoro(uint x, uint y);
 void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y);
 pirata_t* game_pirata_en_posicion(uint x, uint y);
 
+uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir);
+uint game_syscall_cavar(jugador_t *j, pirata_t *pirata);
 uint game_syscall_pirata_posicion(jugador_t *j, int idx);
-uint game_syscall_pirata_mover(jugador_t *j, direccion key);
-uint game_syscall_cavar(jugador_t *j);
 uint game_syscall_manejar(uint syscall, uint param1);
 void game_tick(uint id_pirata);
 void game_terminar_si_es_hora();

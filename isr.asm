@@ -90,7 +90,6 @@ _isr32:
 
   ; ; Ejercicio 5.b
   ; call game_tick
-
   call sched_tick
   shl ax, 3                     ; agregamos CPL al índice
 
@@ -98,7 +97,8 @@ _isr32:
   cmp ax, cx
   je .fin
 
-  jmp ax:0
+  mov [sched_tarea_selector], ax
+  jmp far [sched_tarea_offset]
 
 .fin:
   popad
@@ -139,6 +139,9 @@ _isr70:
   push eax
   call game_syscall_manejar
   add esp, 8             ; restablezco la pila
+
+%define GDT_TSS_IDLE 13
+  jmp (GDT_TSS_IDLE << 3):0
 
   popad
   ; Ejercicio 5.d
