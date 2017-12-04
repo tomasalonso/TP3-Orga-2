@@ -153,25 +153,25 @@ void screen_pintar_puntajes() {
 }
 
 unsigned char screen_color_jugador(jugador_t *j) {
-  return 0;
+  return j->color;
 }
 
 unsigned char screen_caracter_pirata(unsigned int tipo) {
-  return 0;
+  return (tipo == EXPLORADOR) ? 'E' : 'M';
 }
 
 void screen_pintar_pirata(jugador_t *j, pirata_t *pirata) {
   unsigned int x = pirata->posicionX;
   unsigned int y = pirata->posicionY;
-  unsigned char tipo = (pirata->tipo == EXPLORADOR) ? 'E' : 'M';
+  unsigned char tipo = screen_caracter_pirata(pirata->tipo);
 
   /* Prueba */
   /*
   x = y = 10;
   tipo = 'E';
   */
-  screen_pintar(tipo, screen_color_jugador(j), y+1, x);
-  screen_pintar_rect_color(C_BG_GREEN, y, x-1, 3, 3);
+  screen_pintar(tipo, screen_color_jugador(j) | 0x0, y+1, x);
+  /* screen_pintar_rect_color(screen_color_jugador(j), y, x-1, 3, 3); */
   /* Fin prueba */
 
   /* screen_pintar_rect_color(screen_color_jugador(j), y-1, x-1, 3, 3); */

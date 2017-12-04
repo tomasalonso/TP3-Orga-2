@@ -63,6 +63,7 @@ typedef struct jugador_t
     uint index;
     pirata_t piratas[MAX_CANT_PIRATAS_VIVOS];
     uint monedas;
+    uint color;
     // Agregadas al hacer Ejercicio 6.g
     unsigned int mapa[4]; // direcciones a las page table del mapa
     uint puertoX;

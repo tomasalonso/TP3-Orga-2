@@ -93,6 +93,7 @@ _isr32:
   call sched_tick
   shl ax, 3                     ; agregamos CPL al índice
 
+  xchg bx, bx
   str cx
   cmp ax, cx
   je .fin

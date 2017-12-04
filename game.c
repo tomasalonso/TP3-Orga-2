@@ -104,12 +104,14 @@ void game_jugador_inicializar(jugador_t *j) {
 
   if (j->index == JUGADOR_A) {
     // JUGADOR_A
+    j->color = C_BG_GREEN;
     j->codigo[EXPLORADOR] = TASK_AE;
     j->codigo[MINERO] = TASK_AM;
     j->puertoX = POS_INIT_A_X;
     j->puertoY = POS_INIT_A_Y;
   } else {
     // JUGADOR_B
+    j->color = C_BG_MAGENTA;
     j->codigo[EXPLORADOR] = TASK_BE;
     j->codigo[MINERO] = TASK_BM;
     j->puertoX = POS_INIT_B_X;
@@ -183,6 +185,7 @@ void game_explorar_posicion(pirata_t *pirata, uint x, uint y, uint pd) {
       if (game_valor_tesoro(v_x[i], v_y[i])) {
         game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
       }
+      screen_pintar_rect_color(screen_color_jugador(pirata->jugador), v_y[i]+1, v_x[i], 1, 1);
     }
   }
 }
