@@ -105,8 +105,6 @@ uint sched_tick() {
 
   uint proxTarea = sched_proxima_a_ejecutar();
 
-  print_hex(scheduler.selectores[proxTarea], 20, 0, 0, 0xF0);
-
   return scheduler.selectores[proxTarea];
 }
 

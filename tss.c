@@ -73,14 +73,14 @@ void tss_inicializar() {
   };
 
   int i;
-  for(i = 0; i < 16; i+= 2) {
+  for(i = 0; i < 8; i++) {
     gdt[GDT_TSS_PIRATA_INICIAL + i].p = 1;
     gdt[GDT_TSS_PIRATA_INICIAL + i].base_0_15 = base_0_15(&tss_jugadorA[i]);
     gdt[GDT_TSS_PIRATA_INICIAL + i].base_23_16 = base_23_16(&tss_jugadorA[i]);
     gdt[GDT_TSS_PIRATA_INICIAL + i].base_31_24 = base_31_24(&tss_jugadorA[i]);
   }
 
-  for(i = 1; i < 16; i+= 2) {
+  for(i = 8; i < 16; i++) {
     gdt[GDT_TSS_PIRATA_INICIAL + i].p = 1;
     gdt[GDT_TSS_PIRATA_INICIAL + i].base_0_15 = base_0_15(&tss_jugadorB[i]);
     gdt[GDT_TSS_PIRATA_INICIAL + i].base_23_16 = base_23_16(&tss_jugadorB[i]);

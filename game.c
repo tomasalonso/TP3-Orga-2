@@ -149,7 +149,6 @@ void game_pirata_relanzar(pirata_t *pirata, jugador_t *j, uint tipo) {
 
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
   uint slot = sched_proximo_slot_libre(j->index);
-  print_hex(slot, 20, 0, 1, 0xF0);
   pirata_t *pirata = &j->piratas[slot];
 
   pirata->tipo = tipo;
@@ -159,7 +158,6 @@ void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
   inicializar_tss_pirata(pirata, mmu_inicializar_dir_pirata(pirata, x, y));
 
   screen_pintar_pirata(j, pirata);
-  breakpoint();
 }
 
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y) {
@@ -183,7 +181,7 @@ void game_explorar_posicion(pirata_t *pirata, uint x, uint y, uint pd) {
       game_pirata_habilitar_posicion(v_x[i], v_y[i], pd);
       // Si hay botin, a minar!
       if (game_valor_tesoro(v_x[i], v_y[i])) {
-        /* game_jugador_lanzar_minero(pirata->jugador, x, y); */
+        game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
       }
     }
   }

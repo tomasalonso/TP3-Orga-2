@@ -126,7 +126,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p, uint x, uint y) {
   // asigna las mismas page table del mapa para todas las tareas
   int i;
   for (i = 0; i < 4; i++) {
-    pd_pirata[i+4] = (pd_entry) {
+    pd_pirata[i+2] = (pd_entry) {
       (unsigned char)  1,  // present
       (unsigned char)  1,  // read/write
       (unsigned char)  1,  // user/supervisor
@@ -141,7 +141,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p, uint x, uint y) {
     };
   }
 
-  /* game_explorar_posicion(p, p->jugador->puertoX, p->jugador->puertoY, (unsigned int) pd_pirata); */
+  game_explorar_posicion(p, p->jugador->puertoX, p->jugador->puertoY, (unsigned int) pd_pirata);
 
   return pd_pirata;
 }
