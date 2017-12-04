@@ -12,11 +12,9 @@
 
 typedef struct sched_t
 {
-    unsigned int selectors[16];
-    unsigned int presente[16];
+    unsigned int selectorsPirates[16];
 
     unsigned int selectorIdle;
-    unsigned int tareaActual;
 } sched_t;
 
 sched_t scheduler;
@@ -24,5 +22,13 @@ sched_t scheduler;
 extern jugador_t jugadorA, jugadorB;
 
 void inicializar_scheduler();
+
+uint sched_proxima_a_ejecutar();
+
+uint sched_hay_proximo_pirata(jugador_t *j);
+
+uint sched_proximo_pirata(jugador_t *j);
+
+uint sched_tick();
 
 #endif	/* !__SCHED_H__ */

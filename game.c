@@ -159,6 +159,7 @@ pirata_t* game_jugador_erigir_pirata(jugador_t *j, uint tipo) {
 }
 
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
+  /* int sched_proximo_a_lanzar(); */
   int slot = -1;
 
   int i;

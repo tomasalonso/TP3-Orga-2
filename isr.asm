@@ -29,6 +29,8 @@ extern game_syscall_pirata_mover
 extern game_syscall_cavar
 extern game_syscall_pirata_posicion
 
+; Ejercicio 7.c
+extern sched_tick
 
 ;;
 ;; Definición de MACROS
@@ -85,8 +87,20 @@ global _isr32
 _isr32:
   pushad
   call fin_intr_pic1
-  ; Ejercicio 5.b
-  call game_tick
+
+  ; ; Ejercicio 5.b
+  ; call game_tick
+
+  call sched_tick
+  shl ax, 3                     ; agregamos CPL al índice
+
+  str cx
+  cmp ax, cx
+  je .fin
+
+  jmp ax:0
+
+.fin:
   popad
   iret
 
