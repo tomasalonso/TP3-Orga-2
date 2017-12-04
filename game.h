@@ -82,14 +82,14 @@ uint game_xy2lineal(uint x, uint y);
 // ~ auxiliares sugeridas o requeridas (segun disponga enunciado) ~
 void game_pirata_inicializar(jugador_t *j);
 void game_pirata_erigir(pirata_t *pirata, jugador_t *j, uint tipo);
-void game_pirata_habilitar_posicion(uint x, uint y, unsigned int cr3);
+void game_pirata_habilitar_posicion(uint x, uint y, uint cr3);
 void game_pirata_exploto();
 
 void game_jugador_inicializar(jugador_t *j);
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y);
 pirata_t* game_jugador_erigir_pirata(jugador_t *j, uint tipo);
 void game_jugador_anotar_punto(jugador_t *j);
-void game_explorar_posicion(pirata_t *pirata, uint x, uint y);
+void game_explorar_posicion(pirata_t *pirata, uint x, uint y, uint pd);
 uint game_posicion_valida(int x, int y);
 
 uint game_valor_tesoro(uint x, uint y);

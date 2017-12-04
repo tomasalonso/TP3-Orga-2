@@ -97,6 +97,7 @@ _isr32:
   cmp ax, cx
   je .fin
 
+  ; xchg bx, bx
   mov [sched_tarea_selector], ax
   jmp far [sched_tarea_offset]
 

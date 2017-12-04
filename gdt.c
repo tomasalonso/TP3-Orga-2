@@ -177,37 +177,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */ // B8000
   },
-  [GDT_TSS_B1] = (gdt_entry) {
-    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
-    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
-    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
-    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
-    (unsigned char)     0x00,           /* s            */ // No es de sistema
-    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
-    (unsigned char)     0x00,           /* p            */ // Presente!
-    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
-    (unsigned char)     0x00,           /* avl          */
-    (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x01,           /* db           */
-    (unsigned char)     0x00,           /* g            */
-    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
-  },
   [GDT_TSS_A2] = (gdt_entry) {
-    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
-    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
-    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
-    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
-    (unsigned char)     0x00,           /* s            */ // No es de sistema
-    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
-    (unsigned char)     0x00,           /* p            */ // Presente!
-    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
-    (unsigned char)     0x00,           /* avl          */
-    (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x01,           /* db           */
-    (unsigned char)     0x00,           /* g            */
-    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
-  },
-  [GDT_TSS_B2] = (gdt_entry) {
     (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000
@@ -237,37 +207,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */ // B8000
   },
-  [GDT_TSS_B3] = (gdt_entry) {
-    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
-    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
-    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
-    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
-    (unsigned char)     0x00,           /* s            */ // No es de sistema
-    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
-    (unsigned char)     0x00,           /* p            */ // Presente!
-    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
-    (unsigned char)     0x00,           /* avl          */
-    (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x01,           /* db           */
-    (unsigned char)     0x00,           /* g            */
-    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
-  },
   [GDT_TSS_A4] = (gdt_entry) {
-    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
-    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
-    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
-    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
-    (unsigned char)     0x00,           /* s            */ // No es de sistema
-    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
-    (unsigned char)     0x00,           /* p            */ // Presente!
-    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
-    (unsigned char)     0x00,           /* avl          */
-    (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x01,           /* db           */
-    (unsigned char)     0x00,           /* g            */
-    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
-  },
-  [GDT_TSS_B4] = (gdt_entry) {
     (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000
@@ -297,37 +237,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */ // B8000
   },
-  [GDT_TSS_B5] = (gdt_entry) {
-    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
-    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
-    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
-    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
-    (unsigned char)     0x00,           /* s            */ // No es de sistema
-    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
-    (unsigned char)     0x00,           /* p            */ // Presente!
-    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
-    (unsigned char)     0x00,           /* avl          */
-    (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x01,           /* db           */
-    (unsigned char)     0x00,           /* g            */
-    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
-  },
   [GDT_TSS_A6] = (gdt_entry) {
-    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
-    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
-    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
-    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
-    (unsigned char)     0x00,           /* s            */ // No es de sistema
-    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
-    (unsigned char)     0x00,           /* p            */ // Presente!
-    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
-    (unsigned char)     0x00,           /* avl          */
-    (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x01,           /* db           */
-    (unsigned char)     0x00,           /* g            */
-    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
-  },
-  [GDT_TSS_B6] = (gdt_entry) {
     (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000
@@ -357,7 +267,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */ // B8000
   },
-  [GDT_TSS_B7] = (gdt_entry) {
+  [GDT_TSS_A8] = (gdt_entry) {
     (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000
@@ -372,7 +282,97 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */ // B8000
   },
-  [GDT_TSS_A8] = (gdt_entry) {
+  [GDT_TSS_B1] = (gdt_entry) {
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
+  [GDT_TSS_B2] = (gdt_entry) {
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
+  [GDT_TSS_B3] = (gdt_entry) {
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
+  [GDT_TSS_B4] = (gdt_entry) {
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
+  [GDT_TSS_B5] = (gdt_entry) {
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
+  [GDT_TSS_B6] = (gdt_entry) {
+    (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
+    (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
+    (unsigned char)     0x00,           /* base[23:16]  */ // B8000
+    (unsigned char)     0b1001,         /* type         */ // Read/Write Data
+    (unsigned char)     0x00,           /* s            */ // No es de sistema
+    (unsigned char)     0x00,           /* dpl          */ // Nivel 0
+    (unsigned char)     0x00,           /* p            */ // Presente!
+    (unsigned char)     0x00,           /* limit[16:19] */ // 8000
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x01,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */ // B8000
+  },
+  [GDT_TSS_B7] = (gdt_entry) {
     (unsigned short)    0x0068,         /* limit[0:15]  */ // 8000-1 = 80*50*2-1
     (unsigned short)    0x0000,         /* base[0:15]   */ // B8000
     (unsigned char)     0x00,           /* base[23:16]  */ // B8000

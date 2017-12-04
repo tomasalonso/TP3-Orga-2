@@ -16,14 +16,14 @@ void sched_inicializar() {
   scheduler.jugadorActual = 0;
 
   for (i = 0; i < 2; i++) {
-    scheduler.slotActual[i] = 7; // último para usar la lógica de slot_libre
+    scheduler.slotActual[i] = 7; // último(8) para usar la lógica de slot_libre
 
     for (j = 0; j < 8; j++) {
       scheduler.slots[i][j] = LIBRE;
     }
   }
 
-  for(i = 0; i < 16; i++){
+  for(i = 0; i < 16; i++) {
     scheduler.selectores[i] = (GDT_TSS_PIRATA_INICIAL + i);
   }
 
@@ -73,14 +73,6 @@ uint sched_proximo_slot_a_ejecutar(uint j) {
   return proximo;
 }
 
-uint sched_tick() {
-  game_tick(0);
-
-  uint proxTarea = sched_proxima_a_ejecutar();
-
-  return scheduler.selectores[proxTarea];
-}
-
 uint sched_hay_slot_libre(uint j) {
   uint i;
   for (i = 0; i < 8; i++) {
@@ -96,17 +88,26 @@ uint sched_proximo_slot_libre(uint j) {
   uint proximo;
   uint slotIni = scheduler.slotActual[j]+1;
 
-  print_hex(slotIni, 20, 0, 0, 0xF0);
   uint i;
   for (i = slotIni; i < slotIni+8; i++) {
     if (scheduler.slots[j][i%8] == LIBRE) {
-      scheduler.slots[j][i%8] = EJECUCION;
       proximo = i%8;
-break;
+      scheduler.slots[j][i%8] = EJECUCION;
+      break;
     }
   }
 
   return proximo;
+}
+
+uint sched_tick() {
+  game_tick(0);
+
+  uint proxTarea = sched_proxima_a_ejecutar();
+
+  print_hex(scheduler.selectores[proxTarea], 20, 0, 0, 0xF0);
+
+  return scheduler.selectores[proxTarea];
 }
 
 pirata_t * sched_pirata_actual() {

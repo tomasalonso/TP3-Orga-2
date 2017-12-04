@@ -5,10 +5,10 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 */
 
 #include "game.h"
-#include "mmu.h"
 #include "tss.h"
 #include "screen.h"
 #include "sched.h"
+#include "mmu.h"
 
 #include <stdarg.h>
 
@@ -149,7 +149,7 @@ void game_pirata_relanzar(pirata_t *pirata, jugador_t *j, uint tipo) {
 
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
   uint slot = sched_proximo_slot_libre(j->index);
-
+  print_hex(slot, 20, 0, 1, 0xF0);
   pirata_t *pirata = &j->piratas[slot];
 
   pirata->tipo = tipo;
@@ -159,6 +159,7 @@ void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
   inicializar_tss_pirata(pirata, mmu_inicializar_dir_pirata(pirata, x, y));
 
   screen_pintar_pirata(j, pirata);
+  breakpoint();
 }
 
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y) {
@@ -169,7 +170,7 @@ void game_jugador_lanzar_explorador(jugador_t *j) {
   game_jugador_lanzar_pirata(j, EXPLORADOR, 0, 0);
 }
 
-void game_explorar_posicion(pirata_t *pirata, uint x, uint y) {
+void game_explorar_posicion(pirata_t *pirata, uint x, uint y, uint pd) {
   // mapea el mapa, cuak
   int v_x[9];
   int v_y[9];
@@ -179,16 +180,16 @@ void game_explorar_posicion(pirata_t *pirata, uint x, uint y) {
   int i;
   for (i = 0; i < 9; i++) {
     if (game_posicion_valida(v_x[i], v_y[i])) {
-      game_pirata_habilitar_posicion(v_x[i], v_y[i], rcr3());
+      game_pirata_habilitar_posicion(v_x[i], v_y[i], pd);
       // Si hay botin, a minar!
-      if (game_valor_tesoro(x, y)) {
-        game_jugador_lanzar_minero(pirata->jugador, x, y);
+      if (game_valor_tesoro(v_x[i], v_y[i])) {
+        /* game_jugador_lanzar_minero(pirata->jugador, x, y); */
       }
     }
   }
 }
 
-void game_pirata_habilitar_posicion(uint x, uint y, unsigned int cr3) {
+void game_pirata_habilitar_posicion(uint x, uint y, uint cr3) {
   uint posLineal = game_xy2lineal(x, y);
   // convertimos a posición en memoria virtual y física
   uint virtual = game_lineal2virtual(posLineal);
@@ -223,7 +224,7 @@ uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir) {
     // si se pasó una dirección válida y la posición nueva es valida
     if(dirValida && game_posicion_valida(x, y)) {
       if (pirata->tipo == EXPLORADOR) {
-        game_explorar_posicion(pirata, x, y);
+        game_explorar_posicion(pirata, x, y, rcr3());
       }
       game_pirata_mover(pirata, x, y);
     } else {
