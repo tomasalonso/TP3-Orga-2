@@ -38,9 +38,9 @@ uint sched_proxima_a_ejecutar() {
   if (sched_hay_slot_a_ejecutar(jInactivo)) {
     scheduler.jugadorActual = jInactivo;
 
-    proximo = sched_proximo_slot_a_ejecutar(jInactivo);
+    proximo = sched_proximo_slot_a_ejecutar(jInactivo) + jInactivo*8;
   } else if (sched_hay_slot_a_ejecutar(jActivo)){
-    proximo = sched_proximo_slot_a_ejecutar(jActivo);
+    proximo = sched_proximo_slot_a_ejecutar(jActivo) + jActivo*8;
   }
 
   return proximo;

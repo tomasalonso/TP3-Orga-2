@@ -14,7 +14,6 @@ void task(int x, int y) {
     int ancho = 1;
     int alto  = 2;
 
-
     while(1)
     {
         int i;

@@ -40,8 +40,8 @@ typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD} direccion
 #define MINERO 1
 
 #define LIBRE 0
-#define MUERTO -1
 #define EJECUCION 1
+#define MUERTO -1
 
 
 struct jugador_t;
