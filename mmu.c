@@ -141,7 +141,7 @@ pd_entry* mmu_inicializar_dir_pirata(pirata_t *p, uint x, uint y) {
     };
   }
 
-  game_explorar_posicion(p, (unsigned int) pd_pirata, p->jugador->puertoX, p->jugador->puertoY, IZQ);
+  game_explorar_posicion(p, (unsigned int) pd_pirata, p->jugador->puertoX, p->jugador->puertoY, TODO);
 
   return pd_pirata;
 }

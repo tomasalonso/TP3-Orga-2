@@ -17,6 +17,10 @@ extern fin_intr_pic1
 ;; Sched
 extern sched_tick
 
+;; Excepciones
+extern game_atender_excepcion
+
+
 ; Ejercicio 5.b
 extern game_tick
 ; Ejercicio 5.c
@@ -36,17 +40,66 @@ extern game_calcular_fin
 ;;
 ;; Definición de MACROS
 ;; -------------------------------------------------------------------------- ;;
+%define GDT_TSS_IDLE 13
+%define FIN 1
+
+%define EFLAGS 2*4
+%define EIP 0*4
+%define ESP 3*4
+%define SS 4*4
+%define CS 1*4
 
 ; Vamo' a usar la macro, pero la vamo' a usar, como ¡YO QUIERA!
-%macro ISR 2
+%macro ISR 2+
 global _isr%1
 
   msg%1 db %2
   msg%1_len equ    $ - msg%1
 
 _isr%1:
-  mov eax, %1
-  imprimir_texto_mp msg%1, msg%1_len, 0x7, 0, 0
+  xchg bx, bx
+  pushad
+  push esp
+
+  ; mov eax, %1
+  ; imprimir_texto_mp msg%1, msg%1_len, 0x7, 0, 0
+
+%if %0 = 3
+%define ERROR_CODE 1*4
+%else
+%define ERROR_CODE 0
+%endif
+
+  mov eax, [esp+9*4+EFLAGS+ERROR_CODE]
+  push eax
+
+  mov eax, [esp+10*4+EIP+ERROR_CODE]
+  push eax
+
+  mov eax, [esp+11*4+ESP+ERROR_CODE]
+  push eax
+
+  xor eax, eax
+  mov ax, gs
+  push eax
+  mov ax, fs
+  push eax
+  mov ax, es
+  push eax
+  mov ax, ds
+  push eax
+  mov ax, [esp+16*4+SS+ERROR_CODE]
+  push eax
+  mov ax, [esp+17*4+CS+ERROR_CODE]
+  push eax
+
+  call game_atender_excepcion
+  add esp, 28
+  xchg bx, bx
+
+  jmp (GDT_TSS_IDLE << 3):0
+
+  popad
   iret
 %endmacro
 
@@ -84,7 +137,6 @@ _isr%1:
 ;;
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
-%define FIN 1
 global _isr32
 _isr32:
   pushad
@@ -154,7 +206,6 @@ _isr70:
   call game_syscall_manejar
   add esp, 8             ; restablezco la pila
 
-%define GDT_TSS_IDLE 13
   jmp (GDT_TSS_IDLE << 3):0
 
   popad

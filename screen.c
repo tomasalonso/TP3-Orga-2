@@ -161,17 +161,32 @@ unsigned char screen_caracter_pirata(unsigned int tipo) {
   return (tipo == EXPLORADOR) ? 'E' : 'M';
 }
 
-void screen_pintar_pirata(jugador_t *j, pirata_t *pirata) {
+void screen_pintar_pirata(jugador_t *j, pirata_t *pirata, uint dir) {
   unsigned int x = pirata->posicionX;
   unsigned int y = pirata->posicionY;
   unsigned char tipo = screen_caracter_pirata(pirata->tipo);
 
+  uint antX;
+  uint antY;
+  switch (dir)
+    {
+		case IZQ:  antX = x+1; antY =   y; break;
+		case DER:  antX = x-1; antY =   y; break;
+		case ABA:  antX =   x; antY = y-1; break;
+		case ARR:  antX =   x; antY = y+1; break;
+    case TODO: break;
+    }
+
+  if (dir != TODO) {
+    screen_pintar(tipo, screen_color_jugador(j), antY+1, antX);
+  }
+  screen_pintar(tipo, (screen_color_jugador(j)+(3 << 4)) | C_FG_WHITE, y+1, x);
+
   /* Prueba */
   /*
-  x = y = 10;
-  tipo = 'E';
+    x = y = 10;
+    tipo = 'E';
   */
-  screen_pintar(tipo, (screen_color_jugador(j)+(3 << 4)) | C_FG_WHITE, y+1, x);
   /* screen_pintar_rect_color(screen_color_jugador(j), y, x-1, 3, 3); */
   /* Fin prueba */
 
@@ -261,4 +276,100 @@ void screen_pintar_rect_color(unsigned char color, int fila, int columna, int al
 
 void screen_pintar_botin(uint x, uint y) {
   screen_pintar('@', C_FG_RED, y+1, x);
+}
+
+#define DEBUG_INI_X 24
+#define DEBUG_INI_Y 6
+#define DEBUG_ANCHO 32
+#define DEBUG_ALTO 36
+#define DEBUG_INI_REG_X DEBUG_INI_X+2
+#define DEBUG_INI_REG_Y DEBUG_INI_Y+3
+
+void screen_debug(uint cs, uint ss, uint ds,
+                  uint es, uint fs, uint gs,
+                  uint esp, uint eip, uint eflags, uint *greg) {
+  print_hex(cs, 20, 0, 0, 0xF0);
+  print_hex(ss, 20, 0, 1, 0xF0);
+  print_hex(ds, 20, 0, 2, 0xF0);
+  print_hex(es, 20, 0, 3, 0xF0);
+  print_hex(fs, 20, 0, 4, 0xF0);
+  print_hex(gs, 20, 0, 5, 0xF0);
+  print_hex(esp, 20, 0, 6, 0xF0);
+  print_hex(eip, 20, 0, 7, 0xF0);
+  print_hex(eflags, 20, 0, 8, 0xF0);
+  print_hex((unsigned int)greg, 20, 0, 9, 0xF0);
+
+  screen_pintar_rect_color(C_BG_BLACK, DEBUG_INI_Y, DEBUG_INI_X, DEBUG_ALTO, DEBUG_ANCHO);
+  screen_pintar_rect_color(C_BG_LIGHT_GREY, DEBUG_INI_Y+1, DEBUG_INI_X+1, DEBUG_ALTO-2, DEBUG_ANCHO-2);
+  screen_pintar_rect_color(C_BG_RED, DEBUG_INI_Y+1, DEBUG_INI_X+1, 1, DEBUG_ANCHO-2);
+
+  print("eax", DEBUG_INI_REG_X, DEBUG_INI_REG_Y, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("ebx", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+2, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("ecx", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+4, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("edx", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+6, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("esi", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+8, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("edi", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+10, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("ebp", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+12, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("esp", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+14, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("eip", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+16, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("cs", DEBUG_INI_REG_X+1, DEBUG_INI_REG_Y+18, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("ds", DEBUG_INI_REG_X+1, DEBUG_INI_REG_Y+20, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("es", DEBUG_INI_REG_X+1, DEBUG_INI_REG_Y+22, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("fs", DEBUG_INI_REG_X+1, DEBUG_INI_REG_Y+24, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("gs", DEBUG_INI_REG_X+1, DEBUG_INI_REG_Y+26, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("ss", DEBUG_INI_REG_X+1, DEBUG_INI_REG_Y+28, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("eflags", DEBUG_INI_REG_X+1, DEBUG_INI_REG_Y+30, C_BG_LIGHT_GREY|C_FG_BLACK);
+
+  print("cr0", DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("cr2", DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+2, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("cr3", DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+4, C_BG_LIGHT_GREY|C_FG_BLACK);
+  print("cr4", DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+6, C_BG_LIGHT_GREY|C_FG_BLACK);
+
+  print("stack", DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+17, C_BG_LIGHT_GREY|C_FG_BLACK);
+
+  // Registros de propósito general
+  uint *eax = greg+7;
+  uint *ebx = greg+4;
+  uint *ecx = greg+6;
+  uint *edx = greg+5;
+  uint *esi = greg+1;
+  uint *edi = greg;
+  uint *ebp = greg+2;
+
+  print_hex(*eax, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(*ebx, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+2, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(*ecx, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+4, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(*edx, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+6, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(*esi, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+8, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(*edi, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+10, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(*ebp, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+12, C_BG_LIGHT_GREY|C_FG_WHITE);
+
+  print_hex(esp, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+14, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(eip, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+16, C_BG_LIGHT_GREY|C_FG_WHITE);
+
+  // Registro de segmento 6
+  print_hex(cs, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+18, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(ds, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+20, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(es, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+22, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(fs, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+24, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(gs, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+26, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(ss, 8, DEBUG_INI_REG_X+5, DEBUG_INI_REG_Y+28, C_BG_LIGHT_GREY|C_FG_WHITE);
+
+
+  // Registro EFLAGS
+  print_hex(eflags, 8, DEBUG_INI_REG_X+8, DEBUG_INI_REG_Y+30, C_BG_LIGHT_GREY|C_FG_WHITE);
+
+  // Registros de control
+  print_hex(rcr0(), 8, DEBUG_INI_REG_X+20, DEBUG_INI_REG_Y, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(rcr2(), 8, DEBUG_INI_REG_X+20, DEBUG_INI_REG_Y+2, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(rcr3(), 8, DEBUG_INI_REG_X+20, DEBUG_INI_REG_Y+4, C_BG_LIGHT_GREY|C_FG_WHITE);
+  print_hex(rcr4(), 8, DEBUG_INI_REG_X+20, DEBUG_INI_REG_Y+6, C_BG_LIGHT_GREY|C_FG_WHITE);
+
+  // Primeros 5 de la pila
+  int i;
+  for (i = 0; i < 5; i++) {
+    print_hex(*((uint *) esp+i), 8, DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+20+i, C_BG_LIGHT_GREY|C_FG_WHITE);
+  }
+
+  breakpoint();
 }

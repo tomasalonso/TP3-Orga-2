@@ -47,6 +47,7 @@ uint puntajeB;
 uint contador;
 
 uint debug;
+uint detenido;
 
 void* error() {
 	__asm__ ("int3");
@@ -75,18 +76,33 @@ uint game_posicion_valida(int x, int y) {
 }
 
 // dada una posicion (x,y) guarda las posiciones de alrededor en dos arreglos, uno para las x y otro para las y
-void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y) {
+int game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y, direccion dir) {
+  // pre: dir valida
+  int iniX, finX;
+  int iniY, finY;
+
+  switch (dir)
+    {
+		case IZQ:  iniX = -1; finX = -1; iniY = -1; finY =  1; break;
+		case DER:  iniX =  1; finX =  1; iniY = -1; finY =  1; break;
+		case ABA:  iniX = -1; finX =  1; iniY =  1; finY =  1; break;
+		case ARR:  iniX = -1; finX =  1; iniY = -1; finY = -1; break;
+		case TODO: iniX = -1; finX =  1; iniY = -1; finY =  1; break;
+    }
+
 	int next = 0;
 	int i, j;
-	for (i = -1; i <= 1; i++)
+	for (i = iniY; i <= finY; i++)
     {
-      for (j = -1; j <= 1; j++)
+      for (j = iniX; j <= finX; j++)
         {
           vistas_x[next] = x + j;
           vistas_y[next] = y + i;
           next++;
         }
     }
+
+  return next;
 }
 
 uint game_valor_tesoro(uint x, uint y) {
@@ -113,6 +129,7 @@ void game_inicializar() {
 
   /* Debug desactivado por defecto */
   debug = 0;
+  detenido = 0;
 }
 
 void game_jugador_inicializar(jugador_t *j) {
@@ -178,7 +195,7 @@ void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
 
   inicializar_tss_pirata(pirata, mmu_inicializar_dir_pirata(pirata, x, y));
 
-  screen_pintar_pirata(j, pirata);
+  screen_pintar_pirata(j, pirata, TODO);
 }
 
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y) {
@@ -194,10 +211,10 @@ void game_explorar_posicion(pirata_t *pirata, uint pd, uint x, uint y, direccion
   int v_x[9];
   int v_y[9];
 
-  game_calcular_posiciones_vistas(v_x, v_y, x, y);
+  int cant = game_calcular_posiciones_vistas(v_x, v_y, x, y, dir);
   // mapeamos las posiciones del mapa nuevas
   int i;
-  for (i = 0; i < 9; i++) {
+  for (i = 0; i < cant; i++) {
     if (game_posicion_valida(v_x[i], v_y[i])) {
       game_pirata_habilitar_posicion(v_x[i], v_y[i], pd);
       // Si hay botin, a minar!
@@ -223,7 +240,7 @@ void game_pirata_habilitar_posicion(uint x, uint y, uint cr3) {
   mmu_mapear_pagina(virtual, cr3, fisica, RO);
 }
 
-void game_pirata_mover(pirata_t *pirata, uint x, uint y) {
+void game_pirata_mover(pirata_t *pirata, uint x, uint y, direccion dir) {
   // copia el codigo en su nueva posicion
   game_actualizar_codigo(pirata->posicionX, pirata->posicionY, x, y);
 
@@ -231,7 +248,7 @@ void game_pirata_mover(pirata_t *pirata, uint x, uint y) {
   pirata->posicionX = x;
   pirata->posicionY = y;
 
-  screen_pintar_pirata(pirata->jugador, pirata);
+  screen_pintar_pirata(pirata->jugador, pirata, (unsigned int) dir);
 }
 
 uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir) {
@@ -248,7 +265,7 @@ uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir) {
       if (pirata->tipo == EXPLORADOR) {
         game_explorar_posicion(pirata, rcr3(), x, y, dir);
       }
-      game_pirata_mover(pirata, x, y);
+      game_pirata_mover(pirata, x, y, dir);
     } else {
       game_pirata_exploto();
 
@@ -392,6 +409,7 @@ void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1) {
 #define KB_k        0x25 // 0xa5
 #define KB_j        0x24 // 0xa4
 #define KB_l        0x26 // 0xa6
+#define KB_y        0x27 // 0xa7
 #define KB_shiftL   0x2a // 0xaa
 #define KB_shiftR   0x36 // 0xb6
 
@@ -426,15 +444,20 @@ void game_atender_teclado(unsigned char tecla) {
       break;
     case KB_l:
       print("     l", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      debug = (debug == 0) ? 1 : 0;
+      break;
+    case KB_y:
+      print("     y", 74, 0, C_BG_BLACK | C_FG_WHITE);
+      debug = (debug == 0) ? 1 : 0;
       break;
     case KB_shiftL:
-      if (!debug && sched_hay_slot_libre(jugadorA.index)) {
+      if (!detenido && sched_hay_slot_libre(jugadorA.index)) {
         game_jugador_lanzar_explorador(&jugadorA);
       }
       print("ShiftL", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
     case KB_shiftR:
-      if (!debug && sched_hay_slot_libre(jugadorB.index)) {
+      if (!detenido && sched_hay_slot_libre(jugadorB.index)) {
         game_jugador_lanzar_explorador(&jugadorB);
       }
       print("ShiftR", 74, 0, C_BG_BLACK | C_FG_WHITE);
@@ -461,4 +484,16 @@ uint game_calcular_fin() {
   }
 
   return 0;
+}
+
+void game_atender_excepcion(uint cs, uint ss, uint ds,
+                            uint es, uint fs, uint gs,
+                            uint esp, uint eip, uint eflags, uint *greg) {
+  game_pirata_exploto();
+
+  if (debug) {
+    detenido = 1;
+    /* game_guardar_pantalla(); */
+    screen_debug(cs,ss,ds,es,fs,gs,esp,eip,eflags,greg);
+  }
 }

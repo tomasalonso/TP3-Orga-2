@@ -9,7 +9,7 @@
 
 #include "defines.h"
 
-typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD} direccion;
+typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD, TODO = 0xF} direccion;
 
 #define MAX_CANT_PIRATAS_VIVOS           8
 
@@ -98,7 +98,7 @@ void game_explorar_posicion(pirata_t *pirata, uint pd, uint x, uint y, direccion
 uint game_posicion_valida(int x, int y);
 
 uint game_valor_tesoro(uint x, uint y);
-void game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y);
+int game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y, direccion dir);
 
 uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir);
 uint game_syscall_cavar(jugador_t *j, pirata_t *pirata);
@@ -116,9 +116,12 @@ uint game_lineal2virtual(uint posLineal);
 void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1);
 uint game_lineal2physical(uint lineal);
 void game_jugador_inicializar_mapa(jugador_t *j);
-void game_pirata_mover(pirata_t *pirata, uint x, uint y);
+void game_pirata_mover(pirata_t *pirata, uint x, uint y, direccion dir);
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y);
 void game_jugador_lanzar_explorador(jugador_t *j);
 uint game_calcular_fin();
+void game_atender_excepcion(uint cs, uint ss, uint ds,
+                            uint es, uint fs, uint gs,
+                            uint esp, uint eip, uint eflags, uint *greg);
 
 #endif  /* !__GAME_H__ */
