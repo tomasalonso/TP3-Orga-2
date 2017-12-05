@@ -139,9 +139,6 @@ mp:
 ; %endrep
 
 
-  ; Inicializar pantalla
-  call screen_inicializar
-
   ; Inicializar el directorio de paginas
   ; Ejercicio 3.b
   call mmu_inicializar_dir_kernel
@@ -165,11 +162,7 @@ mp:
   call resetear_pic
   call habilitar_pic
 
-  ; Habilitar interrupciones
-  sti                           ; Activamos las interrupciones enmascarables
-
   ; Prueba de interrupción 0x46
-  ; xchg bx, bx
   ; int 0x46
 
   ; Inicializar tss de la tarea inicial
@@ -182,6 +175,12 @@ mp:
 
   ; Inicializar el scheduler
   call sched_inicializar
+
+  ; Inicializar pantalla
+  call screen_inicializar
+
+  ; Habilitar interrupciones
+  sti                           ; Activamos las interrupciones enmascarables
 
   ; Cargar tarea inicial
 %define GDT_TSS_INITIAL 12

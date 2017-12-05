@@ -189,6 +189,7 @@ void game_explorar_posicion(pirata_t *pirata, uint x, uint y, uint pd) {
       if (game_valor_tesoro(v_x[i], v_y[i])) {
         if (sched_hay_slot_libre(pirata->jugador->index))
           game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
+        screen_pintar_botin(v_x[i], v_y[i]);
       }
       screen_pintar_rect_color(screen_color_jugador(pirata->jugador), v_y[i]+1, v_x[i], 1, 1);
     }
@@ -254,9 +255,9 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
     if(game_valor_tesoro(x, y) > 0) {
       game_jugador_anotar_punto(j);
       game_minar_botin(x, y);
+      screen_pintar_puntajes();
     } else {
-      // Lo hago explotar y libero el slot TODO
-      // cuando termina de minar, automáticamente lo cambio por un explorador
+      // Libero el slot
       sched_liberar_slot();
 
       return -1;
@@ -293,7 +294,13 @@ uint game_syscall_manejar(uint syscall, uint param1) {
   }
 
   if (syscall == POSICION) {
-    return game_syscall_pirata_posicion(jugador, param1);
+    uint pos = game_syscall_pirata_posicion(jugador, param1);
+    uint *esp;
+    __asm __volatile("movl %%esp,%0" : "=r" (esp));
+
+    esp += 4;
+
+    *esp = pos;
   }
 
   // si se llamó con un parámetro erróneo

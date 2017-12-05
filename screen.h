@@ -58,5 +58,6 @@ void screen_stop_game_show_winner(jugador_t *j);
 
 /* Agregadas */
 void screen_pintar_rect_color(unsigned char color, int fila, int columna, int alto, int ancho);
+void screen_pintar_botin(uint x, uint y);
 
 #endif  /* !__SCREEN_H__ */

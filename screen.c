@@ -149,8 +149,8 @@ void screen_pintar_linea_v(unsigned char c, unsigned char color, int fila, int c
 
 // Ejercicio 3.a
 void screen_pintar_puntajes() {
-  print("0", INI_C_ROJO+2, INI_F_PIE+2, (C_FG_WHITE | C_BG_RED));
-  print("0", INI_C_AZUL+2, INI_F_PIE+2, (C_FG_WHITE | C_BG_BLUE));
+  print_dec(jugadorA.monedas, 3, INI_C_ROJO+2, INI_F_PIE+2, (C_FG_WHITE | C_BG_RED));
+  print_dec(jugadorB.monedas, 3, INI_C_AZUL+2, INI_F_PIE+2, (C_FG_WHITE | C_BG_BLUE));
 }
 
 unsigned char screen_color_jugador(jugador_t *j) {
@@ -184,7 +184,6 @@ void screen_borrar_pirata(pirata_t *pirata) {
   uint i = pirata->index+1;
 
   screen_pintar_rect_color(screen_color_jugador(pirata->jugador), pirata->posicionY+1, pirata->posicionY, 1, 1);
-
   screen_pintar('x', screen_color_jugador(pirata->jugador) | C_FG_RED, pirata->posicionY+1, pirata->posicionX);
 
   screen_pintar('x', C_BW, INI_F_PIE+3, x+i*2);
@@ -196,21 +195,23 @@ void screen_actualizar_reloj_pirata (jugador_t *j, pirata_t *pirata) {
 void screen_pintar_reloj_pirata(jugador_t *j, pirata_t *pirata) {
   static uint reloj_pirata[2][8] = {{0}};
 
-  if (sched_pirata_activo(pirata)) {
-    uint *r = &reloj_pirata[j->index][pirata->index];
-    uint i = pirata->index+1;
+  uint *r = &reloj_pirata[j->index][pirata->index];
+  uint i = pirata->index+1;
 
-    *r = (*r + 1) % reloj_size;
+  *r = (*r + 1) % reloj_size;
 
-    uint x = (j->index == JUGADOR_A) ? INI_C_RELOJ_ROJO : INI_C_RELOJ_AZUL;
-    screen_pintar(reloj[*r], C_BW, INI_F_PIE+3, x+i*2);
-  }
+  uint x = (j->index == JUGADOR_A) ? INI_C_RELOJ_ROJO : INI_C_RELOJ_AZUL;
+  screen_pintar(reloj[*r], C_BW, INI_F_PIE+3, x+i*2);
 }
 
 void screen_pintar_reloj_piratas(jugador_t *j) {
   int i;
   for (i = 0; i < 8; i++) {
-    screen_pintar_reloj_pirata(j, &j->piratas[i]);
+    pirata_t *p = &j->piratas[i];
+
+    if (sched_pirata_activo(p)) {
+      screen_pintar_reloj_pirata(j, p);
+    }
   }
 }
 
@@ -243,4 +244,8 @@ void screen_pintar_rect_color(unsigned char color, int fila, int columna, int al
       p[j][i].a = color;
     }
   }
+}
+
+void screen_pintar_botin(uint x, uint y) {
+  screen_pintar('@', C_FG_RED, y+1, x);
 }
