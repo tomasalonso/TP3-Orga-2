@@ -43,4 +43,10 @@ pirata_t * sched_pirata_actual();
 
 jugador_t * sched_jugador_actual();
 
+void sched_matar_pirata_actual();
+
+void sched_liberar_slot();
+
+uint sched_pirata_activo(pirata_t * p);
+
 #endif	/* !__SCHED_H__ */

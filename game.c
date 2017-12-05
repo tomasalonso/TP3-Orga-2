@@ -29,8 +29,10 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #define POSICION 0x3
 
 uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
-                                        {30,  3, 50}, {31, 38, 50}, {15, 21, 100}, {45, 21, 100} ,
-                                        {49,  3, 50}, {48, 38, 50}, {64, 21, 100}, {34, 21, 100}
+  /* {2,  0, 50}, {5, 0, 50}, {10, 0, 100}, {45, 21, 100} , */
+  /* {10,  0, 50}, {20, 0, 50}, {70, 0, 100}, {45, 21, 100} , */
+  {30,  3, 50}, {31, 38, 50}, {15, 21, 100}, {45, 21, 100} ,
+  {49,  3, 50}, {48, 38, 50}, {64, 21, 100}, {34, 21, 100}
                                     };
 
 jugador_t jugadorA;
@@ -142,7 +144,9 @@ void game_pirata_inicializar(jugador_t *j) {
 }
 
 // Ejercicio 5.b
-void game_tick(uint id_pirata) {
+void game_tick() {
+  screen_pintar_reloj_piratas(&jugadorA);
+  screen_pintar_reloj_piratas(&jugadorB);
   screen_actualizar_reloj_global();
 }
 
@@ -183,7 +187,8 @@ void game_explorar_posicion(pirata_t *pirata, uint x, uint y, uint pd) {
       game_pirata_habilitar_posicion(v_x[i], v_y[i], pd);
       // Si hay botin, a minar!
       if (game_valor_tesoro(v_x[i], v_y[i])) {
-        game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
+        if (sched_hay_slot_libre(pirata->jugador->index))
+          game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
       }
       screen_pintar_rect_color(screen_color_jugador(pirata->jugador), v_y[i]+1, v_x[i], 1, 1);
     }
@@ -243,7 +248,6 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
 
   if(pirata->tipo == EXPLORADOR) {
     game_pirata_exploto();
-
     return -1;
   } else {
     // si hay monedas
@@ -253,7 +257,7 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
     } else {
       // Lo hago explotar y libero el slot TODO
       // cuando termina de minar, automáticamente lo cambio por un explorador
-      game_pirata_relanzar(pirata, j, EXPLORADOR);
+      sched_liberar_slot();
 
       return -1;
     }
@@ -299,7 +303,8 @@ uint game_syscall_manejar(uint syscall, uint param1) {
 }
 
 void game_pirata_exploto() {
-
+  screen_borrar_pirata(sched_pirata_actual());
+  sched_matar_pirata_actual();
 }
 
 pirata_t* game_pirata_en_posicion(uint x, uint y) {

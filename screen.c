@@ -7,6 +7,7 @@ definicion de funciones del scheduler
 
 #include "screen.h"
 #include "game.h"
+#include "sched.h"
 #include "i386.h"
 
 
@@ -170,7 +171,7 @@ void screen_pintar_pirata(jugador_t *j, pirata_t *pirata) {
   x = y = 10;
   tipo = 'E';
   */
-  screen_pintar(tipo, screen_color_jugador(j) | 0x0, y+1, x);
+  screen_pintar(tipo, (screen_color_jugador(j)+(3 << 4)) | C_FG_WHITE, y+1, x);
   /* screen_pintar_rect_color(screen_color_jugador(j), y, x-1, 3, 3); */
   /* Fin prueba */
 
@@ -178,20 +179,39 @@ void screen_pintar_pirata(jugador_t *j, pirata_t *pirata) {
   /* screen_pintar(screen_caracter_pirata(tipo), screen_color_jugador(j), y, x); */
 }
 
-void screen_borrar_pirata(jugador_t *j, pirata_t *pirata) {
+void screen_borrar_pirata(pirata_t *pirata) {
+  uint x = (pirata->jugador->index == JUGADOR_A) ? INI_C_RELOJ_ROJO : INI_C_RELOJ_AZUL;
+  uint i = pirata->index+1;
 
+  screen_pintar_rect_color(screen_color_jugador(pirata->jugador), pirata->posicionY+1, pirata->posicionY, 1, 1);
+
+  screen_pintar('x', screen_color_jugador(pirata->jugador) | C_FG_RED, pirata->posicionY+1, pirata->posicionX);
+
+  screen_pintar('x', C_BW, INI_F_PIE+3, x+i*2);
 }
 
 void screen_actualizar_reloj_pirata (jugador_t *j, pirata_t *pirata) {
-
 }
 
 void screen_pintar_reloj_pirata(jugador_t *j, pirata_t *pirata) {
+  static uint reloj_pirata[2][8] = {{0}};
 
+  if (sched_pirata_activo(pirata)) {
+    uint *r = &reloj_pirata[j->index][pirata->index];
+    uint i = pirata->index+1;
+
+    *r = (*r + 1) % reloj_size;
+
+    uint x = (j->index == JUGADOR_A) ? INI_C_RELOJ_ROJO : INI_C_RELOJ_AZUL;
+    screen_pintar(reloj[*r], C_BW, INI_F_PIE+3, x+i*2);
+  }
 }
 
 void screen_pintar_reloj_piratas(jugador_t *j) {
-
+  int i;
+  for (i = 0; i < 8; i++) {
+    screen_pintar_reloj_pirata(j, &j->piratas[i]);
+  }
 }
 
 void screen_pintar_relojes() {

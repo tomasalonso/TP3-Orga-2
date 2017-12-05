@@ -16,7 +16,7 @@ void sched_inicializar() {
   scheduler.jugadorActual = 0;
 
   for (i = 0; i < 2; i++) {
-    scheduler.slotActual[i] = 7; // último(8) para usar la lógica de slot_libre
+    scheduler.slotActual[i] = 7; // último(7) para usar la lógica de slot_libre
 
     for (j = 0; j < 8; j++) {
       scheduler.slots[i][j] = LIBRE;
@@ -118,4 +118,22 @@ jugador_t * sched_jugador_actual() {
   jugador_t *j = (scheduler.jugadorActual == 0) ? &jugadorA : & jugadorB;
 
   return j;
+}
+
+void sched_matar_pirata_actual() {
+  uint j = scheduler.jugadorActual;
+  uint slot = scheduler.slotActual[j];
+
+  scheduler.slots[j][slot] = MUERTO;
+}
+
+void sched_liberar_slot() {
+  uint j = scheduler.jugadorActual;
+  uint slot = scheduler.slotActual[j];
+
+  scheduler.slots[j][slot] = LIBRE;
+}
+
+uint sched_pirata_activo(pirata_t * p) {
+  return (scheduler.slots[p->jugador->index][p->index] == EJECUCION);
 }
