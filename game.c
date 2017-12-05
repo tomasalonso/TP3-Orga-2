@@ -268,7 +268,7 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
 }
 
 uint game_syscall_pirata_posicion(jugador_t *j, int idx) {
-  pirata_t *pirata;
+  pirata_t *pirata = NULL;
 
   if(idx == -1) {
     pirata = sched_pirata_actual();
@@ -276,6 +276,8 @@ uint game_syscall_pirata_posicion(jugador_t *j, int idx) {
     pirata = &j->piratas[idx];
   } else {
     game_pirata_exploto();
+
+    return -1;
   }
 
   return pirata->posicionY << 8 | pirata->posicionX;
@@ -294,13 +296,14 @@ uint game_syscall_manejar(uint syscall, uint param1) {
   }
 
   if (syscall == POSICION) {
-    uint pos = game_syscall_pirata_posicion(jugador, param1);
     uint *esp;
     __asm __volatile("movl %%esp,%0" : "=r" (esp));
 
-    esp += 4;
+    esp += (8-1)+3+7;
 
-    *esp = pos;
+    *esp = game_syscall_pirata_posicion(jugador, param1);
+
+    return 0;
   }
 
   // si se llamó con un parámetro erróneo
