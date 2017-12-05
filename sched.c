@@ -8,6 +8,7 @@ definicion de funciones del scheduler
 #include "sched.h"
 #include "i386.h"
 #include "screen.h"
+#include "tss.h"
 
 void sched_inicializar() {
   int i;
@@ -136,4 +137,16 @@ void sched_liberar_slot() {
 
 uint sched_pirata_activo(pirata_t * p) {
   return (scheduler.slots[p->jugador->index][p->index] == EJECUCION);
+}
+
+uint sched_finalizar() {
+  int i;
+  int j;
+  for (i = 0; i < 2; i++) {
+    for (j = 0; j < 8; j++) {
+      scheduler.slots[i][j] = MUERTO;
+    }
+  }
+
+  return scheduler.selectores[16];
 }

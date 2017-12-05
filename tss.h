@@ -62,4 +62,6 @@ void inicializar_tss_pirata(pirata_t* p, pd_entry* pd);
 
 tss* tss_pirata(pirata_t* p);
 
+void tss_finalizar();
+
 #endif  /* !__TSS_H__ */

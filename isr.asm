@@ -16,7 +16,6 @@ extern fin_intr_pic1
 
 ;; Sched
 extern sched_tick
-extern sched_tarea_actual
 
 ; Ejercicio 5.b
 extern game_tick
@@ -25,12 +24,14 @@ extern game_atender_teclado
 
 ; Ejercicio 6.g
 extern game_syscall_manejar
-extern game_syscall_pirata_mover
-extern game_syscall_cavar
-extern game_syscall_pirata_posicion
 
 ; Ejercicio 7.c
 extern sched_tick
+
+; Para terminar
+extern tss_finalizar
+extern sched_finalizar
+extern game_calcular_fin
 
 ;;
 ;; Definición de MACROS
@@ -83,20 +84,33 @@ _isr%1:
 ;;
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
+%define FIN 1
 global _isr32
 _isr32:
   pushad
   call fin_intr_pic1
 
+  call game_calcular_fin
+  cmp eax, FIN                  ; terminar?
+  jne .sched
+
+  mov dword [esp+(3+8)*4], 0x00000002 ; desactivamos las interrupciones (en caso de ya estar en la idle)
+  call tss_finalizar            ; desactiva int de la tss de la tarea idle
+  call sched_finalizar          ; devuelve la idle
+  jmp .switch
+
+.sched:
   ; ; Ejercicio 5.b
   ; call game_tick
   call sched_tick
+.switch:
   shl ax, 3                     ; agregamos CPL al índice
 
   str cx
-  cmp ax, cx
+  cmp ax, cx                    ; es la misma tarea?
   je .fin
 
+.salto:
   mov [sched_tarea_selector], ax
   jmp far [sched_tarea_offset]
 

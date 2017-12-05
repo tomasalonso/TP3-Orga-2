@@ -28,6 +28,9 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #define CAVAR 0x2
 #define POSICION 0x3
 
+// Para finalizar el juego
+#define FIN 0x500000
+
 uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
   /* {2,  0, 50}, {5, 0, 50}, {10, 0, 100}, {45, 21, 100} , */
   /* {10,  0, 50}, {20, 0, 50}, {70, 0, 100}, {45, 21, 100} , */
@@ -38,6 +41,12 @@ uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
 jugador_t jugadorA;
 jugador_t jugadorB;
 
+
+uint puntajeA;
+uint puntajeB;
+uint contador;
+
+uint debug;
 
 void* error() {
 	__asm__ ("int3");
@@ -95,6 +104,15 @@ void game_inicializar() {
   game_jugador_inicializar(&jugadorA);
   /* Inicializar jugador B */
   game_jugador_inicializar(&jugadorB);
+
+  /* Inicializamos contadores para
+     finalizar juego */
+  puntajeA = 0;
+  puntajeB = 0;
+  contador = 0;
+
+  /* Debug desactivado por defecto */
+  debug = 0;
 }
 
 void game_jugador_inicializar(jugador_t *j) {
@@ -150,9 +168,6 @@ void game_tick() {
   screen_actualizar_reloj_global();
 }
 
-void game_pirata_relanzar(pirata_t *pirata, jugador_t *j, uint tipo) {
-}
-
 void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
   uint slot = sched_proximo_slot_libre(j->index);
   pirata_t *pirata = &j->piratas[slot];
@@ -174,7 +189,7 @@ void game_jugador_lanzar_explorador(jugador_t *j) {
   game_jugador_lanzar_pirata(j, EXPLORADOR, 0, 0);
 }
 
-void game_explorar_posicion(pirata_t *pirata, uint x, uint y, uint pd) {
+void game_explorar_posicion(pirata_t *pirata, uint pd, uint x, uint y, direccion dir) {
   // mapea el mapa, cuak
   int v_x[9];
   int v_y[9];
@@ -231,7 +246,7 @@ uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir) {
     // si se pasó una dirección válida y la posición nueva es valida
     if(dirValida && game_posicion_valida(x, y)) {
       if (pirata->tipo == EXPLORADOR) {
-        game_explorar_posicion(pirata, x, y, rcr3());
+        game_explorar_posicion(pirata, rcr3(), x, y, dir);
       }
       game_pirata_mover(pirata, x, y);
     } else {
@@ -258,6 +273,7 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
       screen_pintar_puntajes();
     } else {
       // Libero el slot
+      screen_borrar_pirata(pirata);
       sched_liberar_slot();
 
       return -1;
@@ -313,12 +329,8 @@ uint game_syscall_manejar(uint syscall, uint param1) {
 }
 
 void game_pirata_exploto() {
-  screen_borrar_pirata(sched_pirata_actual());
+  screen_matar_pirata(sched_pirata_actual());
   sched_matar_pirata_actual();
-}
-
-pirata_t* game_pirata_en_posicion(uint x, uint y) {
-	return NULL;
 }
 
 void game_jugador_anotar_punto(jugador_t *j) {
@@ -326,6 +338,12 @@ void game_jugador_anotar_punto(jugador_t *j) {
 }
 
 void game_terminar_si_es_hora() {
+  if (jugadorA.monedas > jugadorB.monedas)
+    screen_stop_game_show_winner(&jugadorA);
+  else if (jugadorA.monedas < jugadorB.monedas)
+    screen_stop_game_show_winner(&jugadorB);
+  else
+    screen_stop_game_show_winner(NULL);
 }
 
 /* Resta un botin de la posicion x, y */
@@ -379,7 +397,6 @@ void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1) {
 
 void game_atender_teclado(unsigned char tecla) {
   switch(tecla) {
-
     case KB_w:
       print("     w", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
@@ -411,16 +428,37 @@ void game_atender_teclado(unsigned char tecla) {
       print("     l", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
     case KB_shiftL:
-      if (sched_hay_slot_libre(jugadorA.index)) {
+      if (!debug && sched_hay_slot_libre(jugadorA.index)) {
         game_jugador_lanzar_explorador(&jugadorA);
       }
       print("ShiftL", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
     case KB_shiftR:
-      if (sched_hay_slot_libre(jugadorB.index)) {
+      if (!debug && sched_hay_slot_libre(jugadorB.index)) {
         game_jugador_lanzar_explorador(&jugadorB);
       }
       print("ShiftR", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
   }
+
+}
+
+uint game_calcular_fin() {
+  if (contador == FIN) {
+    game_terminar_si_es_hora();
+
+    return 1;
+  }
+
+  if (!debug) {
+    if (puntajeA == jugadorA.monedas && puntajeB == jugadorB.monedas) {
+      contador++;
+    } else {
+      contador = 0;
+      puntajeA = jugadorA.monedas;
+      puntajeB = jugadorB.monedas;
+    }
+  }
+
+  return 0;
 }

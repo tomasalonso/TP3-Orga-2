@@ -145,3 +145,11 @@ tss * tss_pirata(pirata_t* p) {
 
   return &(tss_array[p->index]);
 }
+
+void tss_finalizar() {
+  // Meterse en la tss
+  // cambiar EFLAGS
+  tss_idle.eflags = 0x00000002;
+  // reiniciar tarea
+  tss_idle.eip = 0x160000;
+}
