@@ -183,34 +183,13 @@ void screen_pintar_pirata(jugador_t *j, pirata_t *pirata, uint dir) {
     screen_pintar(tipo, screen_color_jugador(j), antY+1, antX);
   }
   screen_pintar(tipo, (screen_color_jugador(j)+(3 << 4)) | C_FG_WHITE, y+1, x);
-
-  /* Prueba */
-  /*
-    x = y = 10;
-    tipo = 'E';
-  */
-  /* screen_pintar_rect_color(screen_color_jugador(j), y, x-1, 3, 3); */
-  /* Fin prueba */
-
-  /* screen_pintar_rect_color(screen_color_jugador(j), y-1, x-1, 3, 3); */
-  /* screen_pintar(screen_caracter_pirata(tipo), screen_color_jugador(j), y, x); */
-}
-
-void screen_borrar_pirata(pirata_t *pirata) {
-  uint x = (pirata->jugador->index == JUGADOR_A) ? INI_C_RELOJ_ROJO : INI_C_RELOJ_AZUL;
-  uint i = pirata->index+1;
-
-  screen_pintar_rect_color(screen_color_jugador(pirata->jugador), pirata->posicionY+1, pirata->posicionY, 1, 1);
-  screen_pintar('x', screen_color_jugador(pirata->jugador) | C_FG_BLACK, pirata->posicionY+1, pirata->posicionX);
-
-  screen_pintar('x', C_BW, INI_F_PIE+3, x+i*2);
 }
 
 void screen_matar_pirata(pirata_t *pirata) {
   uint x = (pirata->jugador->index == JUGADOR_A) ? INI_C_RELOJ_ROJO : INI_C_RELOJ_AZUL;
   uint i = pirata->index+1;
 
-  screen_pintar_rect_color(screen_color_jugador(pirata->jugador), pirata->posicionY+1, pirata->posicionY, 1, 1);
+  screen_pintar_rect_color(screen_color_jugador(pirata->jugador), pirata->posicionY+1, pirata->posicionX, 1, 1);
   screen_pintar('x', screen_color_jugador(pirata->jugador) | C_FG_RED, pirata->posicionY+1, pirata->posicionX);
 
   screen_pintar('x', C_FG_RED, INI_F_PIE+3, x+i*2);
@@ -277,7 +256,7 @@ void screen_pintar_rect_color(unsigned char color, int fila, int columna, int al
 }
 
 void screen_pintar_botin(uint x, uint y) {
-  screen_pintar('@', C_FG_RED, y+1, x);
+  screen_pintar('@', C_BG_LIGHT_GREY|C_FG_RED, y+1, x);
 }
 
 #define DEBUG_INI_X 24
@@ -287,23 +266,26 @@ void screen_pintar_botin(uint x, uint y) {
 #define DEBUG_INI_REG_X DEBUG_INI_X+2
 #define DEBUG_INI_REG_Y DEBUG_INI_Y+3
 
-void screen_debug(uint cs, uint ss, uint ds,
+void screen_debug(char *exc,
+                  uint cs, uint ss, uint ds,
                   uint es, uint fs, uint gs,
                   uint esp, uint eip, uint eflags, uint *greg) {
-  print_hex(cs, 20, 0, 0, 0xF0);
-  print_hex(ss, 20, 0, 1, 0xF0);
-  print_hex(ds, 20, 0, 2, 0xF0);
-  print_hex(es, 20, 0, 3, 0xF0);
-  print_hex(fs, 20, 0, 4, 0xF0);
-  print_hex(gs, 20, 0, 5, 0xF0);
-  print_hex(esp, 20, 0, 6, 0xF0);
-  print_hex(eip, 20, 0, 7, 0xF0);
-  print_hex(eflags, 20, 0, 8, 0xF0);
-  print_hex((unsigned int)greg, 20, 0, 9, 0xF0);
+  /* print_hex(cs, 20, 0, 0, 0xF0); */
+  /* print_hex(ss, 20, 0, 1, 0xF0); */
+  /* print_hex(ds, 20, 0, 2, 0xF0); */
+  /* print_hex(es, 20, 0, 3, 0xF0); */
+  /* print_hex(fs, 20, 0, 4, 0xF0); */
+  /* print_hex(gs, 20, 0, 5, 0xF0); */
+  /* print_hex(esp, 20, 0, 6, 0xF0); */
+  /* print_hex(eip, 20, 0, 7, 0xF0); */
+  /* print_hex(eflags, 20, 0, 8, 0xF0); */
+  /* print_hex((unsigned int)greg, 20, 0, 9, 0xF0); */
 
   screen_pintar_rect_color(C_BG_BLACK|C_FG_BLACK, DEBUG_INI_Y, DEBUG_INI_X, DEBUG_ALTO, DEBUG_ANCHO);
   screen_pintar_rect_color(C_BG_LIGHT_GREY|C_FG_LIGHT_GREY, DEBUG_INI_Y+1, DEBUG_INI_X+1, DEBUG_ALTO-2, DEBUG_ANCHO-2);
   screen_pintar_rect_color(C_BG_RED|C_FG_RED, DEBUG_INI_Y+1, DEBUG_INI_X+1, 1, DEBUG_ANCHO-2);
+
+  print(exc, DEBUG_INI_X+2, DEBUG_INI_Y+1, C_BG_RED | C_FG_WHITE);
 
   print("eax", DEBUG_INI_REG_X, DEBUG_INI_REG_Y, C_BG_LIGHT_GREY|C_FG_BLACK);
   print("ebx", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+2, C_BG_LIGHT_GREY|C_FG_BLACK);
@@ -376,8 +358,8 @@ void screen_debug(uint cs, uint ss, uint ds,
 
 void screen_guardar() {
   int i, j;
-  for (i = 0; i < 44; i++) {
-    for (j = 0; j < 80; j++) {
+  for (i = 0; i < DEBUG_ALTO; i++) {
+    for (j = 0; j < DEBUG_ANCHO; j++) {
       pantalla[i][j] = p[DEBUG_INI_Y+i][DEBUG_INI_X+j];
     }
   }
@@ -385,8 +367,8 @@ void screen_guardar() {
 
 void screen_cargar() {
   int i, j;
-  for (i = 0; i < 44; i++) {
-    for (j = 0; j < 80; j++) {
+  for (i = 0; i < DEBUG_ALTO; i++) {
+    for (j = 0; j < DEBUG_ANCHO; j++) {
       p[DEBUG_INI_Y+i][DEBUG_INI_X+j] = pantalla[i][j];
     }
   }

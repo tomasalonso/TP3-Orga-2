@@ -55,4 +55,6 @@ void sched_activar();
 
 void sched_detener();
 
+uint sched_activo();
+
 #endif	/* !__SCHED_H__ */

@@ -59,7 +59,7 @@ extern game_calcular_fin
 
 global _isr%1
 
-  msg%1 db %2
+  msg%1 db %2, 0
   msg%1_len equ    $ - msg%1
 
 _isr%1:
@@ -92,8 +92,10 @@ _isr%1:
   mov ax, [esp+17*4+CS+ERROR_CODE]
   push eax
 
+  push msg%1
+
   call game_atender_excepcion
-  add esp, 17*4
+  add esp, 18*4
 
   jmp (GDT_TSS_IDLE << 3):0
 %endmacro

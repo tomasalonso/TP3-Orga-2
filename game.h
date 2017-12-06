@@ -120,7 +120,8 @@ void game_pirata_mover(pirata_t *pirata, uint x, uint y, direccion dir);
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y);
 void game_jugador_lanzar_explorador(jugador_t *j);
 uint game_calcular_fin();
-void game_atender_excepcion(uint cs, uint ss, uint ds,
+void game_atender_excepcion(char *exc,
+                            uint cs, uint ss, uint ds,
                             uint es, uint fs, uint gs,
                             uint esp, uint eip, uint eflags, uint *greg);
 

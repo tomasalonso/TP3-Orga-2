@@ -157,3 +157,7 @@ void sched_activar() {
 void sched_detener() {
   scheduler.activo = 0;
 }
+
+uint sched_activo() {
+  return scheduler.activo;
+}

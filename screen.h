@@ -47,7 +47,6 @@ void screen_actualizar_reloj_pirata (jugador_t *j, pirata_t *pirata);
 unsigned char screen_color_jugador(jugador_t *j);
 unsigned char screen_caracter_pirata(unsigned int tipo);
 void screen_pintar_pirata(jugador_t *j, pirata_t *pirata, uint dir);
-void screen_borrar_pirata(pirata_t *pirata);
 void screen_matar_pirata(pirata_t *pirata);
 void screen_pintar_reloj_pirata(jugador_t *j, pirata_t *pirata);
 void screen_pintar_reloj_piratas(jugador_t *j);
@@ -60,7 +59,8 @@ void screen_stop_game_show_winner(jugador_t *j);
 /* Agregadas */
 void screen_pintar_rect_color(unsigned char color, int fila, int columna, int alto, int ancho);
 void screen_pintar_botin(uint x, uint y);
-void screen_debug(uint cs, uint ss, uint ds,
+void screen_debug(char *exc,
+                  uint cs, uint ss, uint ds,
                   uint es, uint fs, uint gs,
                   uint esp, uint eip, uint eflags, uint *greg);
 void screen_guardar();

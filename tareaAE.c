@@ -11,12 +11,9 @@
 #include "i386.h"
 
 void task(int x, int y) {
-  breakpoint();
     /* Tarea */
     int restantex = MAPA_ANCHO-3;
     int restantey = MAPA_ALTO-3;
-    int zero = 0;
-    restantey /= zero;
     while(1)
     {
         int i;

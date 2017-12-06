@@ -32,8 +32,6 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #define FIN 0x500000
 
 uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
-  /* {2,  0, 50}, {5, 0, 50}, {10, 0, 100}, {45, 21, 100} , */
-  /* {10,  0, 50}, {20, 0, 50}, {70, 0, 100}, {45, 21, 100} , */
   {30,  3, 50}, {31, 38, 50}, {15, 21, 100}, {45, 21, 100} ,
   {49,  3, 50}, {48, 38, 50}, {64, 21, 100}, {34, 21, 100}
                                     };
@@ -218,8 +216,11 @@ void game_explorar_posicion(pirata_t *pirata, uint pd, uint x, uint y, direccion
       screen_pintar_rect_color(screen_color_jugador(pirata->jugador), v_y[i]+1, v_x[i], 1, 1);
       // Si hay botin, a minar!
       if (game_valor_tesoro(v_x[i], v_y[i])) {
-        if (sched_hay_slot_libre(pirata->jugador->index))
+        if (sched_hay_slot_libre(pirata->jugador->index)) {
           game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
+        } else {
+          // TODO
+        }
         screen_pintar_botin(v_x[i], v_y[i]);
       }
     }
@@ -277,23 +278,16 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
   uint x = pirata->posicionX;
   uint y = pirata->posicionY;
 
-  if(pirata->tipo == EXPLORADOR) {
+  if (pirata->tipo != EXPLORADOR || game_valor_tesoro(x, y) <= 0) {
+    // si algo esta mal
     game_pirata_exploto();
     return -1;
-  } else {
-    // si hay monedas
-    if(game_valor_tesoro(x, y) > 0) {
-      game_jugador_anotar_punto(j);
-      game_minar_botin(x, y);
-      screen_pintar_puntajes();
-    } else {
-      // Libero el slot
-      screen_borrar_pirata(pirata);
-      sched_liberar_slot();
-
-      return -1;
-    }
   }
+
+  // si hay monedas
+  game_jugador_anotar_punto(j);
+  game_minar_botin(x, y);
+  screen_pintar_puntajes();
 
   return 0;
 }
@@ -301,14 +295,16 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
 uint game_syscall_pirata_posicion(jugador_t *j, int idx) {
   pirata_t *pirata = NULL;
 
-  if(idx == -1) {
-    pirata = sched_pirata_actual();
-  } else if (idx >= 0 && idx <= 7){
-    pirata = &j->piratas[idx];
-  } else {
+  if (idx < -1 || idx > 7) {
+    // si algo esta mal
     game_pirata_exploto();
-
     return -1;
+  }
+
+  if (idx == -1) {
+    pirata = sched_pirata_actual();
+  } else {
+    pirata = &j->piratas[idx];
   }
 
   return pirata->posicionY << 8 | pirata->posicionX;
@@ -439,10 +435,13 @@ void game_atender_teclado(unsigned char tecla) {
     case KB_y:
       print("     y", 74, 0, C_BG_BLACK | C_FG_WHITE);
       if (debug) {
-        print("     ", 20, 0, 0xF0);
-        debug = 0;
-        screen_cargar();
-        sched_activar();
+        if (!sched_activo()) {
+          screen_cargar();
+          sched_activar();
+        } else {
+          print("     ", 20, 0, 0x0);
+          debug = 0;
+        }
       } else {
         print("DEBUG", 20, 0, 0xF0);
         debug = 1;
@@ -461,37 +460,39 @@ void game_atender_teclado(unsigned char tecla) {
       print("ShiftR", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
   }
-
 }
 
 uint game_calcular_fin() {
   if (contador == FIN) {
+    breakpoint();
     game_terminar_si_es_hora();
 
     return 1;
   }
 
-  if (!debug) {
-    if (puntajeA == jugadorA.monedas && puntajeB == jugadorB.monedas) {
-      contador++;
-    } else {
-      contador = 0;
-      puntajeA = jugadorA.monedas;
-      puntajeB = jugadorB.monedas;
-    }
+  if (sched_activo() &&
+      !sched_hay_slot_libre(jugadorA.index) &&
+      !sched_hay_slot_libre(jugadorB.index) &&
+      puntajeA == jugadorA.monedas &&
+      puntajeB == jugadorB.monedas) {
+    contador++;
+  } else {
+    contador = 0;
+    puntajeA = jugadorA.monedas;
+    puntajeB = jugadorB.monedas;
   }
 
   return 0;
 }
 
-void game_atender_excepcion(uint cs, uint ss, uint ds,
+void game_atender_excepcion(char *exc,
+                            uint cs, uint ss, uint ds,
                             uint es, uint fs, uint gs,
                             uint esp, uint eip, uint eflags, uint *greg) {
   game_pirata_exploto();
-
   if (debug) {
     sched_detener();
     screen_guardar();
-    screen_debug(cs,ss,ds,es,fs,gs,esp,eip,eflags,greg);
+    screen_debug(exc,cs,ss,ds,es,fs,gs,esp,eip,eflags,greg);
   }
 }
