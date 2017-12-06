@@ -1,0 +1,105 @@
+Ejercicio1
+
+  A lo largo del TP se usan defines para todos los parametros que son constantes a lo largo del programa,
+  como por ejemplo en este caso, el indice de cada entrada de la GDT.
+  Para completar cada entrada se usa la estructura dada por la catedra sin ninguna modificacion.
+
+  Para este ejercicio se definio un segmento de datos especial para la memoria de video el cual luego
+  quedo comentado, no se agrega a la GDT.
+
+  en el kernel se carga la GDT y se salta a modo protegido tal como se vio en las clases y los ejemplos.
+  Luego se cargan todos los segmentos con la modalidad flat, todos los segmentos apuntando a la misma memoria,
+  y se apunta la pila del kernel a la direccion 0x27000, la especificada por el enunciado.
+
+  ahora se carga el segmento especial de video y con codigo en assembler usando un ciclo dentro de otro ciclo que recorre pintando
+  toda una fila y despues bajando a la siguiente se logra pinta toda la pantalla de gris.
+  De aqui en mas se desabilitó este segmento especial de video, se accede a la memoria de video por los segmentos
+  de datos y la inicializacion de la pantalla se realiza en el ejercicio 3 con funciones en C.
+
+
+
+Ejercicio2
+
+  Para Inicializar las entradas de la IDT se utilizo la macro propuesta con una ligera modificacion,
+  se decidio agregar a la misma que se pueda especificar el atributo de la entrada, los cuales estan
+  definidos previamente, estas son TRAP, la cual indica una trap gate como son todas las excepciones, INTERRUPT,
+  la cual indica que esta interrupcion solo puede ser llamada por codigo de privilegio 0, y USER_INTERRUPT, que puede ser llamada
+  por codigo de usuario tambien.
+
+  Para las creacion funciones de las excepciones de procesador se utiliza una macro, cuando se produce una excepcion,
+  el descriptor llama a su funcion asignada, la cual, dependiendo del numero de interrupcion se elige el mensaje que se imprime por pantalla,
+  esta funcionalidad sera aprovechada mas adelante ya que son similares en cuanto a codigo todas las excepciones
+  en este tp.
+  Se explica y detalla mejor el funcionamiento de esta macro especial en la parte del ejercicio 7, cuando se implementa el verdadero funcionamiento (HABLAR DE LA MACRO DE INTERRUPCIONES)
+  de las rutinas de atencion de estas excepciones.
+
+  Se inicializa la IDT en el kernel como se indica en el enunciado y a continuacion se probó el funcionamiento de varias excepciones
+  esto funcionaba correctamente y luego fue comentado para seguir con el trabajo practico.
+
+
+
+Ejercicio3
+
+  En primer lugar se inicializa la pantalla con la funcion screen_inicializar hecha en C.
+  Esta funcion utiliza todas funciones de la catedra, en primer lugar pinta toda la pantalla de gris, luego
+  se pinta una linea negra en la parte superior, donde se escribira informacion, por el momento se escribe aqui
+  el nombre del grupo. Tambien se pintan los dos sectores de puntajes de los jugadores y se inicializan los relojes
+  para cada pirata de cada jugador. Todo lo realizado es acorde a las imagenes del mapa sugerido por la catedra.
+
+  Luego se llama a mmu_inicializar_dir_kernel, esta funcion crea el page directory en el cual se paginara
+  con identity mapping el kernel. se crea este page directory a partir de la direccion 0x27000 como indica el enunciado,
+  en este page directory se crea una page table para mapeara el kernel, esta está en la posicion 0x28000 que
+  se asigna directamente porque es la posicion especifica que se pide y no esta habilitada la paginacion como
+  para pedir memoria libre. en esta tabla se cicla con un for asignando por identity mapping toda la
+  seccion del kernel y su memoria libre, utilizando para esto toda la page table.
+
+  Finalmente se carga en el cr3 del kernel la direccion de este page directory y se habilita en el cr0 la paginacion.
+
+
+
+Ejercicio 4
+
+  Se iniciliza el seguimiento de las paginas libres con una variable global la cual comienza indicando el inicio
+  del sector de memoria libre, con esta variable se indica donde se crea la proxima pagina pedida y luego se mueve
+  una posicion hacia adelante.
+  Se implementaron las funciones mmu_mapear_pagina y mmu_unmapear_pagina, la primera accede al page directory
+  indicado por cr3, chequea si la page table correspondiente a la direccion virtual que se pide mapear esta presente o no,
+  si no lo esta, se crea, si lo esta, se apunta a la page table indicada. luego en esta tabla setea en la entrada correspondiente
+  a la direccion virtual, los valores necesarios para mapear a la direccion fisica y se pone en presente esta pagina.
+  Finalmente se limpia el cache de paginas accedidas.
+  La segunda, simplente setea a cero el bit de presente de la entrada correspondiente en la page table que estaba mapeando la direccion
+  virtual indicada
+  En la implementacion de la funcion mmu_inicializar_dir_pirata sucede lo siguiente:
+    Se crea un page directory pidiendo una pagina libre, se setea todo en cero para esta estructura,
+    en la primera tabla se apunta a la tabla que mapea el kernel, la direccion 0x28000.
+    Luego se obtiene la direccion fisica en donde comienza el pirata, el puerto del jugador correspondiente y
+    tambien se localiza con un puntero la posicion en memoria del codigo correspondiente al tipo de pirata.
+    con el cr3 actual se mapea en la direccion 0x401000 el lugar donde va a ir localizado el codigo,
+    luego se copia efectivamente el codigo a esta direccion recien mapeada, se ponene manualmente en la pila
+    los parametros necesarios por el codigo y una direccion de retorno 0 la cual no va a ser llamada nunca y
+    finalmente se desmapea esta direccion 0x401000.
+    Se termina por mapear, en la direccion 0x40000 en el page directory creado al comienzo de la funcion, con
+    la posicion en memoria a donde se copió el codigo de la tarea en los pasos anteriores.
+    En las 4 tablas de paginas siguientes se mapean 4 tablas las cuales se crean cuando se inicia un jugador.
+    Estas corresponden a indicar las direcciones del mapa que ya son conocidas por todos los piratas del jugador
+    y se ven actualizadas con cada movimiento de los piratas exploradores. se hablara de como funcionan especificamente
+    esta estructura de cuatro paginas al final del informe cuando se detalle el funcionamiento general del juego.   (HABLAR DE TABLAS DE JUGADOR QUE MAPEAN LO DESCUBIERTO)
+    Por ultimo se da por explorada la posicion en la que se crea el pirata en esta estructura de posiciones exploradas,
+    en caso de que sea la primera vez, luego se devuelve el page directory del pirata.
+
+
+Ejercicio 5
+
+  Se crean las 3 entradas en la IDT para las 3 interrupciones indicadas.
+  En la interrupcion del reloj se deshabilitan las interrupciones de PIC
+  y se realizaba lo pedido de igual manera que lo que recomienda el enunciado, se hablara
+  en mayor profundida de esta y las otras interrupciones cuando se trate su implementacion final                            (HABLAR DE LAS 3 INTERRUPCIONES AL FINAL)
+  En la interrupcion del teclado tambien se deshabilitan las interrupciones del PIC y luego se llama a
+  la funcion game_atender_teclado, la cual en primer lugar solo se encargaba de imprimir en pantalla la tecla
+  usando un switch y los distintos codigos de teclado, tambien se comentara en la funcion final de esto mas adelante.
+  Finalmente se agrega la interrupcion 0x46, la cual no hacia nada util y se explica su funcionamiento final más
+  adelante cuando es correctamente implementada.
+
+
+
+Ejercicio 6
