@@ -201,12 +201,12 @@ _isr70:
   push ecx
   push eax
   call game_syscall_manejar
-  mov ecx, [esp]         ; reestablecer eax
-  add esp, 8             ; restablezco la pila
+  pop ecx                       ; reestablecer eax
+  add esp, 4                    ; restablezco la pila
 
   cmp eax, -1
   je .saltar
-.cavar:                  ; agrega la posicion a manopla
+.cavar:                         ; agrega la posicion a manopla
   cmp ecx, 0x3
   jne .saltar
   mov [esp+7*4], eax

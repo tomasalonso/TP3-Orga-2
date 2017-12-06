@@ -299,9 +299,9 @@ void screen_debug(uint cs, uint ss, uint ds,
   print_hex(eflags, 20, 0, 8, 0xF0);
   print_hex((unsigned int)greg, 20, 0, 9, 0xF0);
 
-  screen_pintar_rect_color(C_BG_BLACK, DEBUG_INI_Y, DEBUG_INI_X, DEBUG_ALTO, DEBUG_ANCHO);
-  screen_pintar_rect_color(C_BG_LIGHT_GREY, DEBUG_INI_Y+1, DEBUG_INI_X+1, DEBUG_ALTO-2, DEBUG_ANCHO-2);
-  screen_pintar_rect_color(C_BG_RED, DEBUG_INI_Y+1, DEBUG_INI_X+1, 1, DEBUG_ANCHO-2);
+  screen_pintar_rect_color(C_BG_BLACK|C_FG_BLACK, DEBUG_INI_Y, DEBUG_INI_X, DEBUG_ALTO, DEBUG_ANCHO);
+  screen_pintar_rect_color(C_BG_LIGHT_GREY|C_FG_LIGHT_GREY, DEBUG_INI_Y+1, DEBUG_INI_X+1, DEBUG_ALTO-2, DEBUG_ANCHO-2);
+  screen_pintar_rect_color(C_BG_RED|C_FG_RED, DEBUG_INI_Y+1, DEBUG_INI_X+1, 1, DEBUG_ANCHO-2);
 
   print("eax", DEBUG_INI_REG_X, DEBUG_INI_REG_Y, C_BG_LIGHT_GREY|C_FG_BLACK);
   print("ebx", DEBUG_INI_REG_X, DEBUG_INI_REG_Y+2, C_BG_LIGHT_GREY|C_FG_BLACK);
