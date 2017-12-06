@@ -103,7 +103,7 @@ int game_calcular_posiciones_vistas(int *vistas_x, int *vistas_y, int x, int y, 
 uint game_syscall_pirata_mover(pirata_t *pirata, direccion dir);
 uint game_syscall_cavar(jugador_t *j, pirata_t *pirata);
 uint game_syscall_pirata_posicion(jugador_t *j, int idx);
-uint game_syscall_manejar(uint syscall, uint param1);
+int game_syscall_manejar(uint syscall, uint param1);
 void game_tick();
 void game_terminar_si_es_hora();
 void game_atender_teclado(unsigned char tecla);

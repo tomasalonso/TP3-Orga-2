@@ -217,13 +217,13 @@ void game_explorar_posicion(pirata_t *pirata, uint pd, uint x, uint y, direccion
   for (i = 0; i < cant; i++) {
     if (game_posicion_valida(v_x[i], v_y[i])) {
       game_pirata_habilitar_posicion(v_x[i], v_y[i], pd);
+      screen_pintar_rect_color(screen_color_jugador(pirata->jugador), v_y[i]+1, v_x[i], 1, 1);
       // Si hay botin, a minar!
       if (game_valor_tesoro(v_x[i], v_y[i])) {
         if (sched_hay_slot_libre(pirata->jugador->index))
           game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
         screen_pintar_botin(v_x[i], v_y[i]);
       }
-      screen_pintar_rect_color(screen_color_jugador(pirata->jugador), v_y[i]+1, v_x[i], 1, 1);
     }
   }
 }
@@ -316,7 +316,7 @@ uint game_syscall_pirata_posicion(jugador_t *j, int idx) {
   return pirata->posicionY << 8 | pirata->posicionX;
 }
 
-uint game_syscall_manejar(uint syscall, uint param1) {
+int game_syscall_manejar(uint syscall, uint param1) {
   jugador_t *jugador = sched_jugador_actual();
   pirata_t *pirata = sched_pirata_actual();
 
@@ -329,14 +329,7 @@ uint game_syscall_manejar(uint syscall, uint param1) {
   }
 
   if (syscall == POSICION) {
-    uint *esp;
-    __asm __volatile("movl %%esp,%0" : "=r" (esp));
-
-    esp += (8-1)+3+7;
-
-    *esp = game_syscall_pirata_posicion(jugador, param1);
-
-    return 0;
+    return game_syscall_pirata_posicion(jugador, param1);
   }
 
   // si se llamó con un parámetro erróneo
@@ -409,7 +402,7 @@ void game_actualizar_codigo(uint x0, uint y0, uint x1, uint y1) {
 #define KB_k        0x25 // 0xa5
 #define KB_j        0x24 // 0xa4
 #define KB_l        0x26 // 0xa6
-#define KB_y        0x27 // 0xa7
+#define KB_y        0x15 // 0xa7
 #define KB_shiftL   0x2a // 0xaa
 #define KB_shiftR   0x36 // 0xb6
 
@@ -444,7 +437,6 @@ void game_atender_teclado(unsigned char tecla) {
       break;
     case KB_l:
       print("     l", 74, 0, C_BG_BLACK | C_FG_WHITE);
-      debug = (debug == 0) ? 1 : 0;
       break;
     case KB_y:
       print("     y", 74, 0, C_BG_BLACK | C_FG_WHITE);

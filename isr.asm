@@ -98,9 +98,6 @@ _isr%1:
   xchg bx, bx
 
   jmp (GDT_TSS_IDLE << 3):0
-
-  popad
-  iret
 %endmacro
 
 ;;
@@ -204,8 +201,17 @@ _isr70:
   push ecx
   push eax
   call game_syscall_manejar
+  mov ecx, [esp]         ; reestablecer eax
   add esp, 8             ; restablezco la pila
 
+  cmp eax, -1
+  je .saltar
+.cavar:                  ; agrega la posicion a manopla
+  cmp ecx, 0x3
+  jne .saltar
+  mov [esp+7*4], eax
+
+.saltar:
   jmp (GDT_TSS_IDLE << 3):0
 
   popad
