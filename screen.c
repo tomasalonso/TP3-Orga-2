@@ -38,6 +38,13 @@ const char reloj[] = "|/-\\";
 #define INI_C_RELOJ_ROJO 3
 #define INI_C_RELOJ_AZUL 57
 
+#define DEBUG_INI_X 24
+#define DEBUG_INI_Y 6
+#define DEBUG_ANCHO 32
+#define DEBUG_ALTO 36
+#define DEBUG_INI_REG_X DEBUG_INI_X+2
+#define DEBUG_INI_REG_Y DEBUG_INI_Y+3
+
 void screen_actualizar_reloj_global()
 {
     static uint reloj_global = 0;
@@ -237,10 +244,16 @@ void screen_actualizar_posicion_mapa(uint x, uint y) {
 }
 
 void screen_stop_game_show_winner(jugador_t *j) {
-  if (j == NULL) {
-    // empate
-  } else {
+  screen_pintar_rect_color(C_BG_BLACK|C_FG_BLACK, DEBUG_INI_Y, DEBUG_INI_X, 8, DEBUG_ANCHO);
+  screen_pintar_rect_color(C_BG_LIGHT_GREY|C_FG_LIGHT_GREY, DEBUG_INI_Y+1, DEBUG_INI_X+1, 6, DEBUG_ANCHO-2);
+  screen_pintar_rect_color(C_BG_RED|C_FG_RED, DEBUG_INI_Y+1, DEBUG_INI_X+1, 1, DEBUG_ANCHO-2);
 
+  if (j == NULL) {
+    print("EMPATE!", DEBUG_INI_REG_X+11, DEBUG_INI_REG_Y+1, C_BG_LIGHT_GREY|C_FG_BLACK);
+  } else if (j->index == 0) {
+    print("Gano el jugador ROJO!", DEBUG_INI_REG_X+3, DEBUG_INI_REG_Y+1, C_BG_LIGHT_GREY|C_FG_BLACK);
+  } else {
+    print("Gano el jugador AZUL!", DEBUG_INI_REG_X+3, DEBUG_INI_REG_Y+1, C_BG_LIGHT_GREY|C_FG_BLACK);
   }
 }
 
@@ -258,13 +271,6 @@ void screen_pintar_rect_color(unsigned char color, int fila, int columna, int al
 void screen_pintar_botin(uint x, uint y) {
   screen_pintar('@', C_BG_LIGHT_GREY|C_FG_RED, y+1, x);
 }
-
-#define DEBUG_INI_X 24
-#define DEBUG_INI_Y 6
-#define DEBUG_ANCHO 32
-#define DEBUG_ALTO 36
-#define DEBUG_INI_REG_X DEBUG_INI_X+2
-#define DEBUG_INI_REG_Y DEBUG_INI_Y+3
 
 void screen_debug(char *exc,
                   uint cs, uint ss, uint ds,

@@ -49,8 +49,6 @@ void sched_liberar_slot();
 
 uint sched_pirata_activo(pirata_t * p);
 
-uint sched_finalizar();
-
 void sched_activar();
 
 void sched_detener();

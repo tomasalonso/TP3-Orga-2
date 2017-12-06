@@ -27,7 +27,7 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #define POSICION 0x3
 
 // Para finalizar el juego
-#define FIN 0x500000
+#define FIN 0x10
 
 uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
   {30,  3, 50}, {31, 38, 50}, {15, 21, 100}, {45, 21, 100} ,
@@ -201,8 +201,6 @@ void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
 }
 
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y) {
-  //breakpoint();
-
   game_jugador_lanzar_pirata(j, MINERO, x, y);
 }
 
@@ -352,6 +350,8 @@ void game_jugador_anotar_punto(jugador_t *j) {
 }
 
 void game_terminar_si_es_hora() {
+  sched_detener();
+
   if (jugadorA.monedas > jugadorB.monedas)
     screen_stop_game_show_winner(&jugadorA);
   else if (jugadorA.monedas < jugadorB.monedas)
@@ -474,7 +474,6 @@ void game_atender_teclado(unsigned char tecla) {
 
 uint game_calcular_fin() {
   if (contador == FIN) {
-    breakpoint();
     game_terminar_si_es_hora();
 
     return 1;

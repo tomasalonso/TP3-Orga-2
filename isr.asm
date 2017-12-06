@@ -34,8 +34,9 @@ extern sched_tick
 
 ; Para terminar
 extern tss_finalizar
-extern sched_finalizar
+extern sched_detener
 extern game_calcular_fin
+extern deshabilitar_pic
 
 ;;
 ;; Definición de MACROS
@@ -144,23 +145,23 @@ _isr32:
   cmp eax, FIN                  ; terminar?
   jne .sched
 
-  mov dword [esp+(3+8)*4], 0x00000002 ; desactivamos las interrupciones (en caso de ya estar en la idle)
-  call tss_finalizar            ; desactiva int de la tss de la tarea idle
-  call sched_finalizar          ; devuelve la idle
-  jmp .switch
+  xchg bx, bx
+  call deshabilitar_pic
+  mov ax, GDT_TSS_IDLE << 3
+  jmp .salto
 
 .sched:
   ; ; Ejercicio 5.b
   ; call game_tick
   call sched_tick
-.switch:
+
   shl ax, 3                     ; agregamos CPL al índice
 
+.salto:
   str cx
   cmp ax, cx                    ; es la misma tarea?
   je .fin
 
-.salto:
   mov [sched_tarea_selector], ax
   jmp far [sched_tarea_offset]
 
