@@ -103,3 +103,36 @@ Ejercicio 5
 
 
 Ejercicio 6
+
+  Se agrega en la GDT un descriptor de TSS para la tarea incial, uno para la tarea idle, 8 para los piratas de jugador A
+  y otras 8 para los piratas del jugador B.
+  En la funcion tss_inicializar se configura la TSS de la tarea idle como se pide, creando esta como una variable
+  local en el codigo y modificando esta estructura con los valores correspondientes, la pila en la del kernel, el
+  cr3 del kernel los eflags con valor 0x202 y el eip apuntando a la posicion 0x16000.
+  Finalmente en un ciclo se inicializan las bases y el bit de presente de todas las TSS de los piratas, que son inicializadas
+  completamente luego, cuando se lanza un pirata con los valores necesarios de un pirata, pidiendo una pagina para la pila
+  de nivel 0, seteando su pila al final de su pagina pero asumiendo que tiene los dos paramentros y la direccione
+  de retorno en la pila y con el eip apuntando al principio de la pagina.
+  Se escribe el codigo necesario para cargar la tarea inicial como la actual e inmediatamente saltar a la tarea idle.
+
+  (ESTO ACA O EN EL EJERCICIO 7?)
+  Modificamos la interrupcion 0x46 la cual ahora pone en la pila los parametros que se le pasan
+  y llama a game_syscall_manejar. Esta le pide al scheduler cual es el jugador actual y el pirata actual,
+  con una serie de ifs chequea cual fue el servicio pedido y llama a game_syscall_pirata_mover, game_syscall_cavar o
+  game_syscall_pirata_posicion. si no es nungun caso destruye al pirata y devuelve un -1.
+  Cuando retorna a la interrupcion, esta acomoda la pila, recupera el resultado y chequea si se devolvio un -1,
+  en este caso salta a la tarea idle, si no, se fija si se intento pedir la posicion, si fue asi, manualmente se
+  pone en la pila en el registro guardado de la tarea la posicion actual de la misma y tambien se salta a la tarea idle.
+
+
+
+Ejercicio 7
+
+  La estructura utilizada para el scheduler es la siguiente:
+    Se tiene un uint para saber si el scheduler esta activo o no, una lista de uints con 17 posiciones las cuales
+    representan los indices de la GDT que llevan al indice de la TSS de la respectiva tarea, las 8 primeras de jugador A,
+    las segundas del jugador B y la ultima para la tarea idle.
+    Hay un uint que indica el jugador actual (0 para A, 1 para B).
+    Una tupla de uints que indica en la primera posicion el indice del ultimo pirata ejecutado del Jugador A y en la otra el del
+    ultimo pirata ejecutado del jugador B en las dos listas siguientes.
+    En estas dos listas se indica con un int si el pirata correspondiente al indice esta libre (0) o en ejecucion (1);
