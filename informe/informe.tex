@@ -1,0 +1,64 @@
+\documentclass[a4paper]{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{charter}  % tipografia
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{inconsolata}
+\usepackage{clrscode}
+\usepackage{underscore}
+\usepackage{caratula}
+\usepackage{listings}
+\usepackage{array}
+
+\input{page.layout}
+
+\lstdefinelanguage
+   [x64]{Assembler}     % add a "x64" dialect of Assembler
+   [x86masm]{Assembler} % based on the "x86masm" dialect
+   % with these extra keywords:
+   {morekeywords={CDQE,CQO,CMPSQ,CMPXCHG16B,JRCXZ,LODSQ,MOVSXD, %
+                  POPFQ,PUSHFQ,SCASQ,STOSQ,IRETQ,RDTSCP,SWAPGS, %
+                  rax,rdx,rcx,rbx,rsi,rdi,rsp,rbp, %
+                  r8,r8d,r8w,r8b,r9,r9d,r9w,r9b, %
+                  r10,r10d,r10w,r10b,r11,r11d,r11w,r11b, %
+                  r12,r12d,r12w,r12b,r13,r13d,r13w,r13b, %
+                  r14,r14d,r14w,r14b,r15,r15d,r15w,r15b}} % etc.
+
+\lstset{language=[x64]Assembler}
+\lstset{basicstyle=\ttfamily\small}
+\lstset{frame=single,tabsize=4}
+\lstset{captionpos=b}
+\lstset{inputencoding=utf8}
+\lstset{numbers=left}
+\lstset{texcl=true}
+\lstset{escapeinside={(*@}{@*)}}
+\renewcommand{\lstlistingname}{Código}
+
+
+\begin{document}
+
+\materia{Organización del computador II}
+\titulo{TP3}
+\grupo{Pencylvester}
+\integrante{Alonso Tomás}{396/16}{tomasalonso96@gmail.com}
+\integrante{Gaggero Damián}{318/16}{damiangaggero@gmail.com}
+\integrante{Grosso Alejandro}{016/16}{alejandrogrosso@opmbx.org}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\input{introduccion}
+\newpage
+\input{desarrollo}
+\newpage
+\input{resultados}
+\newpage
+\input{conclusion}
+
+\end{document}
