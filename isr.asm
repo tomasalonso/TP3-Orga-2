@@ -65,6 +65,7 @@ global _isr%1
   msg%1_len equ    $ - msg%1
 
 _isr%1:
+xchg bx, bx
   pushad
   push esp
 

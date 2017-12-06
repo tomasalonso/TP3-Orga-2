@@ -20,7 +20,7 @@ typedef struct sched_t
 
   uint slotActual[2];
 
-  int slots[2][16];
+  int slots[2][8];
 } sched_t;
 
 sched_t scheduler;

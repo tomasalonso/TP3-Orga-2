@@ -276,17 +276,6 @@ void screen_debug(char *exc,
                   uint cs, uint ss, uint ds,
                   uint es, uint fs, uint gs,
                   uint esp, uint eip, uint eflags, uint *greg) {
-  /* print_hex(cs, 20, 0, 0, 0xF0); */
-  /* print_hex(ss, 20, 0, 1, 0xF0); */
-  /* print_hex(ds, 20, 0, 2, 0xF0); */
-  /* print_hex(es, 20, 0, 3, 0xF0); */
-  /* print_hex(fs, 20, 0, 4, 0xF0); */
-  /* print_hex(gs, 20, 0, 5, 0xF0); */
-  /* print_hex(esp, 20, 0, 6, 0xF0); */
-  /* print_hex(eip, 20, 0, 7, 0xF0); */
-  /* print_hex(eflags, 20, 0, 8, 0xF0); */
-  /* print_hex((unsigned int)greg, 20, 0, 9, 0xF0); */
-
   screen_pintar_rect_color(C_BG_BLACK|C_FG_BLACK, DEBUG_INI_Y, DEBUG_INI_X, DEBUG_ALTO, DEBUG_ANCHO);
   screen_pintar_rect_color(C_BG_LIGHT_GREY|C_FG_LIGHT_GREY, DEBUG_INI_Y+1, DEBUG_INI_X+1, DEBUG_ALTO-2, DEBUG_ANCHO-2);
   screen_pintar_rect_color(C_BG_RED|C_FG_RED, DEBUG_INI_Y+1, DEBUG_INI_X+1, 1, DEBUG_ANCHO-2);
@@ -358,7 +347,8 @@ void screen_debug(char *exc,
   // Primeros 5 de la pila
   int i;
   for (i = 0; i < 5; i++) {
-    print_hex(*((uint *) esp+i), 8, DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+20+i, C_BG_LIGHT_GREY|C_FG_WHITE);
+    uint *stack = (uint *) esp+i;
+    print_hex(*stack, 8, DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+20+i, C_BG_LIGHT_GREY|C_FG_WHITE);
   }
 }
 
