@@ -204,7 +204,7 @@ _isr70:
   pop ecx                       ; reestablecer eax
   add esp, 4                    ; restablezco la pila
 
-  cmp eax, -1
+  cmp eax, -1                   ; hubo error (el pirata exploto)
   je .saltar
 .cavar:                         ; agrega la posicion a manopla
   cmp ecx, 0x3
