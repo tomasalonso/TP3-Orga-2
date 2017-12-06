@@ -93,7 +93,7 @@ uint sched_hay_slot_libre(uint j) {
 
 uint sched_proximo_slot_libre(uint j) {
   uint proximo = 0;
-  uint slotIni = scheduler.slotActual[j]+1;
+  uint slotIni = scheduler.slotActual[j];
 
   uint i;
   for (i = slotIni; i < slotIni+8; i++) {
@@ -109,6 +109,7 @@ uint sched_proximo_slot_libre(uint j) {
 
 uint sched_tick() {
   game_tick();
+  game_mineros_pendientes(sched_jugador_actual());
 
   uint proxTarea = sched_proxima_a_ejecutar();
 

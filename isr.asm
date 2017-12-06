@@ -50,7 +50,8 @@ extern game_calcular_fin
 %define CS 1*4
 
 ; Vamo' a usar la macro, pero la vamo' a usar, como ¡YO QUIERA!
-%macro ISR 2+
+%macro ISR 2-3
+
 %if %0 = 3
 %define ERROR_CODE 1*4
 %else

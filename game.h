@@ -126,5 +126,6 @@ void game_atender_excepcion(char *exc,
                             uint esp, uint eip, uint eflags, uint *greg);
 uint game_nro_botin(uint x, uint y);
 void game_jugador_botin_inicializar(jugador_t *j);
+void game_mineros_pendientes(jugador_t *j);
 
 #endif  /* !__GAME_H__ */

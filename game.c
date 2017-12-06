@@ -201,6 +201,8 @@ void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
 }
 
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y) {
+  //breakpoint();
+
   game_jugador_lanzar_pirata(j, MINERO, x, y);
 }
 
@@ -343,15 +345,6 @@ void game_pirata_exploto() {
 
   screen_matar_pirata(p);
   sched_liberar_slot();
-
-  int i;
-  for (i = 0; i < BOTINES_CANTIDAD; i++) {
-    if (p->jugador->botin[i]) {
-      game_jugador_lanzar_minero(p->jugador, botines[i][0], botines[i][1]);
-      p->jugador->botin[i] = 0;
-      break;
-    }
-  }
 }
 
 void game_jugador_anotar_punto(jugador_t *j) {
@@ -523,4 +516,17 @@ uint game_nro_botin(uint x, uint y) {
   }
 
   return 0;
+}
+
+void game_mineros_pendientes(jugador_t *j) {
+  if (sched_hay_slot_libre(j->index)) {
+    int i;
+    for (i = 0; i < BOTINES_CANTIDAD; i++) {
+      if (j->botin[i]) {
+        game_jugador_lanzar_minero(j, botines[i][0], botines[i][1]);
+        j->botin[i] = 0;
+        break;
+      }
+    }
+  }
 }
