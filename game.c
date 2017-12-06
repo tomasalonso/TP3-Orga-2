@@ -27,7 +27,7 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #define POSICION 0x3
 
 // Para finalizar el juego
-#define FIN 0x10
+#define FIN 0x500
 
 uint botines[BOTINES_CANTIDAD][3] = { // TRIPLAS DE LA FORMA (X, Y, MONEDAS)
   {30,  3, 50}, {31, 38, 50}, {15, 21, 100}, {45, 21, 100} ,
