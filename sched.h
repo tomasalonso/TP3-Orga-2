@@ -12,7 +12,9 @@
 
 typedef struct sched_t
 {
-  unsigned int selectores[17];
+  uint activo;
+
+  uint selectores[17];
 
   uint jugadorActual;
 
@@ -43,12 +45,14 @@ pirata_t * sched_pirata_actual();
 
 jugador_t * sched_jugador_actual();
 
-void sched_matar_pirata_actual();
-
 void sched_liberar_slot();
 
 uint sched_pirata_activo(pirata_t * p);
 
 uint sched_finalizar();
+
+void sched_activar();
+
+void sched_detener();
 
 #endif	/* !__SCHED_H__ */

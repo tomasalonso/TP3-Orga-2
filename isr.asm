@@ -51,24 +51,23 @@ extern game_calcular_fin
 
 ; Vamo' a usar la macro, pero la vamo' a usar, como ¡YO QUIERA!
 %macro ISR 2+
+%if %0 = 3
+%define ERROR_CODE 1*4
+%else
+%define ERROR_CODE 0
+%endif
+
 global _isr%1
 
   msg%1 db %2
   msg%1_len equ    $ - msg%1
 
 _isr%1:
-  xchg bx, bx
   pushad
   push esp
 
   ; mov eax, %1
   ; imprimir_texto_mp msg%1, msg%1_len, 0x7, 0, 0
-
-%if %0 = 3
-%define ERROR_CODE 1*4
-%else
-%define ERROR_CODE 0
-%endif
 
   mov eax, [esp+9*4+EFLAGS+ERROR_CODE]
   push eax
@@ -95,7 +94,6 @@ _isr%1:
 
   call game_atender_excepcion
   add esp, 17*4
-  xchg bx, bx
 
   jmp (GDT_TSS_IDLE << 3):0
 %endmacro

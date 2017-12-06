@@ -372,24 +372,22 @@ void screen_debug(uint cs, uint ss, uint ds,
   for (i = 0; i < 5; i++) {
     print_hex(*((uint *) esp+i), 8, DEBUG_INI_REG_X+16, DEBUG_INI_REG_Y+20+i, C_BG_LIGHT_GREY|C_FG_WHITE);
   }
-
-  breakpoint();
 }
 
 void screen_guardar() {
   int i, j;
-  for (i = DEBUG_INI_X; i < DEBUG_INI_REG_X+44; i++) {
-    for (j = DEBUG_INI_X; j < DEBUG_INI_X+80; j++) {
-      pantalla[i][j] = p[i][j];
+  for (i = 0; i < 44; i++) {
+    for (j = 0; j < 80; j++) {
+      pantalla[i][j] = p[DEBUG_INI_Y+i][DEBUG_INI_X+j];
     }
   }
 }
 
 void screen_cargar() {
   int i, j;
-  for (i = DEBUG_INI_X; i < DEBUG_INI_REG_X+44; i++) {
-    for (j = DEBUG_INI_X; j < DEBUG_INI_X+80; j++) {
-      p[i][j] = pantalla[i][j];
+  for (i = 0; i < 44; i++) {
+    for (j = 0; j < 80; j++) {
+      p[DEBUG_INI_Y+i][DEBUG_INI_X+j] = pantalla[i][j];
     }
   }
 }

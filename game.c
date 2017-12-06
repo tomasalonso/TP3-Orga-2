@@ -47,7 +47,6 @@ uint puntajeB;
 uint contador;
 
 uint debug;
-uint detenido;
 
 void* error() {
 	__asm__ ("int3");
@@ -129,7 +128,6 @@ void game_inicializar() {
 
   /* Debug desactivado por defecto */
   debug = 0;
-  detenido = 0;
 }
 
 void game_jugador_inicializar(jugador_t *j) {
@@ -340,7 +338,7 @@ int game_syscall_manejar(uint syscall, uint param1) {
 
 void game_pirata_exploto() {
   screen_matar_pirata(sched_pirata_actual());
-  sched_matar_pirata_actual();
+  sched_liberar_slot();
 }
 
 void game_jugador_anotar_punto(jugador_t *j) {
@@ -443,13 +441,13 @@ void game_atender_teclado(unsigned char tecla) {
       debug = (debug == 0) ? 1 : 0;
       break;
     case KB_shiftL:
-      if (!detenido && sched_hay_slot_libre(jugadorA.index)) {
+      if (sched_hay_slot_libre(jugadorA.index)) {
         game_jugador_lanzar_explorador(&jugadorA);
       }
       print("ShiftL", 74, 0, C_BG_BLACK | C_FG_WHITE);
       break;
     case KB_shiftR:
-      if (!detenido && sched_hay_slot_libre(jugadorB.index)) {
+      if (sched_hay_slot_libre(jugadorB.index)) {
         game_jugador_lanzar_explorador(&jugadorB);
       }
       print("ShiftR", 74, 0, C_BG_BLACK | C_FG_WHITE);
@@ -484,7 +482,7 @@ void game_atender_excepcion(uint cs, uint ss, uint ds,
   game_pirata_exploto();
 
   if (debug) {
-    detenido = 1;
+    sched_detener();
     screen_guardar();
     screen_debug(cs,ss,ds,es,fs,gs,esp,eip,eflags,greg);
   }

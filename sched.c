@@ -14,6 +14,8 @@ void sched_inicializar() {
   int i;
   int j;
 
+  scheduler.activo = 1;
+
   scheduler.jugadorActual = 0;
 
   for (i = 0; i < 2; i++) {
@@ -36,22 +38,26 @@ uint sched_proxima_a_ejecutar() {
   uint jInactivo = (jActivo == 0) ? 1 : 0;
   uint proximo = 16; // IDLE por defecto
 
-  if (sched_hay_slot_a_ejecutar(jInactivo)) {
-    scheduler.jugadorActual = jInactivo;
+  if (scheduler.activo) {
+    if (sched_hay_slot_a_ejecutar(jInactivo)) {
+      scheduler.jugadorActual = jInactivo;
 
-    proximo = sched_proximo_slot_a_ejecutar(jInactivo) + jInactivo*8;
-  } else if (sched_hay_slot_a_ejecutar(jActivo)){
-    proximo = sched_proximo_slot_a_ejecutar(jActivo) + jActivo*8;
+      proximo = sched_proximo_slot_a_ejecutar(jInactivo) + jInactivo*8;
+    } else if (sched_hay_slot_a_ejecutar(jActivo)){
+      proximo = sched_proximo_slot_a_ejecutar(jActivo) + jActivo*8;
+    }
   }
 
   return proximo;
 }
 
 uint sched_hay_slot_a_ejecutar(uint j) {
-  uint i;
-  for (i = 0; i < 8; i++) {
-    if (scheduler.slots[j][i] == EJECUCION) {
-      return 1;
+  if(scheduler.activo) {
+    uint i;
+    for (i = 0; i < 8; i++) {
+      if (scheduler.slots[j][i] == EJECUCION) {
+        return 1;
+      }
     }
   }
 
@@ -59,7 +65,7 @@ uint sched_hay_slot_a_ejecutar(uint j) {
 }
 
 uint sched_proximo_slot_a_ejecutar(uint j) {
-  uint proximo;
+  uint proximo = 0;
   uint slotIni = scheduler.slotActual[j]+1;
 
   uint i;
@@ -86,7 +92,7 @@ uint sched_hay_slot_libre(uint j) {
 }
 
 uint sched_proximo_slot_libre(uint j) {
-  uint proximo;
+  uint proximo = 0;
   uint slotIni = scheduler.slotActual[j]+1;
 
   uint i;
@@ -121,13 +127,6 @@ jugador_t * sched_jugador_actual() {
   return j;
 }
 
-void sched_matar_pirata_actual() {
-  uint j = scheduler.jugadorActual;
-  uint slot = scheduler.slotActual[j];
-
-  scheduler.slots[j][slot] = MUERTO;
-}
-
 void sched_liberar_slot() {
   uint j = scheduler.jugadorActual;
   uint slot = scheduler.slotActual[j];
@@ -149,4 +148,12 @@ uint sched_finalizar() {
   }
 
   return scheduler.selectores[16];
+}
+
+void sched_activar() {
+  scheduler.activo = 1;
+}
+
+void sched_detener() {
+  scheduler.activo = 0;
 }
