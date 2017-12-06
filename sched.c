@@ -52,12 +52,10 @@ uint sched_proxima_a_ejecutar() {
 }
 
 uint sched_hay_slot_a_ejecutar(uint j) {
-  if(scheduler.activo) {
-    uint i;
-    for (i = 0; i < 8; i++) {
-      if (scheduler.slots[j][i] == EJECUCION) {
-        return 1;
-      }
+  uint i;
+  for (i = 0; i < 8; i++) {
+    if (scheduler.slots[j][i] == EJECUCION) {
+      return 1;
     }
   }
 
@@ -81,10 +79,12 @@ uint sched_proximo_slot_a_ejecutar(uint j) {
 }
 
 uint sched_hay_slot_libre(uint j) {
-  uint i;
-  for (i = 0; i < 8; i++) {
-    if (scheduler.slots[j][i] == LIBRE) {
-      return 1;
+  if(scheduler.activo) {
+    uint i;
+    for (i = 0; i < 8; i++) {
+      if (scheduler.slots[j][i] == LIBRE) {
+        return 1;
+      }
     }
   }
 
@@ -108,7 +108,7 @@ uint sched_proximo_slot_libre(uint j) {
 }
 
 uint sched_tick() {
-  game_tick(0);
+  game_tick();
 
   uint proxTarea = sched_proxima_a_ejecutar();
 
