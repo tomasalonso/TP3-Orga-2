@@ -438,7 +438,15 @@ void game_atender_teclado(unsigned char tecla) {
       break;
     case KB_y:
       print("     y", 74, 0, C_BG_BLACK | C_FG_WHITE);
-      debug = (debug == 0) ? 1 : 0;
+      if (debug) {
+        print("     ", 20, 0, 0xF0);
+        debug = 0;
+        screen_cargar();
+        sched_activar();
+      } else {
+        print("DEBUG", 20, 0, 0xF0);
+        debug = 1;
+      }
       break;
     case KB_shiftL:
       if (sched_hay_slot_libre(jugadorA.index)) {
