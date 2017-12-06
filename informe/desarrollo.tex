@@ -94,11 +94,20 @@ practico.
 
 \subsection{Ejercicio 3}
 
-En primer lugar se inicializa la pantalla con la función {\it screen_inicializar\/} hecha en C.
-Esta funcion utiliza todas funciones de la catedra, en primer lugar pinta toda la pantalla de gris, luego
-se pinta una linea negra en la parte superior, donde se escribira informacion, por el momento se escribe aqui
-el nombre del grupo. Tambien se pintan los dos sectores de puntajes de los jugadores y se inicializan los relojes
-para cada pirata de cada jugador. Todo lo realizado es acorde a las imagenes del mapa sugerido por la catedra.
+En primer lugar se inicializa la pantalla con la función
+{\it screen_inicializar\/} hecha en C.
+
+Esta función utiliza todas funciones de la catedra, entre ellas
+{\it screen_pintar_rect\/}, {\it screen_pintar_linea_h\/},
+{\it screen_pintar_puntajes\/}.
+
+Los pasos a realizar por la función son, en primer lugar, pintar toda la
+pantalla de gris; luego se pinta una línea negra en la parte superior, donde se
+escribirá informacion, por el momento se escribe aquí el nombre del grupo, pero
+luego se escribirá la tecla pulsada y el modo {\it debug\/}.
+También se pintan los dos sectores de puntajes de los jugadores y se inicializan
+los relojes para cada pirata de cada jugador. Todo lo realizado es acorde a las
+imágenes del mapa sugerido por la cátedra.
 
 Luego se llama a mmu_inicializar_dir_kernel, esta funcion crea el page directory en el cual se paginara
 con identity mapping el kernel. se crea este page directory a partir de la direccion 0x27000 como indica el enunciado,
