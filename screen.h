@@ -63,5 +63,7 @@ void screen_pintar_botin(uint x, uint y);
 void screen_debug(uint cs, uint ss, uint ds,
                   uint es, uint fs, uint gs,
                   uint esp, uint eip, uint eflags, uint *greg);
+void screen_guardar();
+void screen_cargar();
 
 #endif  /* !__SCREEN_H__ */

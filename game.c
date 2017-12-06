@@ -485,7 +485,7 @@ void game_atender_excepcion(uint cs, uint ss, uint ds,
 
   if (debug) {
     detenido = 1;
-    /* game_guardar_pantalla(); */
+    screen_guardar();
     screen_debug(cs,ss,ds,es,fs,gs,esp,eip,eflags,greg);
   }
 }

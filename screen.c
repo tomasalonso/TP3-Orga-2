@@ -15,6 +15,8 @@ extern jugador_t jugadorA, jugadorB;
 
 
 static ca (*p)[VIDEO_COLS] = (ca (*)[VIDEO_COLS]) VIDEO;
+static ca pantalla[44][80];
+
 
 const char reloj[] = "|/-\\";
 #define reloj_size 4
@@ -372,4 +374,22 @@ void screen_debug(uint cs, uint ss, uint ds,
   }
 
   breakpoint();
+}
+
+void screen_guardar() {
+  int i, j;
+  for (i = DEBUG_INI_X; i < DEBUG_INI_REG_X+44; i++) {
+    for (j = DEBUG_INI_X; j < DEBUG_INI_X+80; j++) {
+      pantalla[i][j] = p[i][j];
+    }
+  }
+}
+
+void screen_cargar() {
+  int i, j;
+  for (i = DEBUG_INI_X; i < DEBUG_INI_REG_X+44; i++) {
+    for (j = DEBUG_INI_X; j < DEBUG_INI_X+80; j++) {
+      p[i][j] = pantalla[i][j];
+    }
+  }
 }

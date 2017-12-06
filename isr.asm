@@ -94,7 +94,7 @@ _isr%1:
   push eax
 
   call game_atender_excepcion
-  add esp, 28
+  add esp, 17*4
   xchg bx, bx
 
   jmp (GDT_TSS_IDLE << 3):0
