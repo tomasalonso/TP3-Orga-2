@@ -21,8 +21,6 @@ TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
 #define CANT_POSICIONES_VISTAS            9
 #define MAX_SIN_CAMBIOS                 999
 
-#define BOTINES_CANTIDAD 8
-
 // Para syscall 0x46
 #define MOVERSE 0x1
 #define CAVAR 0x2
@@ -109,6 +107,7 @@ uint game_valor_tesoro(uint x, uint y) {
 		if (botines[i][0] == x && botines[i][1] == y)
 			return botines[i][2];
 	}
+
 	return 0;
 }
 
@@ -134,6 +133,7 @@ void game_jugador_inicializar(jugador_t *j) {
 	j->index = index++;  // asigna 0, 1, 2, 3, ...
   game_pirata_inicializar(j);
   j->monedas = 0;
+  game_jugador_botin_inicializar(j);
 
   if (j->index == JUGADOR_A) {
     // JUGADOR_A
@@ -154,6 +154,13 @@ void game_jugador_inicializar(jugador_t *j) {
   game_jugador_inicializar_mapa(j);
 }
 
+void game_jugador_botin_inicializar(jugador_t *j) {
+  int i;
+  for (i = 0; i < BOTINES_CANTIDAD; i++) {
+    j->botin[i] = 0;
+  }
+}
+
 void game_jugador_inicializar_mapa(jugador_t *j) {
   uint i;
   // Pedimos 4 páginas para las page table del mapa,
@@ -167,7 +174,6 @@ void game_jugador_inicializar_mapa(jugador_t *j) {
 
 void game_pirata_inicializar(jugador_t *j) {
   int i;
-
   for (i = 0; i < 8; i++) {
     j->piratas[i].index = i;
     j->piratas[i].jugador = j;
@@ -195,6 +201,8 @@ void game_jugador_lanzar_pirata(jugador_t *j, uint tipo, int x, int y) {
 }
 
 void game_jugador_lanzar_minero(jugador_t *j, int x, int y) {
+  //breakpoint();
+
   game_jugador_lanzar_pirata(j, MINERO, x, y);
 }
 
@@ -219,7 +227,7 @@ void game_explorar_posicion(pirata_t *pirata, uint pd, uint x, uint y, direccion
         if (sched_hay_slot_libre(pirata->jugador->index)) {
           game_jugador_lanzar_minero(pirata->jugador, v_x[i], v_y[i]);
         } else {
-          // TODO
+          pirata->jugador->botin[game_nro_botin(v_x[i], v_y[i])] = 1;
         }
         screen_pintar_botin(v_x[i], v_y[i]);
       }
@@ -278,7 +286,7 @@ uint game_syscall_cavar(jugador_t *j, pirata_t *pirata) {
   uint x = pirata->posicionX;
   uint y = pirata->posicionY;
 
-  if (pirata->tipo != EXPLORADOR || game_valor_tesoro(x, y) <= 0) {
+  if (pirata->tipo == EXPLORADOR || game_valor_tesoro(x, y) <= 0) {
     // si algo esta mal
     game_pirata_exploto();
     return -1;
@@ -333,7 +341,9 @@ int game_syscall_manejar(uint syscall, uint param1) {
 }
 
 void game_pirata_exploto() {
-  screen_matar_pirata(sched_pirata_actual());
+  pirata_t *p = sched_pirata_actual();
+
+  screen_matar_pirata(p);
   sched_liberar_slot();
 }
 
@@ -494,5 +504,29 @@ void game_atender_excepcion(char *exc,
     sched_detener();
     screen_guardar();
     screen_debug(exc,cs,ss,ds,es,fs,gs,esp,eip,eflags,greg);
+  }
+}
+
+uint game_nro_botin(uint x, uint y) {
+  int i;
+  for (i = 0; i < BOTINES_CANTIDAD; i++) {
+    if (botines[i][0] == x && botines[i][1] == y) {
+      return i;
+    }
+  }
+
+  return 0;
+}
+
+void game_mineros_pendientes(jugador_t *j) {
+  if (sched_hay_slot_libre(j->index)) {
+    int i;
+    for (i = 0; i < BOTINES_CANTIDAD; i++) {
+      if (j->botin[i]) {
+        game_jugador_lanzar_minero(j, botines[i][0], botines[i][1]);
+        j->botin[i] = 0;
+        break;
+      }
+    }
   }
 }

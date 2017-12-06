@@ -11,6 +11,8 @@
 
 typedef enum direccion_e { ARR = 0x4, ABA = 0x7, DER = 0xA, IZQ = 0xD, TODO = 0xF} direccion;
 
+#define BOTINES_CANTIDAD 8
+
 #define MAX_CANT_PIRATAS_VIVOS           8
 
 #define JUGADOR_A                         0
@@ -54,10 +56,6 @@ typedef struct pirata_t
     uint posicionY;
     uint tipo;
 
-  uint botin;
-  uint botinX;
-  uint botinY;
-
     // id unica, posicion, tipo, reloj
 } pirata_t;
 
@@ -69,11 +67,13 @@ typedef struct jugador_t
     uint monedas;
     uint color;
     // Agregadas al hacer Ejercicio 6.g
-    unsigned int mapa[4]; // direcciones a las page table del mapa
+    uint mapa[4]; // direcciones a las page table del mapa
     uint puertoX;
     uint puertoY;
 
-    unsigned int codigo[2]; // dirección al código de las tareas
+    uint codigo[2]; // dirección al código de las tareas
+
+    uint botin[BOTINES_CANTIDAD]; // botines encontrados
 
     // coordenadas puerto, posiciones exploradas, mineros pendientes, etc
 } jugador_t;
@@ -124,5 +124,8 @@ void game_atender_excepcion(char *exc,
                             uint cs, uint ss, uint ds,
                             uint es, uint fs, uint gs,
                             uint esp, uint eip, uint eflags, uint *greg);
+uint game_nro_botin(uint x, uint y);
+void game_jugador_botin_inicializar(jugador_t *j);
+void game_mineros_pendientes(jugador_t *j);
 
 #endif  /* !__GAME_H__ */
