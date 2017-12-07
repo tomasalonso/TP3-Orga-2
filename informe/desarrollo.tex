@@ -370,8 +370,9 @@ descriptores de la TSS de la respectiva tarea, siendo las 8 primeras del jugador
 A, las segundas 8 del jugador B y la última para la tarea idle (posición 16).
 
 Hay una variable que indica el jugador actual (0 para A, 1 para B) y una tupla
-de uints que indica en la primera posicion el indice del ultimo pirata ejecutado del Jugador A y en la otra el del
-ultimo pirata ejecutado del jugador B en las dos listas siguientes.
+de uints que indica en la primera posicion el indice del ultimo pirata ejecutado
+del Jugador A y en la otra el del  ultimo pirata ejecutado del jugador B en las
+dos listas siguientes.
 En estas dos listas se indica con un int si el pirata correspondiente al indice esta libre (0) o en ejecucion (1);
 
 \item La implementación de sched_proxima_a_ejecutar es como se detalla a
@@ -529,67 +530,105 @@ a las direcciones virtuales correspondientes. Usada para la paginación del mapa
 a las direcciones físicas correspondientes. Se utiliza para la paginación del
 mapa.
 
-\item[game_actualizar_codigo] Esta función toma dos puntos (X0,Y0) y (X1,Y1).
-  con (X0,Y0) obtiene la direccion virtual para esas coordenadas, que es donde esta el codigo de la tarea ahora
-  con (X1,Y1) obtiene la direccion fisica en donde se va a pasar el codigo de la tarea cuando esta se haya movido
-  luego se mapea en la direccion 0x400000 la pagina fisica recien obtenida
-  para despues copiar desde la posicion actual a la posicion 0x400000, la cual apunta a la nueva posicion de la tarea
+\item[game_actualizar_codigo] Esta función toma dos puntos ($X0,Y0$) y ($X1,Y1$)
+del mapa.
+
+Con ($X0,Y0$) se obtiene la dirección virtual para esas coordenadas, que es
+donde está el código de la tarea actualmente.
+
+Con ($X1,Y1$) obtiene la dirección física en donde se va a pasar el código de
+la tarea cuando esta se haya movido. Luego se mapea en la dirección
+$0\times400000$ la página física récien obtenida para después copiar desde la
+posición actual a la posición $0\times400000$, que apunta a la nueva posición de
+la tarea.
 
 \item[game_explorar_posicion]
-  Esta funcion toma como parametros un puntero a un pirata, un page directory, dos puntos X e Y y una direccion.
-  En primer lugar se crean 2 arreglos de ints con 9 posiciones que representan los puntos en X y en Y.
-  Luego se llama a game_calcular_posiciones_vistas con estos dos arreglos, las posiciones X e Y que se pasaron
-  en primer lugar, y la direccion. Esta funcion devuelve un int que representa la cantidad de posiciones a explorar.
-  A continuacion se recorre con un indice i esta cantidad de posiciones, se chequea si es una posicion valida, si no lo es, no se hace nada
-  , si lo es, se llama a game_pirata_habilitar_posicion que toma como parametro la posicion i de los dos arreglos
-  creados en primer lugar y el page directory pasado como parametro a la funcion principal.
-  Tambien se llama a screen_pintar_rect_color con el color del jugador, las coordenadas del punto a pintar y 1, 1.
-  Adentro del ciclo tambien se chequea si la posicion tiene botin, si este es el caso, se chequea que haya un slot
-  libre, si lo hay, se lanza un minero hacia esa posicion, si no lo hay, se escribe un uno en la posicion
-  correspondiente a este botin en el arreglo botin del jugador correspondiente. por ultimo se pinta
-  en pantalla que hay un botin en esa posicion.
+  Toma como parámetros un puntero a un {\it pirata\/}, un
+  {\it page directory\/}, dos puntos $X$ e $Y$ y una dirección.
+
+  En primer lugar se crean 2 arreglos de enteros que representan las coordenadas
+  de las posiciones $X$ e $Y$ a mapear.
+
+  Luego se llama a {\it game_calcular_posiciones_vistas\/} con estos dos
+  arreglos, las posiciones $X$ e $Y$ que se pasaron en primer lugar, y la
+  dirección.
+  Esta función devuelve un entero que representa la cantidad de posiciones a
+  explorar y asigna en los arreglos dichas posiciones.
+
+  A continuación se recorre con un índice {\it i\/} la cantidad de posiciones,
+  se chequea si es una posición válida, si no lo es, no se hace nada
+  ; si lo es, se llama a {\it game_pirata_habilitar_posicion\/} que toma como
+  parámetro la posición {\it i\/} de los dos arreglos creados en primer lugar y
+  el page directory pasado como parámetro a la función principal.
+
+  También se llama a {\it screen_pintar_rect_color\/} con el color del jugador,
+  las coordenadas del punto a pintar y 1, 1 (dimensiones del rectángulo a
+  pintar).
+
+  Adentro del ciclo también se chequea si la posición tiene botín, si este es el
+  caso, se chequea que haya un slot libre, si lo hay, se lanza un minero hacie
+  esa posicion; si no lo hay, se escribe un uno en la posición correspondiente a
+  este botin en el arreglo {\it botin\/} del jugador correspondiente.
+
+  Por último se pinta en pantalla que hay un botín en esa posición.
 
 
 \item[game_calcular_posiciones_vistas]
-Esta funcion toma como parametros dos arreglos, dos ints que representan una posicion X e Y, y una direccion.
-Se crean 4 ints (iniX, iniY), (finX,finY), se comienza un switch con el parametro dir
-el cual tiene los siguentes casos:
+Esta función toma como parámetros dos arreglos, dos enteros que representan una
+posición $X$ e $Y$, y una dirección.
+
+Se crean 4 enteros ({\it iniX, iniY\/}), ({\it finX,finY\/}), se comienza un
+switch con el parametro {\it dir\/} el cual tiene los siguentes casos:
+
+\begin{lstlisting}
   case IZQ:  iniX = -1; finX = -1; iniY = -1; finY =  1; break;
   case DER:  iniX =  1; finX =  1; iniY = -1; finY =  1; break;
   case ABA:  iniX = -1; finX =  1; iniY =  1; finY =  1; break;
   case ARR:  iniX = -1; finX =  1; iniY = -1; finY = -1; break;
   case TODO: iniX = -1; finX =  1; iniY = -1; finY =  1; break;
+\end{lstlisting}
 
-Estos 4 valores indican el lado al que se debe expandir lo explorado relativamente
-a la posicion actual, por ejemplo, en el primer caso
-X comienza y termina en -1 (lado izquierdo del cuadrado) e Y comienza en -1 y termina en 1 (toda la altura del cuadrado)
-entonces luego con dos ciclos for anidados los cuales recorren estas posiciones relativas de iniX e iniY
-, se guarda en los dos arreglos que represetan las posiciones en X
-y en Y los valores inciales de X e Y sumados a este valor relativo, en la posicion indicada por
-el int next el cual se va avanzando con cada asignacion, de esta forma en los arreglos finales
-se obtienen las nuevas posiciones X e Y que ahora puede ver el pirata y por ende el jugador.
+Estos 4 valores indican el lado al que se debe expandir lo explorado
+relativamente a la posicion actual, por ejemplo, en el primer caso $X$ comienza
+y termina en -1 (lado izquierdo del cuadrado) e Y comienza en -1 y termina en 1
+(toda la altura del cuadrado). Entonces luego, con dos ciclos anidados que
+recorren estas posiciones relativas de {\it iniX\/} e {\it iniY\/}, se guarda en
+los dos arreglos que represetan las posiciones en $X$ y en $Y$ los valores
+iniciales de $X$ e $Y$ sumados a este valor relativo, en la posición indicada
+por {\it next\/} el cual se va avanzando con cada asignacion, de esta forma en
+los arreglos finales se obtienen las nuevas posiciones $X$ e $Y$ que ahora puede
+ver el pirata y por ende el jugador.
 
 GRAFICO
 
 \item[game_pirata_mover]
-  esta funcion simplemente llama a game_actualizar_codigo con la posicion actual del pirata y con otros dos puntos,
-  los cuales suelen ser la posicion a la que el pirata intenta moverse.
-  Luego se actualizan los atributos posicionX y posicionY del pirata asi como se llama a screen_pintar_pirata con el
-  pirata modificado, su jugador y la direccion.
+  Esta función simplemente llama a {\it game_actualizar_codigo\/} con la
+  posición actual del pirata y con otras dos coordenadas, los cuales suelen ser la
+  posición a la que el pirata intenta moverse.
+
+  Luego se actualizan los atributos {\it posicionX\/} y {\it posicionY\/} del
+  pirata y se llama a {\it screen_pintar_pirata\/} con el pirata modificado, su
+  jugador y la dirección.
 
 \item[game_pirata_exploto]
-  esta funcion pide el pirata actual del scheduler, llama a screen_matar_pirata, la cual lo quita de la pantalla y
-  finalmente llama a sched_liberar_slot.
-  sched_liberar_slot averigua el jugador actual del scheduler, pide el slot actual de ese jugador y finalmente
-  setea como LIBRE el slot recien averiguado para el jugador que se acaba de obtener.
+  Esta función pide el pirata actual al {\it scheduler\/}, llama a
+  {\it screen_matar_pirata\/}, que lo quita de la pantalla y finalmente llama a
+  {\it sched_liberar_slot\/}.
+
+  {\it sched_liberar_slot\/} averigua el jugador actual del scheduler, pide el
+  slot de ese jugador y finalmente setea como {\it LIBRE\/} el slot del pirata.
 
 \item[game_calcular_fin]
-  Esta funcion chequea si el contador del juego es igual a la variable global FIN, en ese caso se llama a game_terminar_si_es_hora
-  y se devuelve un 1.
-  Luego si el scheduler esta activo y ambos jugadores tienen todos los slots ocupados y sus puntajes no cambiaron
-  (chequeado con dos variables globales puntajeA y puntajeB comparadas con el atributo monedas de cada jugador)
-  entonces crece el contador.
-  si algo de esto no se cumple, se resetea el contador y se actualizan las variables globales de puntaje de cada jugador.
-  finalmente se devuelve un 0.
+  Esta función chequea si el contador del juego es igual a la variable global
+  FIN, en ese caso se llama a {\it game_terminar_si_es_hora\/} que finaliza el
+  juego desactivando el {\it scheduler\/} y el {\it PIC\/} y se devuelve un 1.
+
+  Si el jugo no finalizñó, comprueba si el scheduler está activo y ambos
+  jugadores tienen todos los slots ocupados y sus puntajes no cambiaron
+  (se usan dos variables globales {\it puntajeA\/} y {\it puntajeB\/} que guardan
+  los puntajes de los jugadores en el tick anterior) e incrementa un contador.
+
+  Si algo de esto no se cumple, se resetea el contador y se actualizan las
+  variables globales de puntaje de cada jugador. Finalmente se devuelve un 0.
 
 \end{description}
