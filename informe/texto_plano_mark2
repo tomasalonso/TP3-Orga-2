@@ -182,7 +182,25 @@ game_mineros_pendientes:
 
 
   game_calcular_posiciones_vistas:
+    Esta funcion toma como parametros dos arreglos, dos ints que representan una posicion X e Y, y una direccion.
+    Se crean 4 ints (iniX, iniY), (finX,finY), se comienza un switch con el parametro dir
+    el cual tiene los siguentes casos:
+      case IZQ:  iniX = -1; finX = -1; iniY = -1; finY =  1; break;
+      case DER:  iniX =  1; finX =  1; iniY = -1; finY =  1; break;
+      case ABA:  iniX = -1; finX =  1; iniY =  1; finY =  1; break;
+      case ARR:  iniX = -1; finX =  1; iniY = -1; finY = -1; break;
+      case TODO: iniX = -1; finX =  1; iniY = -1; finY =  1; break;
 
+    Estos 4 valores indican el lado al que se debe expandir lo explorado relativamente
+    a la posicion actual, por ejemplo, en el primer caso
+    X comienza y termina en -1 (lado izquierdo del cuadrado) e Y comienza en -1 y termina en 1 (toda la altura del cuadrado)
+    entonces luego con dos ciclos for anidados los cuales recorren estas posiciones relativas de iniX e iniY
+    , se guarda en los dos arreglos que represetan las posiciones en X
+    y en Y los valores inciales de X e Y sumados a este valor relativo, en la posicion indicada por
+    el int next el cual se va avanzando con cada asignacion, de esta forma en los arreglos finales
+    se obtienen las nuevas posiciones X e Y que ahora puede ver el pirata y por ende el jugador.
+
+    GRAFICO
 
   game_pirata_mover:
     esta funcion simplemente llama a game_actualizar_codigo con la posicion actual del pirata y con otros dos puntos,
