@@ -7,28 +7,35 @@ en este ejercicio, donde usamos el índice de cada entrada de la {\bf GDT}, decl
 en el archivo {\it defines.h\/}.
 
 Para completar cada entrada se usa la estructura dada por la cátedra sin
-ninguna modificación.
+ninguna modificación, declarandose descriptores para 2 segmentos de datos y 2 de
+código, siendo uno de cada tipo para {\it nivel 0\/} y {\it nivel 3\/}
+({\it DPL 0\/} y {\it DPL 3\/}).
 
 % insertar estructura
 
 Se definió un segmento de datos especial para la memoria de video
 ({\it GDT_VIDEO\/}), el cual se usó solamente en este inciso y se comentó
-posteriormente, por ende no se agrega a la GDT.
+posteriormente, por ende no se agrega a la GDT (puede apreciarse su código
+comentado en el archivo {\it gdt.c\/}).
 
 Luego, se carga la GDT y se salta a modo protegido tal como se vió en las clases
-y los ejemplos.
+y los ejemplos, seteando el bit {\bf PE} del registro {\bf CR0}, realizando un
+{\it jmp\/} con el selector de segmento de código correspondiente y cargando los
+selectores de segmento de datos en los registros de segmentos {\it ds, ss, es,
+gs\/} y {\it fs\/}.
 
-Se cargan todos los segmentos con la modalidad {\bf flat}, todos los segmentos
-apuntando a la misma memoria, y se apunta la pila del kernel a la dirección
-$0\times27000$, especificada por el enunciado.
+Todos los segmentos se cargan con la modalidad {\bf flat} y apuntan a la misma
+memoria (primeros 500MB). Se apunta la pila del kernel a la dirección
+$0\times27000$, especificada por el enunciado, seteando el registro {\bf esp},
+consecuentemente, se setea también el registro {\bf ebp}.
 
 Ahora se carga el segmento especial de video y con código assembler se recorre
-por medio de 2 ciclos anidados todas las posiciones del segmento que comienzan
-en la posición $0\times B8000$, es decir, se recorre cada posición de la
-pantalla, pintándola de gris.
+por medio de 2 ciclos anidados todas las posiciones del segmento, que comienzan
+en la posición $0\times B8000$; es decir, se recorre cada posición de la
+pantalla pintándola de gris.
 
-De aquí en más se deshabilitó este segmento especial de video, se accede a la
-memoria de video por los segmentos de datos y la inicializacion de la pantalla
+De aquí en más se deshabilitó este segmento especial de video y se accede a la
+memoria de video por los segmentos de datos. La inicializacion de la pantalla
 se realiza en el {\it ejercicio 3\/} con funciones en C.
 
 
@@ -88,7 +95,7 @@ de estas excepciones.
 Una vez inicializada la IDT en el kernel con la macro, como se indica en el
 enunciado, se probó a continuación el funcionamiento de varias excepciones.
 Esto funcionó correctamente y luego fue comentado para seguir con el trabajo
-practico.
+práctico.
 
 
 
@@ -97,7 +104,7 @@ practico.
 En primer lugar se inicializa la pantalla con la función
 {\it screen_inicializar\/} hecha en C.
 
-Esta función utiliza todas funciones de la catedra, entre ellas
+Esta función utiliza todas funciones de la cátedra, entre ellas
 {\it screen_pintar_rect\/}, {\it screen_pintar_linea_h\/},
 {\it screen_pintar_puntajes\/}.
 
@@ -116,13 +123,13 @@ como indica el enunciado. En este page directory se crea una primera
 asignada directamente y dicho sea de paso, en este punto, al no estar paginación
 aún habilitada, pedir memoria libre no es una buena opción.
 
-La {\it page table\/} se cicla con un ciclo y un incremento de 0 a 1024,
+La {\it page table\/} se cicla con un incremento de 0 a 1024,
 asignando páginas sucesivas, de modo que el esquema de paginación sea
 {\bf identity mapping}; y para que ocurra efectivamente, se asigna la page table
 en la primera entrada del page directory.
 De modo que queda mapeada toda la sección del kernel y su memoria libre.
 Como última aclaración, la sección del kernel corresponde al uso de la page
-table en su totalidad.
+table en su totalidad (1024 entradas).
 
 Finalmente se carga en el {\bf cr3} del kernel la dirección del page directory y
 se habilita en el {\bf cr0} el bit de paginación.
@@ -130,7 +137,7 @@ se habilita en el {\bf cr0} el bit de paginación.
 
 \subsection{Ejercicio 4}
 
-Se iniciliza el seguimiento de las páginas libres con una variable global
+Se inicializa el seguimiento de las páginas libres con una variable global
 ({\it proxima_pagina_libre\/}) que comienza indicando el inicio del sector de
 memoria libre, ubicado en la posición $0\times10000$. Con esta variable se
 indica el lugar donde se reserva la próxima página pedida y luego se mueve una
@@ -145,37 +152,60 @@ reserva una página libre para alojarla, si lo esta, se apunta a la page table
 indicada. En esta tabla setea en la entrada correspondiente a la dirección
 virtual, los valores necesarios (base) para mapear a la dirección física, que
 corresponden a los primeros 20 bits de la dirección, debido a que las páginas
-están alineadas a 4kb, y se pone en presente esta la entrada de la página.
+están alineadas a 4kb. Se pone en presente posteriormente esta la entrada de la
+página.
 
-Finalmente se limpia el cache de páginas accedidas.
+Finalmente se limpia el cache de páginas accedidas. Se agregó además un
+parámetro adicional que permite elegir entre mapear la página como
+solo lectura ({\bf RO}) o lectura/escritura ({\bf RW}).
 
-Por otra parte, {\it mmu_unmapear_pagina\/} simplemente setea a cero el bit de
-presente de la entrada correspondiente en la page table que estaba mapeando la
-dirección virtual indicada.
+Por otra parte, {\it mmu_unmapear_pagina\/} simplemente busca en el page
+directory y en la page table correspondiente la entrada que estaba mapeando la
+dirección virtual y setea a cero su bit de presente.
 
-La implementación de la función {\it mmu_inicializar_dir_pirata\/} es más
-compleja y se detalla a continuación:
+La implementación de la función {\it mmu_inicializar_dir_pirata\/} se detalla a
+continuación separada por items:
 
-Se crea un page directory pidiendo una página libre, se setea todo en cero para esta estructura,
-en la primera tabla se apunta a la tabla que mapea el kernel, la direccion 0x28000.
+\begin{itemize}
+\item Se crea un page directory para el nuevo pirata, pidiendo una página libre, se
+setea todo en cero para esta estructura, para evitar que basura de la memoria
+mapee páginas no deseadas (de todas formas {\it bochs\/} setea a 0 la memoria
+por defecto), y en la primera tabla se apunta a la misma page table que mapea el
+kernel, siendo esta la dirección 0x28000, es propicio aclarar que todas las
+tareas comparten la misma page table de identity mapping del kernel.
 
-Luego se obtiene la direccion fisica en donde comienza el pirata, el puerto del jugador correspondiente y
-tambien se localiza con un puntero la posicion en memoria del codigo correspondiente al tipo de pirata.
-con el cr3 actual se mapea en la direccion 0x401000 el lugar donde va a ir localizado el codigo,
-luego se copia efectivamente el codigo a esta direccion recien mapeada, se ponene manualmente en la pila
-los parametros necesarios por el codigo y una direccion de retorno 0 la cual no va a ser llamada nunca y
-finalmente se desmapea esta direccion 0x401000.
+\item Luego se obtiene la direccion física en donde comienza el pirata, que en
+el caso del TP, corresponde al puerto del jugador
+({\it jugador.puertoX\/} y {\it jugador.puertoY\/}), notar que cambiando el
+puerto de la estructura jugador, el pirata puede inicializar de cualquier otra
+posición del mapa. Se localiza también con un puntero que se obtiene de
+({\it jugador.codigo[tipo_pirata]}) la posición en memoria del codigo
+correspondiente al tipo de pirata.
 
-Se termina por mapear, en la direccion 0x40000 en el page directory creado al comienzo de la funcion, con
-la posicion en memoria a donde se copió el codigo de la tarea en los pasos anteriores.
+Estos valores de localización del código se asignan al comienzo del juego al
+campo {\it codigo\/} de la estructura jugador, son paramétricos y pueden
+modificarse si el código de las tareas cambia de ubicación.
 
-En las 4 tablas de paginas siguientes se mapean 4 tablas las cuales se crean cuando se inicia un jugador.
+\item Con el {\it cr3\/} actual se mapea en la dirección $0\times401000$ el lugar
+donde va a ir localizado el código, se copia efectivamente el código a esta
+dirección recien mapeada y se pone manualmente en las últimas posiciones de la
+pila de la tarea los parámetros {\it x\/} e {\it y\/} necesarios por el código y
+una dirección de retorno 0 la cual no va a ser llamada nunca. Finalmente se
+desmapea esta dirección $0\times401000$.
+Se utiliza la dirección $0\times401000$ porque es una dirección dentro del
+segmento de datos que no será mapeada nunca en el TP por ninguna tarea.
+
+\item Se termina por mapear, la dirección $0\times400000$ en el page directory
+creado al comienzo de la función, con la posición en memoria a donde se copió el
+código de la tarea en los pasos anteriores.
+
+\item En las 4 tablas de paginas siguientes se mapean 4 tablas las cuales se crean cuando se inicia un jugador.
 Estas corresponden a indicar las direcciones del mapa que ya son conocidas por todos los piratas del jugador
 y se ven actualizadas con cada movimiento de los piratas exploradores. se hablara de como funcionan especificamente
 esta estructura de cuatro paginas al final del informe cuando se detalle el funcionamiento general del juego.   (HABLAR DE TABLAS DE JUGADOR QUE MAPEAN LO DESCUBIERTO)
 Por ultimo se da por explorada la posicion en la que se crea el pirata en esta estructura de posiciones exploradas,
 en caso de que sea la primera vez, luego se devuelve el page directory del pirata.
-
+\end{itemize}
 
 \subsection{Ejercicio 5}
 
