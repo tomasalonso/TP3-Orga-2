@@ -60,3 +60,68 @@ Estructura del mapa explorado:
     Cuando un pirata se mueve, este tiene su posicion x e y, con estos valores obtiene las posiciones de memoria del mapa a las que se mueve
     y las mapea en este grupo de 4 tablas de paginas, entonces todos los piratas del jugador pueden "ver" lo explorado por los
     otros piratas.
+
+Estructura Jugador:
+    La estructura jugador es la encargada de tener la informacion que comparten todos los piratas asi como
+    su puntaje, su puerto y donde se encuentra el codigo de sus tareas.
+    La estructura tiene los siguientes atributos:
+      Un identificador index (0 para A, 1 para B).
+      Un arreglo de piratas cuya capacidad maxima es el total de los que puede tener vivos.
+      La cantidad de monedas que tiene recolectadas y su color.
+      Un arreglo de 4 posiciones con las direcciones de memoria de las tablas de paginas que se usaran para mapear el mapa visto por
+      sus piratas.
+      Las posiciones X e Y de su puerto.
+      Las dos direcciones a los codigos de sus piratas, minero o explorador.
+      un arreglo con tantas posiciones como botines hay en el mapa el cual sirve para indicar cual fue descubierto pero aun no se le envio
+      un minero.
+
+Estructura Pirata:
+    La estructura pirata se encarga de conocer a su jugador, su posicion actual y su tipo.
+    Esta tiene los siguientes atributos:
+      Un index que define que numero de pirata es para su jugador.
+      Tiene un puntero a una estructura Jugador, el cual apunta a su jugador.
+      Sus posiciones X e Y en el mapa.
+      Su tipo (explorador o minero).
+
+Estructura Scheduler:
+    La estructura scheduler es la encargada de saber que jugador esta activo en este momento y tener la informacion
+    necesaria para saber que tarea ejecutar en el proximo ciclo del reloj.
+    Esta posee los siguientes atributos:
+      activo: Indica si el scheduler esta actualmente manejando el juego o no.
+      selectores: Este arreglo de 17 posiciones tiene los selectores de las entradas de la GDT de
+      las 8 tareas del jugador A, las 8 del B y la tarea idle.
+      jugadorActual: Como era de esperarse, indica el jugador actualmente activo.
+      slotActual: Es una tupla la cual posee el indice del arreglo slots de la ultima tarea ejecutada por el jugador A
+      en su primer valor, y del jugador B en su segundo valor.
+      slots: esta tupla de dos arreglos de ocho posiciones indica en cada una de ellas si la tarea correspondiente a ese
+      indice (para el jugador A en el primer arreglo y el jugador B en el segundo) esta fuera del juegp (0) o esta actualmente
+      en el mapa activa (1).
+
+Funciones creadas:
+
+  game_minar_botin:
+    Esta funcion toma dos parametros que indican una posicion por sus coordenadas X e Y.
+    dentro de ella se cicla tantas veces como botines haya y si uno de esos botines esta ubicado en la
+    posicion (X,Y) se le resta una moneda al botin y se sale del ciclo.
+
+  La funcion game_lineal2virtual se encarga de pasar de direcciones lineales del mapa a las direcciones
+  virtuales correspondientes a la posicion correspondiente a las estructuras de paginacion para el mapa.
+
+  La funcion game_lineal2physical se encarga de pasar de direcciones lineales del mapa a las direcciones
+  fisicas correspondientes a la misma posicion pero del mapa en memoria.
+
+  game_actualizar_codigo:
+    Esta funcion toma dos puntos (X0,Y0) y (X1,Y1).
+    con (X0,Y0) obtiene la direccion virtual para esas coordenadas, que es donde esta el codigo de la tarea ahora
+    con (X1,Y1) obtiene la direccion fisica en donde se va a pasar el codigo de la tarea cuando esta se haya movido
+    luego se mapea en la direccion 0x400000 la pagina fisica recien obtenida
+    para despues copiar desde la posicion actual a la posicion 0x400000, la cual apunta a la nueva posicion de la tarea
+
+  game_calcular_fin:
+    Esta funcion chequea si el contador del juego es igual a la variable global FIN, en ese caso se llama a game_terminar_si_es_hora
+    y se devuelve un 1.
+    Luego si el scheduler esta activo y ambos jugadores tienen todos los slots ocupados y sus puntajes no cambiaron
+    (chequeado con dos variables globales puntajeA y puntajeB comparadas con el atributo monedas de cada jugador)
+    entonces crece el contador.
+    si algo de esto no se cumple, se resetea el contador y se actualizan las variables globales de puntaje de cada jugador.
+    finalmente se devuelve un 0.
