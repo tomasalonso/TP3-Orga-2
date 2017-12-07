@@ -219,7 +219,9 @@ los piratas del jugador y por ejemplo, un minero se podrá mover a dicha posici�
 Por último se exploran las 9 posiciones en la que se crea el pirata, esto es
 solo útil para el primer pirata. Al realizarse siempre, las posiciones ya
 podrían estar exploradas por piratas previos. Luego se devuelve el page
-directory del pirata recién creado.
+directory del pirata recién creado. Para realizar esto, se llama a
+\hbox{\it game_explorar_posicion(pirata_a_crear, page_directory_del_pirata, puertoX, puertoY, TODO)}
+(ver en funciones propias).
 \end{itemize}
 
 \subsection{Ejercicio 5}
@@ -257,7 +259,6 @@ posterga la explicación de su funcionamiento final más adelante cuando es
 correctamente implementada.
 
 
-
 \subsection{Ejercicio 6}
 
 Se agrega en la GDT un descriptor de {\bf TSS} para la tarea {\it inicial\/},
@@ -275,23 +276,34 @@ Primero para la tss inicial y la idle se asigna su dirección (base) en su
 descriptor correspondiente de la GDT y se ponen en 1 el bit de presente.
 
 Se inicializa la estructura de la TSS de la tarea idle, esto significa, setear
-la pila local y la de nivel 0 ambas en la del kernel ($0\times27000$), el cr3
-también es del kernel
-los eflags con valor 0x202 y el eip apuntando a la posicion 0x16000 como pide el enunciado.
-luego todos sus segmentos son de privilegio 0, lo cual le da nivel kernel a la tarea idle.
+la pila local y la pila de nivel 0 ambas en la del kernel ($0\times27000$),
+el cr3 actual que es el perteneciente al kernel y los eflags con valor
+$0\times202$ que activa las interrupciones enmascarables y el {\bf eip}
+apuntando a la posicion $0\times16000$ como pide el enunciado, que corresponde
+a la posición donde se ubica el código de la tarea.
+Luego se asignan los segmentos de privilegio 0, y el {\it rpl\/} del selector a
+0.
 
-Finalmente en un ciclo se inicializan las bases y el bit de presente de todas las TSS de los piratas, que son inicializadas
-completamente luego, cuando se lanza un pirata con los valores necesarios de un pirata.
-Esto se logar pidiendo una pagina para la pila de nivel 0 y asignando la base y el esp al final de esta pagina,
-seteando su pila local al final de su pagina asignada, pero con el esp 3 posiciones arriba asumiendo que tiene
-los dos parametros y la posicion de retorno que se pasan en la pila.
-Tambien se asigna el eip apuntando al principio de la pagina. Los eflags con valor 0x202 y con todos los segmentos
-de nivel 3, osea con privilegios de usuario.
+Finalmente en un ciclo se inicializan las bases y el bit de presente de todas
+los descriptores de TSS de los piratas, que son inicializadas con los valores
+posteriormente cuando se lanza un pirata.
 
-Se escribe el codigo necesario para cargar la tarea inicial como la actual e inmediatamente saltar a la tarea idle.
+Para inicializar las TSS de los piratas, se pide una página para la pila de
+nivel 0 y asignando la base y el {\it esp\/} al final de esta página, seteando
+su pila local al final de su pagina asignada, pero con el esp 3 posiciones
+arriba asumiendo que tiene los dos parámetros y la posición de retorno que se
+pasan en la pila.
+
+También se asigna el eip apuntando al principio de la página de código
+($0\times400000$). El {\it eflags\/} con valor $0\times202$ y con todos los
+segmentos de nivel 3 y RPL 3, es decir, con privilegios de usuario.
+
+Se escribe el código necesario para cargar la tarea inicial como la actual,
+cargando el selector de la tarea inicial con {\it ltr\/} e inmediatamente salta
+a la tarea idle.
 
 (ESTO ACA O EN EL EJERCICIO 7?)
-Modificamos la interrupcion 0x46 la cual ahora pone en la pila los parametros que se le pasan
+Modificamos la interrupción 0x46 la cual ahora pone en la pila los parametros que se le pasan
 y llama a game_syscall_manejar. Esta le pide al scheduler cual es el jugador actual y el pirata actual,
 con una serie de ifs chequea cual fue el servicio pedido y llama a game_syscall_pirata_mover, game_syscall_cavar o
 game_syscall_pirata_posicion. si no es nungun caso destruye al pirata y devuelve un -1.
