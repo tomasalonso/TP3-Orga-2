@@ -360,7 +360,9 @@ devuelva la posición en el registro {\it eax\/}.
 
 \subsection{Ejercicio 7}
 
-Se adoptó la siguiente estructura para el scheduler:
+\begin{itemize}
+
+\item Se adoptó la siguiente estructura para el scheduler:
 
 Se tiene un {\it flag\/} para saber si el scheduler está activo o no, una lista
 de enteros sin signo de 17 posiciones que guardan los índices de la GDT  a los
@@ -372,7 +374,7 @@ de uints que indica en la primera posicion el indice del ultimo pirata ejecutado
 ultimo pirata ejecutado del jugador B en las dos listas siguientes.
 En estas dos listas se indica con un int si el pirata correspondiente al indice esta libre (0) o en ejecucion (1);
 
-La implementación de sched_proxima_a_ejecutar es como se detalla a
+\item La implementación de sched_proxima_a_ejecutar es como se detalla a
 continuación:
   En primer lugar se obtiene el jugador activo, el inactivo y se asigna una variable proximo con valor inicial de 16 (la tarea idle)
   Luego, si el scheduler esta activo chequea si el jugador inactivo tiene un slot para ejecutar, esto lo hace con la
@@ -385,74 +387,113 @@ continuación:
   Si el jugador inactivo no tiene un slot a ejecutar, chequea con sched_hay_slot_a_ejecutar lo mismo para el jugador activo y
   tambien asigna a proximo el indice de la proxima tarea de este jugador a ejecutar.
   Si ningun jugador esta activo, devuelve proximo como estaba (indicando la tarea idle).
-c) En sched_tick se llama primero a game_tick, luego a game_mineros_pendientes con el jugador actual del scheduler (se habla mas
+
+\item En sched_tick se llama primero a game_tick, luego a game_mineros_pendientes con el jugador actual del scheduler (se habla mas
   de esta funcion luego) y se define el indice de la proxima tarea a ejecutar llamando a sched_proxima_a_ejecutar.
   Finalmente se devuelve el indice de la GDT de la proxima tarea a ejecutar que se obtiene del atributo selectores del scheduler
   con el indice que se consigue en el paso anterior. tambien se modifica el llamado que hace la interrupcion del reloj a game_tick
   por sched_tick.
-d) El funcionamiento final de esta instruccion fue detallado en la seccion g) del ejercion 6.
-e) Esta modificacion ya se hizo dentro de sched_tick como se explico en la seccion c de este ejercicio.
-f) Aqui se modifico la macro que define el comportamiento de cada interrupcion. la unica diferencia entre las interrupciones
+
+\item El funcionamiento final de esta instruccion fue detallado en la seccion g) del ejercion 6.
+
+\item Esta modificacion ya se hizo dentro de sched_tick como se explico en la seccion c de este ejercicio.
+
+\item Aqui se modifico la macro que define el comportamiento de cada interrupcion. la unica diferencia entre las interrupciones
   son las que tienen error code y las que no. esto modifica el lugar en la pila de los parametros que se pasan a la funcion de C
   game_atender_excepcion, para solucionar esto, se chequea primero si la excepcion genera error code o no, en base a esto se define un
   offset para acceder a la pila y obtener los datos necesarios para luego ponerlos en el tope de la pila y llamar a la funcion de C.
   La funcion game_atender_excepcion se encarga de llamar a game__pirata_exploto para desalojar el pirata, ademas de chequar
   si se esta en modo debug (con una variable global que se pone en 0 o en 1) para frenar el scheduler, guardar la pantalla actual y mostrar la informacion de debug. de no estar
   en modo debug, vuelve a la interrupcion.
-g) cuando game_atender_excepcion entra en modo debug esta hace lo dicho anteriormente, guarda la pantalla actual con screen_guardar,
+
+\item cuando game_atender_excepcion entra en modo debug esta hace lo dicho anteriormente, guarda la pantalla actual con screen_guardar,
   imprime lo pedido por el modo debug con screen_debug la cual toma todos los parametros que se pasaron inicialmente por la pila
   el modo debug se inicia cuando se llama a la interrupcion del teclado presionando la tecla y, en este caso se chequea, si ya esta en modo
   debug simplemente se activa el scheduler y se continua la ejecucion. si no, se setea el indicador de debug en 1 lo cual desactivara
   el scheduler cuando haya una excepcion.
+\end{itemize}
 
 \section{Estructuras}
 
 \begin{description}
-\item[Estructura del mapa explorado]
-  Cada jugador posee un arreglo mapa de 4 posiciones, cuanndo se inicializa el jugador se llama a game_jugador_inicializar_mapa,
-  esta funcion se encarga de pedir cuatro paginas libres e iniciarlas como page tables vacias, se asigna a las cuatro posiciones
-  del arreglo las 4 direcciones de memoria de estas paginas.
-  Luego cada pirata tiene su page directory con el kernel y su codigo, se asignan a las cuatro entradas siguientes de este directorio
-  las 4 posiciones de memoria de las tablas que se encuentran en el arreglo mapa de su jugador.
-  Cuando un pirata se mueve, este tiene su posicion x e y, con estos valores obtiene las posiciones de memoria del mapa a las que se mueve
-  y las mapea en este grupo de 4 tablas de paginas, entonces todos los piratas del jugador pueden "ver" lo explorado por los
-  otros piratas.
+\item[Estructura de paginación del pirata]
+  Cada jugador posee un arreglo {\it mapa\/} de 4 posiciones, cuando se
+  inicializa el jugador se llama a {\it game_jugador_inicializar_mapa\/}, esta
+  función se encarga de pedir por única vez cuatro páginas libres e iniciarlas
+  como page tables vacías (todos sus valores a 0), se asigna a las cuatro
+  posiciones del arreglo las 4 direcciones de memoria de estas páginas.
+
+  Luego cada pirata tiene su propio page directory con el identity mapping de
+  las posiciones del kernel en la primera entrada y su código en la segunda. A
+  este page directory también se asignan las 4 posiciones de memoria de las
+  tablas que se encuentran en el arreglo mapa de su jugador.
+
+  Cuando un explorador se mueve, este tiene su posicion $X$ e $Y$; con estos valores
+  obtiene las posiciones de memoria del mapa a las que se mueve y las mapea en
+  este grupo de 4 tablas de paginas, entonces todos los piratas del jugador
+  pueden compartir lo explorado por los otros piratas del mismo jugador.
 
 \item[Estructura Jugador]
   La estructura jugador es la encargada de tener la informacion que comparten todos los piratas asi como
-  su puntaje, su puerto y donde se encuentra el codigo de sus tareas.
+  su puntaje, su puerto y donde se encuentra el código de sus tareas.
+
   La estructura tiene los siguientes atributos:
-    Un identificador index (0 para A, 1 para B).
-    Un arreglo de piratas cuya capacidad maxima es el total de los que puede tener vivos.
-    La cantidad de monedas que tiene recolectadas y su color.
-    Un arreglo de 4 posiciones con las direcciones de memoria de las tablas de paginas que se usaran para mapear el mapa visto por
-    sus piratas.
-    Las posiciones X e Y de su puerto.
-    Las dos direcciones a los codigos de sus piratas, minero o explorador.
-    un arreglo con tantas posiciones como botines hay en el mapa el cual sirve para indicar cual fue descubierto pero aun no se le envio
-    un minero.
+
+  \begin{description}
+    \item[index] Un identificador (0 para A, 1 para B).
+    \item[piratas] Un arreglo de piratas cuya capacidad máxima es el total de
+    los que puede tener vivos.
+    \item[monedas] La cantidad de monedas que tiene recolectadas
+    \item[color] Verde para el jugador A y magenta para el jugador B.
+    \item[mapa] Un arreglo de 4 posiciones con las direcciones de memoria de
+    las tablas de páginas que se usarán para mapear el mapa visto por sus
+    piratas.
+    \item[puertoX] Posición $X$ del mapa donde comienza el jugador.
+    \item[puertoY] Posición $Y$ del mapa donde comienza el jugador.
+    \item[codigo] Las dos direcciones a los códigos de sus piratas, explorador
+    en la posición 0 y minero en la posición 1.
+    \item[botines] Un arreglo con tantas posiciones como botines hay en el mapa
+    el cual sirve para indicar que un botín fue descubierto pero no había slot
+    disponible para lanzar un explorador. Una vez se libere un slot, se lanza
+    un explorador para el botín descubierto.
+  \end{description}
 
 \item[Estructura Pirata]
-  La estructura pirata se encarga de conocer a su jugador, su posicion actual y su tipo.
+  La estructura pirata se encarga de conocer a su jugador, su posición actual y
+  su tipo.
+
   Esta tiene los siguientes atributos:
-    Un index que define que numero de pirata es para su jugador.
-    Tiene un puntero a una estructura Jugador, el cual apunta a su jugador.
-    Sus posiciones X e Y en el mapa.
-    Su tipo (explorador o minero).
+
+  \begin{description}
+    \item[index] Define qué número de pirata es para su jugador.
+    \item[jugador] Puntero a su jugador.
+    \item[posicionX] Su posición $X$ en el mapa.
+    \item[posicionY] Su posición $Y$ en el mapa.
+    \item[tipo] Explorador o minero.
+  \end{description}
 
 \item[Estructura Scheduler]
-  La estructura scheduler es la encargada de saber que jugador esta activo en este momento y tener la informacion
-  necesaria para saber que tarea ejecutar en el proximo ciclo del reloj.
+  La estructura scheduler es la encargada de saber que tarea está activa en
+  este momento y tener la informacion necesaria para saber que tarea ejecutar en
+  el próximo ciclo del reloj.
+
   Esta posee los siguientes atributos:
-    activo: Indica si el scheduler esta actualmente manejando el juego o no.
-    selectores: Este arreglo de 17 posiciones tiene los selectores de las entradas de la GDT de
-    las 8 tareas del jugador A, las 8 del B y la tarea idle.
-    jugadorActual: Como era de esperarse, indica el jugador actualmente activo.
-    slotActual: Es una tupla la cual posee el indice del arreglo slots de la ultima tarea ejecutada por el jugador A
-    en su primer valor, y del jugador B en su segundo valor.
-    slots: esta tupla de dos arreglos de ocho posiciones indica en cada una de ellas si la tarea correspondiente a ese
-    indice (para el jugador A en el primer arreglo y el jugador B en el segundo) esta fuera del juegp (0) o esta actualmente
-    en el mapa activa (1).
+\begin{description}
+    \item[activo] Indica si el scheduler está actualmente manejando el juego o
+    no.
+    \item[selectores] Este arreglo de 17 posiciones tiene indices a los
+    descriptores de las entradas de la GDT de las 8 tareas del jugador A, las 8
+    del jugador B y la tarea idle.
+    \item[jugadorActual] Como era de esperarse, indica el jugador actualmente
+    activo.
+    \item[slotActual] Es una tupla que posee el índice del arreglo de slots de
+    la última tarea ejecutada por el jugador A en su primer valor, y la última
+    del jugador B en su segundo valor.
+    \item[slots] Esta tupla de dos arreglos de ocho posiciones indica en cada
+    una de ellas si la tarea correspondiente a ese índice (para el jugador A en
+    el primer arreglo y el jugador B en el segundo) esta fuera del juego (0) o
+    está actualmente en el mapa activa ejecutandosé (1).
+\end{description}
 
 \end{description}
 

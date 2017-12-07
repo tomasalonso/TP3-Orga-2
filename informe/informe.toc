@@ -8,4 +8,4 @@
 \contentsline {subsection}{\numberline {1.6}Ejercicio 6}{6}
 \contentsline {subsection}{\numberline {1.7}Ejercicio 7}{7}
 \contentsline {section}{\numberline {2}Estructuras}{8}
-\contentsline {section}{\numberline {3}Funciones creadas}{9}
+\contentsline {section}{\numberline {3}Funciones creadas}{10}
