@@ -116,6 +116,12 @@ También se pintan los dos sectores de puntajes de los jugadores y se inicializa
 los relojes para cada pirata de cada jugador. Todo lo realizado es acorde a las
 imágenes del mapa sugerido por la cátedra.
 
+\begin{center}
+\includegraphics[width=0.7\textwidth]{imagenes/mapa1.png}
+
+Inicio de la pantalla
+\end{center}
+
 Luego se implementó {\it mmu_inicializar_dir_kernel\/} que crea un
 {\it page directory\/} para el kernel a partir de la dirección $0\times27000$
 como indica el enunciado. En este page directory se crea una primera
@@ -318,9 +324,15 @@ devuelve -1. Luego puede ocurrir que el pirata sea un {\it explorador\/}, en
 cuyo caso mapea las páginas descubiertas en la dirección a la que se mueve
 llamando a {\it game_explorar_posicion\/} con el {\it pirata\/}, el {\it cr3\/}
 actual, la nueva posición ({\it X,Y\/}) y la dirección como parámetros. En caso
-que sea un {\it minero\/}, no mapea ninguna página. Notar que un minero podría
+que sea un {\it minero\/}, no mapea ninguna página.
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{imagenes/mapa4.png}
+
+Un minero podría
 moverse a una posición no descubierta, en cuyo caso tendrá un problema de
-{\it page_fault\/}.
+{\it page_fault\/} (notar cruces rojas afuera del mapa explorado)
+\end{center}
 
 Por último se llama a {\it game_pirata_mover\/} que efectivamente mueve al
 pirata. Si se movió correctamente, se devuelve un 0 (ver
@@ -362,55 +374,77 @@ devuelva la posición en el registro {\it eax\/}.
 
 \begin{itemize}
 
-\item Se adoptó la siguiente estructura para el scheduler:
-
-Se tiene un {\it flag\/} para saber si el scheduler está activo o no, una lista
-de enteros sin signo de 17 posiciones que guardan los índices de la GDT  a los
-descriptores de la TSS de la respectiva tarea, siendo las 8 primeras del jugador
-A, las segundas 8 del jugador B y la última para la tarea idle (posición 16).
-
-Hay una variable que indica el jugador actual (0 para A, 1 para B) y una tupla
-de uints que indica en la primera posicion el indice del ultimo pirata ejecutado
-del Jugador A y en la otra el del  ultimo pirata ejecutado del jugador B en las
-dos listas siguientes.
-En estas dos listas se indica con un int si el pirata correspondiente al indice esta libre (0) o en ejecucion (1);
+\item La estructura adoptada para el scheduler, se detalla en la sección {\bf estructuras}.
 
 \item La implementación de sched_proxima_a_ejecutar es como se detalla a
 continuación:
-  En primer lugar se obtiene el jugador activo, el inactivo y se asigna una variable proximo con valor inicial de 16 (la tarea idle)
-  Luego, si el scheduler esta activo chequea si el jugador inactivo tiene un slot para ejecutar, esto lo hace con la
-  funcion sched_hay_slot_a_ejecutar, en esta funcion se recorre la lista de tareas del jugador indicado y si hay una que esta
-  en ejecucion, se devuelve un 1, si no hay ninguna activa, devuelve 0.
-  Si esta funcion retorna un 1, se cambia el jugador actual del scheduler por el que se tenia como inactivo y a proximo se le asigna
-  el proximo slot de activo de este jugador con la funcion sched_proximo_slot_a_ejecutar, esta funcion recorre el array de slots
-  del jugador a partir de la ultima tarea ejecutada (dandola vuelta y volviendo a la misma si no hay otra) y devolviendo el Indices
-  de la proxima en la lista que este activa.
-  Si el jugador inactivo no tiene un slot a ejecutar, chequea con sched_hay_slot_a_ejecutar lo mismo para el jugador activo y
-  tambien asigna a proximo el indice de la proxima tarea de este jugador a ejecutar.
-  Si ningun jugador esta activo, devuelve proximo como estaba (indicando la tarea idle).
 
-\item En sched_tick se llama primero a game_tick, luego a game_mineros_pendientes con el jugador actual del scheduler (se habla mas
-  de esta funcion luego) y se define el indice de la proxima tarea a ejecutar llamando a sched_proxima_a_ejecutar.
-  Finalmente se devuelve el indice de la GDT de la proxima tarea a ejecutar que se obtiene del atributo selectores del scheduler
-  con el indice que se consigue en el paso anterior. tambien se modifica el llamado que hace la interrupcion del reloj a game_tick
-  por sched_tick.
+  En primer lugar se obtiene el jugador activo, el inactivo y se asigna por defecto
+  una variable próximo con valor inicial de 16 (tarea idle). Luego, si el
+  scheduler está activo chequea si el jugador inactivo tiene un slot para
+  ejecutar, esto lo hace con la funcion {\it sched_hay_slot_a_ejecutar\/}, en esta
+  función se recorre la lista de tareas del jugador indicado y si hay una que
+  está en ejecución, se devuelve un 1, si no hay ninguna activa, devuelve 0.
 
-\item El funcionamiento final de esta instruccion fue detallado en la seccion g) del ejercion 6.
+  Si esta función retorna un 1, se cambia el jugador actual del scheduler por el
+  que se tenía como inactivo y a próximo se le asigna el siguiente slot activo
+  de este jugador con la función {\it sched_proximo_slot_a_ejecutar\/}, esta función
+  recorre el array de slots del jugador a partir de la ultima tarea ejecutada
+  (dando la vuelta y volviendo a la misma si no hay otra) y devolviendo el indice
+  de la proxima en la lista que esté en ejecución.
 
-\item Esta modificacion ya se hizo dentro de sched_tick como se explico en la seccion c de este ejercicio.
+  Si el jugador inactivo no tiene un slot a ejecutar, chequea con
+  {\it sched_hay_slot_a_ejecutar\/} lo mismo para el jugador activo y
+  también asigna a {\it proximo\/} el índice de la próxima tarea de este jugador a
+  ejecutar.
 
-\item Aqui se modifico la macro que define el comportamiento de cada interrupcion. la unica diferencia entre las interrupciones
-  son las que tienen error code y las que no. esto modifica el lugar en la pila de los parametros que se pasan a la funcion de C
-  game_atender_excepcion, para solucionar esto, se chequea primero si la excepcion genera error code o no, en base a esto se define un
-  offset para acceder a la pila y obtener los datos necesarios para luego ponerlos en el tope de la pila y llamar a la funcion de C.
-  La funcion game_atender_excepcion se encarga de llamar a game__pirata_exploto para desalojar el pirata, ademas de chequar
-  si se esta en modo debug (con una variable global que se pone en 0 o en 1) para frenar el scheduler, guardar la pantalla actual y mostrar la informacion de debug. de no estar
-  en modo debug, vuelve a la interrupcion.
+  Si ningún jugador está activo, devuelve {\it proximo\/} con la tarea idle.
 
-\item cuando game_atender_excepcion entra en modo debug esta hace lo dicho anteriormente, guarda la pantalla actual con screen_guardar,
-  imprime lo pedido por el modo debug con screen_debug la cual toma todos los parametros que se pasaron inicialmente por la pila
-  el modo debug se inicia cuando se llama a la interrupcion del teclado presionando la tecla y, en este caso se chequea, si ya esta en modo
-  debug simplemente se activa el scheduler y se continua la ejecucion. si no, se setea el indicador de debug en 1 lo cual desactivara
+\item En {\it sched_tick\/} se llama primero a {\it game_tick\/} que actualiza los
+relojes de la pantalla, luego a
+  {\it game_mineros_pendientes\/} con el jugador actual del scheduler (se habla más
+  de esta función luego) y se define el índice de la próxima tarea a ejecutar
+  llamando a {\it sched_proxima_a_ejecutar\/}.
+
+  Finalmente se devuelve el índice de la GDT de la próxima tarea a ejecutar que
+  se obtiene del atributo selectores del scheduler con el índice que se consigue
+  en el paso anterior. Se modificó también el llamado que hace la interrupción
+  del reloj a {\it game_tick\/} por {\it sched_tick\/}.
+
+\item El funcionamiento final de la interrupción $0\times46$ fue detallado en
+ la sección del ejercion 6.
+
+\item Se modifico la macro que define el comportamiento de cada interrupcion. la
+ única diferencia entre las interrupciones, son las que tienen {\bf error code} y las
+  que no. Esto modifica el lugar en la pila de los parámetros que se pasan a la
+  función de C {\it game_atender_excepcion\/}, para solucionar esto, se chequea primero
+  (de acuerdo a los parámetros pasados a la macro)
+  si la excepción genera error code o no, en base a esto se define un {\it offset\/}
+  para acceder a la pila y obtener los datos necesarios para luego ponerlos en
+  el tope de la pila y llamar a la funcion de C.
+
+  La funcion {\it game_atender_excepcion\/} se encarga de llamar a {\it game_pirata_exploto\/}
+  para desalojar el pirata, ademas de chequar si se está en modo debug (con una
+  variable global {\it debug\/} que se pone en 0 o en 1) para frenar el scheduler, guardar la
+  pantalla actual y mostrar la informacion de debug. de no estar
+  en modo debug, vuelve a la interrupción y cambia a la tarea idle.
+
+  \begin{center}
+  \includegraphics[width=0.7\textwidth]{imagenes/mapa2.png}
+
+  Modo debug
+  \end{center}
+
+\item Cuando {\it game_atender_excepcion\/} entra en {\bf modo debug}, realiza lo dicho
+anteriormente, guarda la pantalla actual con {\it screen_guardar\/}, imprime lo pedido
+por el modo debug con {\it screen_debug\/} la cual toma todos los parámetros que se
+pasaron inicialmente por la pila.
+
+\item El modo debug se inicia cuando se llama a la interrupcion del teclado
+   presionando la tecla $y$. En este caso se chequea, si ya esta en modo
+  debug y se activa el scheduler, continuando la ejecucion del juego.
+
+   En caso de no estarlo, se setea el indicador de debug en 1 lo cual desactivará
   el scheduler cuando haya una excepcion.
 \end{itemize}
 
@@ -599,7 +633,12 @@ por {\it next\/} el cual se va avanzando con cada asignacion, de esta forma en
 los arreglos finales se obtienen las nuevas posiciones $X$ e $Y$ que ahora puede
 ver el pirata y por ende el jugador.
 
-GRAFICO
+\begin{center}
+\includegraphics[width=0.3\textwidth]{imagenes/habilitarposicion.png}
+
+Posiciones a explorar (verde: posición a la que se mueve)
+\end{center}
+
 
 \item[game_pirata_mover]
   Esta función simplemente llama a {\it game_actualizar_codigo\/} con la
@@ -630,5 +669,11 @@ GRAFICO
 
   Si algo de esto no se cumple, se resetea el contador y se actualizan las
   variables globales de puntaje de cada jugador. Finalmente se devuelve un 0.
+
+  \begin{center}
+  \includegraphics[width=0.7\textwidth]{imagenes/mapa8.png}
+
+  ¡Finish HIM!
+  \end{center}
 
 \end{description}

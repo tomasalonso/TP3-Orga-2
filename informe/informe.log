@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2017.9.18)  7 DEC 2017 17:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2017.9.18)  7 DEC 2017 18:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -871,55 +871,95 @@ File: utf8.def 2014/09/29 v1.1m UTF-8 support for inputenc
 LaTeX Info: Redefining \. on input line 79.
 LaTeX Info: Redefining \% on input line 79.
  [3]
-LaTeX Info: Redefining \. on input line 161.
-LaTeX Info: Redefining \% on input line 161.
-LaTeX Info: Redefining \. on input line 161.
-LaTeX Info: Redefining \% on input line 161.
- [4]
-<imagenes/parametrosTarea.png, id=27, 137.313pt x 54.604pt>
+<imagenes/mapa1.png, id=24, 723.70375pt x 479.7925pt>
+File: imagenes/mapa1.png Graphic file (type png)
+ <use imagenes/mapa1.png>
+Package pdftex.def Info: imagenes/mapa1.png used on input line 120.
+(pdftex.def)             Requested size: 317.0764pt x 210.20885pt.
+LaTeX Info: Redefining \. on input line 140.
+LaTeX Info: Redefining \% on input line 140.
+LaTeX Info: Redefining \. on input line 140.
+LaTeX Info: Redefining \% on input line 140.
+
+[4 <./imagenes/mapa1.png (PNG copy)>]
+<imagenes/parametrosTarea.png, id=28, 137.313pt x 54.604pt>
 File: imagenes/parametrosTarea.png Graphic file (type png)
 
 <use imagenes/parametrosTarea.png>
-Package pdftex.def Info: imagenes/parametrosTarea.png used on input line 202.
+Package pdftex.def Info: imagenes/parametrosTarea.png used on input line 208.
 (pdftex.def)             Requested size: 113.24207pt x 45.03136pt.
-LaTeX Info: Redefining \. on input line 230.
-LaTeX Info: Redefining \% on input line 230.
-LaTeX Info: Redefining \. on input line 230.
-LaTeX Info: Redefining \% on input line 230.
- [5 <./imagenes/parametrosTarea.png>]
+LaTeX Info: Redefining \. on input line 210.
+LaTeX Info: Redefining \% on input line 210.
+LaTeX Info: Redefining \. on input line 210.
+LaTeX Info: Redefining \% on input line 210.
+ [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2014/09/29 v1.1m UTF-8 support for inputenc
 )
-Overfull \hbox (11.99107pt too wide) in paragraph at lines 249--253
+Overfull \hbox (11.99107pt too wide) in paragraph at lines 255--259
 []\T1/bch/m/n/10 En la in-te-rrup-ción del te-cla-do tam-bién se lla-ma a \T1/b
 ch/m/it/10 fin_-intr_-pic1 \T1/bch/m/n/10 y lue-go a la fun-ción [],
  []
 
-LaTeX Info: Redefining \. on input line 312.
-LaTeX Info: Redefining \% on input line 312.
-LaTeX Info: Redefining \. on input line 312.
-LaTeX Info: Redefining \% on input line 312.
-[6]
-LaTeX Info: Redefining \. on input line 390.
-LaTeX Info: Redefining \% on input line 390.
-LaTeX Info: Redefining \. on input line 390.
-LaTeX Info: Redefining \% on input line 390.
- [7]
-LaTeX Info: Redefining \. on input line 436.
-LaTeX Info: Redefining \% on input line 436.
+LaTeX Info: Redefining \. on input line 281.
+LaTeX Info: Redefining \% on input line 281.
+LaTeX Info: Redefining \. on input line 281.
+LaTeX Info: Redefining \% on input line 281.
+[6 <./imagenes/parametrosTarea.png>]
+<imagenes/mapa4.png, id=37, 724.7075pt x 480.79625pt>
+File: imagenes/mapa4.png Graphic file (type png)
+ <use imagenes/mapa4.png>
+Package pdftex.def Info: imagenes/mapa4.png used on input line 330.
+(pdftex.def)             Requested size: 317.0764pt x 210.3625pt.
+LaTeX Info: Redefining \. on input line 341.
+LaTeX Info: Redefining \% on input line 341.
+LaTeX Info: Redefining \. on input line 341.
+LaTeX Info: Redefining \% on input line 341.
+
+[7 <./imagenes/mapa4.png>]
+LaTeX Info: Redefining \. on input line 425.
+LaTeX Info: Redefining \% on input line 425.
+LaTeX Info: Redefining \. on input line 425.
+LaTeX Info: Redefining \% on input line 425.
  [8]
-LaTeX Info: Redefining \. on input line 508.
-LaTeX Info: Redefining \% on input line 508.
- [9]
-LaTeX Info: Redefining \. on input line 582.
-LaTeX Info: Redefining \% on input line 582.
+<imagenes/mapa2.png, id=46, 723.70375pt x 480.79625pt>
+File: imagenes/mapa2.png Graphic file (type png)
+
+<use imagenes/mapa2.png>
+Package pdftex.def Info: imagenes/mapa2.png used on input line 433.
+(pdftex.def)             Requested size: 317.0764pt x 210.64862pt.
+LaTeX Info: Redefining \. on input line 470.
+LaTeX Info: Redefining \% on input line 470.
+ [9 <./imagenes/mapa2.png (PNG copy)>]
+LaTeX Info: Redefining \. on input line 543.
+LaTeX Info: Redefining \% on input line 543.
  [10]
+LaTeX Info: Redefining \. on input line 617.
+LaTeX Info: Redefining \% on input line 617.
+ [11]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2014/09/29 v1.1m UTF-8 support for inputenc
-))
+)
+<imagenes/habilitarposicion.png, id=56, 313.17pt x 141.328pt>
+File: imagenes/habilitarposicion.png Graphic file (type png)
+
+<use imagenes/habilitarposicion.png>
+Package pdftex.def Info: imagenes/habilitarposicion.png used on input line 637.
+
+(pdftex.def)             Requested size: 135.89185pt x 61.32622pt.
+
+<imagenes/mapa8.png, id=57, 724.7075pt x 480.79625pt>
+File: imagenes/mapa8.png Graphic file (type png)
+ <use imagenes/mapa8.png>
+Package pdftex.def Info: imagenes/mapa8.png used on input line 674.
+(pdftex.def)             Requested size: 317.0764pt x 210.3625pt.
+LaTeX Info: Redefining \. on input line 676.
+LaTeX Info: Redefining \% on input line 676.
+
+[12 <./imagenes/habilitarposicion.png>])
 LaTeX Info: Redefining \. on input line 59.
 LaTeX Info: Redefining \% on input line 59.
- [11]
+ [13 <./imagenes/mapa8.png>]
 (./informe.aux
 LaTeX Info: Redefining \. on input line 7.
 LaTeX Info: Redefining \% on input line 7.
@@ -929,10 +969,10 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 7433 strings out of 493109
- 96651 string characters out of 6135010
+ 7458 strings out of 493109
+ 97211 string characters out of 6135010
  189061 words of memory out of 5000000
- 10703 multiletter control sequences out of 15000+600000
+ 10723 multiletter control sequences out of 15000+600000
  42740 words of font info for 65 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,11n,50p,237b,2295s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -949,10 +989,10 @@ al/texlive/2014/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local
 texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/te
 xlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
 live/2014/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb>
-Output written on informe.pdf (11 pages, 504233 bytes).
+Output written on informe.pdf (13 pages, 582716 bytes).
 PDF statistics:
- 88 PDF objects out of 1000 (max. 8388607)
- 60 compressed objects within 1 object stream
+ 103 PDF objects out of 1000 (max. 8388607)
+ 65 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
 
