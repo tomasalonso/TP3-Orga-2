@@ -129,7 +129,7 @@ Estructura Scheduler:
     La estructura scheduler es la encargada de saber que jugador esta activo en este momento y tener la informacion
     necesaria para saber que tarea ejecutar en el proximo ciclo del reloj.
     Esta posee los siguientes atributos:
-      activo: Indica si el scheduler esta actualmente manejando el juego o no.
+      activo: Indica si el scheduler está actualmente despachando tareas del juego o no.
       selectores: Este arreglo de 17 posiciones tiene los selectores de las entradas de la GDT de
       las 8 tareas del jugador A, las 8 del B y la tarea idle.
       jugadorActual: Como era de esperarse, indica el jugador actualmente activo.
