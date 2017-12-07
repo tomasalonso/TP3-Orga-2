@@ -94,20 +94,38 @@ practico.
 
 \subsection{Ejercicio 3}
 
-En primer lugar se inicializa la pantalla con la función {\it screen_inicializar\/} hecha en C.
-Esta funcion utiliza todas funciones de la catedra, en primer lugar pinta toda la pantalla de gris, luego
-se pinta una linea negra en la parte superior, donde se escribira informacion, por el momento se escribe aqui
-el nombre del grupo. Tambien se pintan los dos sectores de puntajes de los jugadores y se inicializan los relojes
-para cada pirata de cada jugador. Todo lo realizado es acorde a las imagenes del mapa sugerido por la catedra.
+En primer lugar se inicializa la pantalla con la función
+{\it screen_inicializar\/} hecha en C.
 
-Luego se llama a mmu_inicializar_dir_kernel, esta funcion crea el page directory en el cual se paginara
-con identity mapping el kernel. se crea este page directory a partir de la direccion 0x27000 como indica el enunciado,
-en este page directory se crea una page table para mapeara el kernel, esta está en la posicion 0x28000 que
-se asigna directamente porque es la posicion especifica que se pide y no esta habilitada la paginacion como
-para pedir memoria libre. en esta tabla se cicla con un for asignando por identity mapping toda la
-seccion del kernel y su memoria libre, utilizando para esto toda la page table.
+Esta función utiliza todas funciones de la catedra, entre ellas
+{\it screen_pintar_rect\/}, {\it screen_pintar_linea_h\/},
+{\it screen_pintar_puntajes\/}.
 
-Finalmente se carga en el cr3 del kernel la direccion de este page directory y se habilita en el cr0 la paginacion.
+Los pasos a realizar por la función son, en primer lugar, pintar toda la
+pantalla de gris; luego se pinta una línea negra en la parte superior, donde se
+escribirá informacion, por el momento se escribe aquí el nombre del grupo, pero
+luego se escribirá la tecla pulsada y el modo {\it debug\/}.
+También se pintan los dos sectores de puntajes de los jugadores y se inicializan
+los relojes para cada pirata de cada jugador. Todo lo realizado es acorde a las
+imágenes del mapa sugerido por la cátedra.
+
+Luego se implementó {\it mmu_inicializar_dir_kernel\/} que crea un
+{\it page directory\/} para el kernel a partir de la dirección $0\times27000$
+como indica el enunciado. En este page directory se crea una primera
+{\it page table\/} que se ubica en la posición $0\times28000$, posición
+asignada directamente y dicho sea de paso, en este punto, al no estar paginación
+aún habilitada, pedir memoria libre no es una buena opción.
+
+La {\it page table\/} se cicla con un ciclo y un incremento de 0 a 1024,
+asignando páginas sucesivas, de modo que el esquema de paginación sea
+{\bf identity mapping}; y para que ocurra efectivamente, se asigna la page table
+en la primera entrada del page directory.
+De modo que queda mapeada toda la sección del kernel y su memoria libre.
+Como última aclaración, la sección del kernel corresponde al uso de la page
+table en su totalidad.
+
+Finalmente se carga en el {\bf cr3} del kernel la dirección del page
+directory y se habilita en el {\bf cr0} el bit de paginación.
 
 
 \subsection{Ejercicio 4}
