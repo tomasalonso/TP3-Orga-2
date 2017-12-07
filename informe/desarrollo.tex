@@ -1,4 +1,4 @@
-\section{Desarrollo}
+\section{Ejercicios del enunciado}
 
 \subsection{Ejercicio 1}
 
@@ -244,15 +244,15 @@ En la interrupción del reloj se avisa al PIC que se atendió la interrupción c
 {\it fin_intr_pic1} y se realizaba lo pedido en el enunciado, llamándose a
 {\it game_tick\/} que actualizaba el reloj del sistema.
 
-(HABLAR DE LAS 3 INTERRUPCIONES AL FINAL)
+% (HABLAR DE LAS 3 INTERRUPCIONES AL FINAL)
 
 En la interrupción del teclado también se llama a {\it fin_intr_pic1\/} y luego
 a la función \hbox{\it game_atender_teclado\/}, la cual en primer lugar solo se
 encargaba de imprimir en pantalla la tecla usando un switch y los distintos
 códigos de teclado.
 
-Se hablará en mayor profundidad de esta y las otras
-interrupciones cuando se trate su implementación final.
+Se hablará en mayor profundidad de esta y las otras interrupciones cuando se
+trate su implementación final.
 
 Finalmente se agrega la interrupcion 0x46, la cual no hacia nada útil. Se
 posterga la explicación de su funcionamiento final más adelante cuando es
@@ -302,149 +302,245 @@ Se escribe el código necesario para cargar la tarea inicial como la actual,
 cargando el selector de la tarea inicial con {\it ltr\/} e inmediatamente salta
 a la tarea idle.
 
-(ESTO ACA O EN EL EJERCICIO 7?)
-Modificamos la interrupción 0x46 la cual ahora pone en la pila los parametros que se le pasan
-y llama a game_syscall_manejar. Esta le pide al scheduler cual es el jugador actual y el pirata actual,
-con una serie de ifs chequea cual fue el servicio pedido y llama a game_syscall_pirata_mover, game_syscall_cavar o
-game_syscall_pirata_posicion. si no es nungun caso destruye al pirata y devuelve un -1.
-  La funcion game_syscall_pirata_mover en primer lugar chequea que se haya pedido mover con una
-  direccion valida y hacia una posicion valida, luego se chequea si el pirata es un explorador.
-  Si se cumplen estas condiciones, se llama a game_explorar_posicion con el pirata, el cr3 del kernel, la nueva
-  posicion (X,Y) y la direccion, luego se llama a game_pirata_mover. si el pirata no es un explorador,
-  solo se llama a game_pirata_mover. si la direccion o la posicion no eran validas, se llama a game_pirata_exploto
-  y se devuelve un -1. si se movio correctamente, se devuelve un 0.
+En este punto, modificamos la interrupción $0\times46$, la cual ahora pone en la
+pila los parámetros que le pasan y llama a {\it game_syscall_manejar\/}. Esta le
+pide al {\it scheduler\/} cual es el jugador actual y el pirata actual y con una
+serie de condicionales comprueba cual fue el servicio pedido y llama a
+{\it game_syscall_pirata_mover\/}, {\it game_syscall_cavar\/} o
+{\it game_syscall_pirata_posicion\/}, si no es ningún caso de los anteriores,
+destruye al pirata y devuelve un -1.
 
-Cuando retorna a la interrupcion, esta acomoda la pila, recupera el resultado y chequea si se devolvio un -1,
-en este caso salta a la tarea idle, si no, se fija si se intento pedir la posicion, si fue asi, manualmente se
-pone en la pila en el registro guardado de la tarea la posicion actual de la misma y tambien se salta a la tarea idle.
+\begin{description}
+\item[game_syscall_pirata_mover] Esta función chequea en primer lugar que se
+haya pedido mover con una dirección válida y hacia una posición válida, en caso
+contrario se mata al pirata (se llama a {\it game_pirata_exploto\/}) y se
+devuelve -1. Luego puede ocurrir que el pirata sea un {\it explorador\/}, en
+cuyo caso mapea las páginas descubiertas en la dirección a la que se mueve
+llamando a {\it game_explorar_posicion\/} con el {\it pirata\/}, el {\it cr3\/}
+actual, la nueva posición ({\it X,Y\/}) y la dirección como parámetros. En caso
+que sea un {\it minero\/}, no mapea ninguna página. Notar que un minero podría
+moverse a una posición no descubierta, en cuyo caso tendrá un problema de
+{\it page_fault\/}.
 
+Por último se llama a {\it game_pirata_mover\/} que efectivamente mueve al
+pirata. Si se movió correctamente, se devuelve un 0 (ver
+{\it game_pirata_mover\/} y {\it game_explorar_posicion\/} en funciones
+propias).
 
-Ejercicio 7
+\item[game_syscall_cavar] Toma al jugador y al pirata como parámetros y averigua
+la posición del pirata, si el pirata es un explorador o no hay monedas
+disponibles en esta posicion (botin vacio o no habia botin) se llama a
+{\it game_pirata_exploto\/} y se devuelve -1.
 
-  a) La estructura utilizada para el scheduler es la siguiente:
-    Se tiene un uint para saber si el scheduler esta activo o no, una lista de uints con 17 posiciones las cuales
-    representan los indices de la GDT que llevan al indice de la TSS de la respectiva tarea, las 8 primeras de jugador A,
-    las segundas del jugador B y la ultima para la tarea idle.
-    Hay un uint que indica el jugador actual (0 para A, 1 para B).
-    Una tupla de uints que indica en la primera posicion el indice del ultimo pirata ejecutado del Jugador A y en la otra el del
-    ultimo pirata ejecutado del jugador B en las dos listas siguientes.
-    En estas dos listas se indica con un int si el pirata correspondiente al indice esta libre (0) o en ejecucion (1);
-  b) La implementacion de sched_proxima_a_ejecutar es como sigue:
-    en primer lugar se obtiene el jugador activo, el inactivo y se asigna una variable proximo con valor inicial de 16 (la tarea idle)
-    Luego, si el scheduler esta activo chequea si el jugador inactivo tiene un slot para ejecutar, esto lo hace con la
-    funcion sched_hay_slot_a_ejecutar, en esta funcion se recorre la lista de tareas del jugador indicado y si hay una que esta
-    en ejecucion, se devuelve un 1, si no hay ninguna activa, devuelve 0.
-    Si esta funcion retorna un 1, se cambia el jugador actual del scheduler por el que se tenia como inactivo y a proximo se le asigna
-    el proximo slot de activo de este jugador con la funcion sched_proximo_slot_a_ejecutar, esta funcion recorre el array de slots
-    del jugador a partir de la ultima tarea ejecutada (dandola vuelta y volviendo a la misma si no hay otra) y devolviendo el Indices
-    de la proxima en la lista que este activa.
-    Si el jugador inactivo no tiene un slot a ejecutar, chequea con sched_hay_slot_a_ejecutar lo mismo para el jugador activo y
-    tambien asigna a proximo el indice de la proxima tarea de este jugador a ejecutar.
-    Si ningun jugador esta activo, devuelve proximo como estaba (indicando la tarea idle).
-  c) En sched_tick se llama primero a game_tick, luego a game_mineros_pendientes con el jugador actual del scheduler (se habla mas
-    de esta funcion luego) y se define el indice de la proxima tarea a ejecutar llamando a sched_proxima_a_ejecutar.
-    Finalmente se devuelve el indice de la GDT de la proxima tarea a ejecutar que se obtiene del atributo selectores del scheduler
-    con el indice que se consigue en el paso anterior. tambien se modifica el llamado que hace la interrupcion del reloj a game_tick
-    por sched_tick.
-  d) El funcionamiento final de esta instruccion fue detallado en la seccion g) del ejercion 6.
-  e) Esta modificacion ya se hizo dentro de sched_tick como se explico en la seccion c de este ejercicio.
-  f) Aqui se modifico la macro que define el comportamiento de cada interrupcion. la unica diferencia entre las interrupciones
-    son las que tienen error code y las que no. esto modifica el lugar en la pila de los parametros que se pasan a la funcion de C
-    game_atender_excepcion, para solucionar esto, se chequea primero si la excepcion genera error code o no, en base a esto se define un
-    offset para acceder a la pila y obtener los datos necesarios para luego ponerlos en el tope de la pila y llamar a la funcion de C.
-    La funcion game_atender_excepcion se encarga de llamar a game__pirata_exploto para desalojar el pirata, ademas de chequar
-    si se esta en modo debug (con una variable global que se pone en 0 o en 1) para frenar el scheduler, guardar la pantalla actual y mostrar la informacion de debug. de no estar
-    en modo debug, vuelve a la interrupcion.
-  g) cuando game_atender_excepcion entra en modo debug esta hace lo dicho anteriormente, guarda la pantalla actual con screen_guardar,
-    imprime lo pedido por el modo debug con screen_debug la cual toma todos los parametros que se pasaron inicialmente por la pila
-    el modo debug se inicia cuando se llama a la interrupcion del teclado presionando la tecla y, en este caso se chequea, si ya esta en modo
-    debug simplemente se activa el scheduler y se continua la ejecucion. si no, se setea el indicador de debug en 1 lo cual desactivara
-    el scheduler cuando haya una excepcion.
+En caso contrario, se le suma una moneda al jugador, con {\it game_minar_botin/}
+y {\it screen_pintar_puntajes\/}, esta última se encarga de mostrar el nuevo
+puntaje en pantalla. Finalmente se devuelve un 0.
 
+\item[game_syscall_pirata_posicion] Recibe por parámetro el {\it jugador\/} y un
+{\it index\/}.
 
-Estructura del mapa explorado:
-    Cada jugador posee un arreglo mapa de 4 posiciones, cuanndo se inicializa el jugador se llama a game_jugador_inicializar_mapa,
-    esta funcion se encarga de pedir cuatro paginas libres e iniciarlas como page tables vacias, se asigna a las cuatro posiciones
-    del arreglo las 4 direcciones de memoria de estas paginas.
-    Luego cada pirata tiene su page directory con el kernel y su codigo, se asignan a las cuatro entradas siguientes de este directorio
-    las 4 posiciones de memoria de las tablas que se encuentran en el arreglo mapa de su jugador.
-    Cuando un pirata se mueve, este tiene su posicion x e y, con estos valores obtiene las posiciones de memoria del mapa a las que se mueve
-    y las mapea en este grupo de 4 tablas de paginas, entonces todos los piratas del jugador pueden "ver" lo explorado por los
-    otros piratas.
+Si el index está fuera de rango (menor a -1 o mayor a 7) se mata al pirata y se
+devuelve un -1.
 
-Estructura Jugador:
-    La estructura jugador es la encargada de tener la informacion que comparten todos los piratas asi como
-    su puntaje, su puerto y donde se encuentra el codigo de sus tareas.
-    La estructura tiene los siguientes atributos:
-      Un identificador index (0 para A, 1 para B).
-      Un arreglo de piratas cuya capacidad maxima es el total de los que puede tener vivos.
-      La cantidad de monedas que tiene recolectadas y su color.
-      Un arreglo de 4 posiciones con las direcciones de memoria de las tablas de paginas que se usaran para mapear el mapa visto por
-      sus piratas.
-      Las posiciones X e Y de su puerto.
-      Las dos direcciones a los codigos de sus piratas, minero o explorador.
-      un arreglo con tantas posiciones como botines hay en el mapa el cual sirve para indicar cual fue descubierto pero aun no se le envio
-      un minero.
+Si el index es -1, se apunta al pirata actual, en caso contrario, se apunta a la
+posición index del arreglo piratas del jugador pasado por parámetro.
 
-Estructura Pirata:
-    La estructura pirata se encarga de conocer a su jugador, su posicion actual y su tipo.
-    Esta tiene los siguientes atributos:
-      Un index que define que numero de pirata es para su jugador.
-      Tiene un puntero a una estructura Jugador, el cual apunta a su jugador.
-      Sus posiciones X e Y en el mapa.
-      Su tipo (explorador o minero).
+Una vez seleccionado el pirata se devuelve en un solo regsitro la posicion $X$
+en los primeros 8 bits y la posicion $Y$ en los siguientes 8, quedando los
+últimos 16 sin importancia.
 
-Estructura Scheduler:
-    La estructura scheduler es la encargada de saber que jugador esta activo en este momento y tener la informacion
-    necesaria para saber que tarea ejecutar en el proximo ciclo del reloj.
-    Esta posee los siguientes atributos:
-      activo: Indica si el scheduler esta actualmente manejando el juego o no.
-      selectores: Este arreglo de 17 posiciones tiene los selectores de las entradas de la GDT de
-      las 8 tareas del jugador A, las 8 del B y la tarea idle.
-      jugadorActual: Como era de esperarse, indica el jugador actualmente activo.
-      slotActual: Es una tupla la cual posee el indice del arreglo slots de la ultima tarea ejecutada por el jugador A
-      en su primer valor, y del jugador B en su segundo valor.
-      slots: esta tupla de dos arreglos de ocho posiciones indica en cada una de ellas si la tarea correspondiente a ese
-      indice (para el jugador A en el primer arreglo y el jugador B en el segundo) esta fuera del juegp (0) o esta actualmente
-      en el mapa activa (1).
+Por último al retornar a la interrupción, esta acomoda la pila, recupera el
+parámetro de la interrupción y comprueba si se devolvió un -1
+(el pirata explotó), en este caso salta a la tarea idle, en caso contrario, se
+fija si se pidió la posición, si fue así, se pone manualmente en la pila en el
+registro {\it eax\/} guardado de la tarea la posición actual de la misma, de
+manera que al realizarse el {\bf popad} antes de salir de la interrupción se
+devuelva la posición en el registro {\it eax\/}.
+\end{description}
 
-Funciones creadas:
+\subsection{Ejercicio 7}
 
-game_mineros_pendientes:
-    esta funcion esta destinada a chequear si el jugador actual encontro algun botin pero en el momento no tenia lugar para enviar
+Se adoptó la siguiente estructura para el scheduler:
+
+Se tiene un {\it flag\/} para saber si el scheduler está activo o no, una lista
+de enteros sin signo de 17 posiciones que guardan los índices de la GDT  a los
+descriptores de la TSS de la respectiva tarea, siendo las 8 primeras del jugador
+A, las segundas 8 del jugador B y la última para la tarea idle (posición 16).
+
+Hay una variable que indica el jugador actual (0 para A, 1 para B) y una tupla
+de uints que indica en la primera posicion el indice del ultimo pirata ejecutado del Jugador A y en la otra el del
+ultimo pirata ejecutado del jugador B en las dos listas siguientes.
+En estas dos listas se indica con un int si el pirata correspondiente al indice esta libre (0) o en ejecucion (1);
+
+La implementación de sched_proxima_a_ejecutar es como se detalla a
+continuación:
+  En primer lugar se obtiene el jugador activo, el inactivo y se asigna una variable proximo con valor inicial de 16 (la tarea idle)
+  Luego, si el scheduler esta activo chequea si el jugador inactivo tiene un slot para ejecutar, esto lo hace con la
+  funcion sched_hay_slot_a_ejecutar, en esta funcion se recorre la lista de tareas del jugador indicado y si hay una que esta
+  en ejecucion, se devuelve un 1, si no hay ninguna activa, devuelve 0.
+  Si esta funcion retorna un 1, se cambia el jugador actual del scheduler por el que se tenia como inactivo y a proximo se le asigna
+  el proximo slot de activo de este jugador con la funcion sched_proximo_slot_a_ejecutar, esta funcion recorre el array de slots
+  del jugador a partir de la ultima tarea ejecutada (dandola vuelta y volviendo a la misma si no hay otra) y devolviendo el Indices
+  de la proxima en la lista que este activa.
+  Si el jugador inactivo no tiene un slot a ejecutar, chequea con sched_hay_slot_a_ejecutar lo mismo para el jugador activo y
+  tambien asigna a proximo el indice de la proxima tarea de este jugador a ejecutar.
+  Si ningun jugador esta activo, devuelve proximo como estaba (indicando la tarea idle).
+c) En sched_tick se llama primero a game_tick, luego a game_mineros_pendientes con el jugador actual del scheduler (se habla mas
+  de esta funcion luego) y se define el indice de la proxima tarea a ejecutar llamando a sched_proxima_a_ejecutar.
+  Finalmente se devuelve el indice de la GDT de la proxima tarea a ejecutar que se obtiene del atributo selectores del scheduler
+  con el indice que se consigue en el paso anterior. tambien se modifica el llamado que hace la interrupcion del reloj a game_tick
+  por sched_tick.
+d) El funcionamiento final de esta instruccion fue detallado en la seccion g) del ejercion 6.
+e) Esta modificacion ya se hizo dentro de sched_tick como se explico en la seccion c de este ejercicio.
+f) Aqui se modifico la macro que define el comportamiento de cada interrupcion. la unica diferencia entre las interrupciones
+  son las que tienen error code y las que no. esto modifica el lugar en la pila de los parametros que se pasan a la funcion de C
+  game_atender_excepcion, para solucionar esto, se chequea primero si la excepcion genera error code o no, en base a esto se define un
+  offset para acceder a la pila y obtener los datos necesarios para luego ponerlos en el tope de la pila y llamar a la funcion de C.
+  La funcion game_atender_excepcion se encarga de llamar a game__pirata_exploto para desalojar el pirata, ademas de chequar
+  si se esta en modo debug (con una variable global que se pone en 0 o en 1) para frenar el scheduler, guardar la pantalla actual y mostrar la informacion de debug. de no estar
+  en modo debug, vuelve a la interrupcion.
+g) cuando game_atender_excepcion entra en modo debug esta hace lo dicho anteriormente, guarda la pantalla actual con screen_guardar,
+  imprime lo pedido por el modo debug con screen_debug la cual toma todos los parametros que se pasaron inicialmente por la pila
+  el modo debug se inicia cuando se llama a la interrupcion del teclado presionando la tecla y, en este caso se chequea, si ya esta en modo
+  debug simplemente se activa el scheduler y se continua la ejecucion. si no, se setea el indicador de debug en 1 lo cual desactivara
+  el scheduler cuando haya una excepcion.
+
+\section{Estructuras}
+
+\begin{description}
+\item[Estructura del mapa explorado]
+  Cada jugador posee un arreglo mapa de 4 posiciones, cuanndo se inicializa el jugador se llama a game_jugador_inicializar_mapa,
+  esta funcion se encarga de pedir cuatro paginas libres e iniciarlas como page tables vacias, se asigna a las cuatro posiciones
+  del arreglo las 4 direcciones de memoria de estas paginas.
+  Luego cada pirata tiene su page directory con el kernel y su codigo, se asignan a las cuatro entradas siguientes de este directorio
+  las 4 posiciones de memoria de las tablas que se encuentran en el arreglo mapa de su jugador.
+  Cuando un pirata se mueve, este tiene su posicion x e y, con estos valores obtiene las posiciones de memoria del mapa a las que se mueve
+  y las mapea en este grupo de 4 tablas de paginas, entonces todos los piratas del jugador pueden "ver" lo explorado por los
+  otros piratas.
+
+\item[Estructura Jugador]
+  La estructura jugador es la encargada de tener la informacion que comparten todos los piratas asi como
+  su puntaje, su puerto y donde se encuentra el codigo de sus tareas.
+  La estructura tiene los siguientes atributos:
+    Un identificador index (0 para A, 1 para B).
+    Un arreglo de piratas cuya capacidad maxima es el total de los que puede tener vivos.
+    La cantidad de monedas que tiene recolectadas y su color.
+    Un arreglo de 4 posiciones con las direcciones de memoria de las tablas de paginas que se usaran para mapear el mapa visto por
+    sus piratas.
+    Las posiciones X e Y de su puerto.
+    Las dos direcciones a los codigos de sus piratas, minero o explorador.
+    un arreglo con tantas posiciones como botines hay en el mapa el cual sirve para indicar cual fue descubierto pero aun no se le envio
     un minero.
-    primero se chequea si el jugador tiene algun slot libre con sched_hay_slot_libre, si no lo hay se vuelve sin hacer nada,
-    si lo hay, se cicla el arreglo botin del jugador, el cual indica con un 1 si el jugador vio ese botin y no lo envio a minar, o
-    0 en caso contrario, si se da lo primero se llama a game_jugador_lanzar_minero con destino al botin no minado pero descubierto
-    y se setea a cero la posicion correspondiente del arreglo botin del jugadro.
 
-  game_minar_botin:
-    Esta funcion toma dos parametros que indican una posicion por sus coordenadas X e Y.
-    dentro de ella se cicla tantas veces como botines haya y si uno de esos botines esta ubicado en la
-    posicion (X,Y) se le resta una moneda al botin y se sale del ciclo.
+\item[Estructura Pirata]
+  La estructura pirata se encarga de conocer a su jugador, su posicion actual y su tipo.
+  Esta tiene los siguientes atributos:
+    Un index que define que numero de pirata es para su jugador.
+    Tiene un puntero a una estructura Jugador, el cual apunta a su jugador.
+    Sus posiciones X e Y en el mapa.
+    Su tipo (explorador o minero).
 
-  La funcion game_lineal2virtual se encarga de pasar de direcciones lineales del mapa a las direcciones
-  virtuales correspondientes a la posicion correspondiente a las estructuras de paginacion para el mapa.
+\item[Estructura Scheduler]
+  La estructura scheduler es la encargada de saber que jugador esta activo en este momento y tener la informacion
+  necesaria para saber que tarea ejecutar en el proximo ciclo del reloj.
+  Esta posee los siguientes atributos:
+    activo: Indica si el scheduler esta actualmente manejando el juego o no.
+    selectores: Este arreglo de 17 posiciones tiene los selectores de las entradas de la GDT de
+    las 8 tareas del jugador A, las 8 del B y la tarea idle.
+    jugadorActual: Como era de esperarse, indica el jugador actualmente activo.
+    slotActual: Es una tupla la cual posee el indice del arreglo slots de la ultima tarea ejecutada por el jugador A
+    en su primer valor, y del jugador B en su segundo valor.
+    slots: esta tupla de dos arreglos de ocho posiciones indica en cada una de ellas si la tarea correspondiente a ese
+    indice (para el jugador A en el primer arreglo y el jugador B en el segundo) esta fuera del juegp (0) o esta actualmente
+    en el mapa activa (1).
 
-  La funcion game_lineal2physical se encarga de pasar de direcciones lineales del mapa a las direcciones
-  fisicas correspondientes a la misma posicion pero del mapa en memoria.
-
-  game_actualizar_codigo:
-    Esta funcion toma dos puntos (X0,Y0) y (X1,Y1).
-    con (X0,Y0) obtiene la direccion virtual para esas coordenadas, que es donde esta el codigo de la tarea ahora
-    con (X1,Y1) obtiene la direccion fisica en donde se va a pasar el codigo de la tarea cuando esta se haya movido
-    luego se mapea en la direccion 0x400000 la pagina fisica recien obtenida
-    para despues copiar desde la posicion actual a la posicion 0x400000, la cual apunta a la nueva posicion de la tarea
-
-  game_explorar_posicion:
-  game_pirata_mover:
+\end{description}
 
 
-  game_calcular_fin:
-    Esta funcion chequea si el contador del juego es igual a la variable global FIN, en ese caso se llama a game_terminar_si_es_hora
-    y se devuelve un 1.
-    Luego si el scheduler esta activo y ambos jugadores tienen todos los slots ocupados y sus puntajes no cambiaron
-    (chequeado con dos variables globales puntajeA y puntajeB comparadas con el atributo monedas de cada jugador)
-    entonces crece el contador.
-    si algo de esto no se cumple, se resetea el contador y se actualizan las variables globales de puntaje de cada jugador.
-    finalmente se devuelve un 0.
+\section{Funciones creadas}
+
+\begin{description}
+\item[game_mineros_pendientes]
+  esta funcion esta destinada a chequear si el jugador actual encontro algun botin pero en el momento no tenia lugar para enviar
+  un minero.
+  primero se chequea si el jugador tiene algun slot libre con sched_hay_slot_libre, si no lo hay se vuelve sin hacer nada,
+  si lo hay, se cicla el arreglo botin del jugador, el cual indica con un 1 si el jugador vio ese botin y no lo envio a minar, o
+  0 en caso contrario, si se da lo primero se llama a game_jugador_lanzar_minero con destino al botin no minado pero descubierto
+  y se setea a cero la posicion correspondiente del arreglo botin del jugadro.
+
+\item[game_minar_botin]
+  Esta funcion toma dos parametros que indican una posicion por sus coordenadas X e Y.
+  dentro de ella se cicla tantas veces como botines haya y si uno de esos botines esta ubicado en la
+  posicion (X,Y) se le resta una moneda al botin y se sale del ciclo.
+
+La funcion game_lineal2virtual se encarga de pasar de direcciones lineales del mapa a las direcciones
+virtuales correspondientes a la posicion correspondiente a las estructuras de paginacion para el mapa.
+
+La funcion game_lineal2physical se encarga de pasar de direcciones lineales del mapa a las direcciones
+fisicas correspondientes a la misma posicion pero del mapa en memoria.
+
+\item[game_actualizar_codigo]
+  Esta funcion toma dos puntos (X0,Y0) y (X1,Y1).
+  con (X0,Y0) obtiene la direccion virtual para esas coordenadas, que es donde esta el codigo de la tarea ahora
+  con (X1,Y1) obtiene la direccion fisica en donde se va a pasar el codigo de la tarea cuando esta se haya movido
+  luego se mapea en la direccion 0x400000 la pagina fisica recien obtenida
+  para despues copiar desde la posicion actual a la posicion 0x400000, la cual apunta a la nueva posicion de la tarea
+
+\item[game_explorar_posicion]
+  Esta funcion toma como parametros un puntero a un pirata, un page directory, dos puntos X e Y y una direccion.
+  En primer lugar se crean 2 arreglos de ints con 9 posiciones que representan los puntos en X y en Y.
+  Luego se llama a game_calcular_posiciones_vistas con estos dos arreglos, las posiciones X e Y que se pasaron
+  en primer lugar, y la direccion. Esta funcion devuelve un int que representa la cantidad de posiciones a explorar.
+  A continuacion se recorre con un indice i esta cantidad de posiciones, se chequea si es una posicion valida, si no lo es, no se hace nada
+  , si lo es, se llama a game_pirata_habilitar_posicion que toma como parametro la posicion i de los dos arreglos
+  creados en primer lugar y el page directory pasado como parametro a la funcion principal.
+  Tambien se llama a screen_pintar_rect_color con el color del jugador, las coordenadas del punto a pintar y 1, 1.
+  Adentro del ciclo tambien se chequea si la posicion tiene botin, si este es el caso, se chequea que haya un slot
+  libre, si lo hay, se lanza un minero hacia esa posicion, si no lo hay, se escribe un uno en la posicion
+  correspondiente a este botin en el arreglo botin del jugador correspondiente. por ultimo se pinta
+  en pantalla que hay un botin en esa posicion.
+
+
+\item[game_calcular_posiciones_vistas]
+Esta funcion toma como parametros dos arreglos, dos ints que representan una posicion X e Y, y una direccion.
+Se crean 4 ints (iniX, iniY), (finX,finY), se comienza un switch con el parametro dir
+el cual tiene los siguentes casos:
+  case IZQ:  iniX = -1; finX = -1; iniY = -1; finY =  1; break;
+  case DER:  iniX =  1; finX =  1; iniY = -1; finY =  1; break;
+  case ABA:  iniX = -1; finX =  1; iniY =  1; finY =  1; break;
+  case ARR:  iniX = -1; finX =  1; iniY = -1; finY = -1; break;
+  case TODO: iniX = -1; finX =  1; iniY = -1; finY =  1; break;
+
+Estos 4 valores indican el lado al que se debe expandir lo explorado relativamente
+a la posicion actual, por ejemplo, en el primer caso
+X comienza y termina en -1 (lado izquierdo del cuadrado) e Y comienza en -1 y termina en 1 (toda la altura del cuadrado)
+entonces luego con dos ciclos for anidados los cuales recorren estas posiciones relativas de iniX e iniY
+, se guarda en los dos arreglos que represetan las posiciones en X
+y en Y los valores inciales de X e Y sumados a este valor relativo, en la posicion indicada por
+el int next el cual se va avanzando con cada asignacion, de esta forma en los arreglos finales
+se obtienen las nuevas posiciones X e Y que ahora puede ver el pirata y por ende el jugador.
+
+GRAFICO
+
+\item[game_pirata_mover]
+  esta funcion simplemente llama a game_actualizar_codigo con la posicion actual del pirata y con otros dos puntos,
+  los cuales suelen ser la posicion a la que el pirata intenta moverse.
+  Luego se actualizan los atributos posicionX y posicionY del pirata asi como se llama a screen_pintar_pirata con el
+  pirata modificado, su jugador y la direccion.
+
+\item[game_pirata_exploto]
+  esta funcion pide el pirata actual del scheduler, llama a screen_matar_pirata, la cual lo quita de la pantalla y
+  finalmente llama a sched_liberar_slot.
+  sched_liberar_slot averigua el jugador actual del scheduler, pide el slot actual de ese jugador y finalmente
+  setea como LIBRE el slot recien averiguado para el jugador que se acaba de obtener.
+
+\item[game_calcular_fin]
+  Esta funcion chequea si el contador del juego es igual a la variable global FIN, en ese caso se llama a game_terminar_si_es_hora
+  y se devuelve un 1.
+  Luego si el scheduler esta activo y ambos jugadores tienen todos los slots ocupados y sus puntajes no cambiaron
+  (chequeado con dos variables globales puntajeA y puntajeB comparadas con el atributo monedas de cada jugador)
+  entonces crece el contador.
+  si algo de esto no se cumple, se resetea el contador y se actualizan las variables globales de puntaje de cada jugador.
+  finalmente se devuelve un 0.
+
+\end{description}
