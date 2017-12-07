@@ -502,26 +502,34 @@ continuación:
 
 \begin{description}
 \item[game_mineros_pendientes]
-  esta funcion esta destinada a chequear si el jugador actual encontro algun botin pero en el momento no tenia lugar para enviar
-  un minero.
-  primero se chequea si el jugador tiene algun slot libre con sched_hay_slot_libre, si no lo hay se vuelve sin hacer nada,
-  si lo hay, se cicla el arreglo botin del jugador, el cual indica con un 1 si el jugador vio ese botin y no lo envio a minar, o
-  0 en caso contrario, si se da lo primero se llama a game_jugador_lanzar_minero con destino al botin no minado pero descubierto
-  y se setea a cero la posicion correspondiente del arreglo botin del jugadro.
+  Esta función chequea si el jugador actual encontró algún botín pero en el
+  momento no tenía slots libre para enviar un minero.
+
+  Primero se chequea si el jugador tiene algun slot libre con
+  {\it sched_hay_slot_libre\/}, si no lo hay se termina sin hacer nada, si lo
+  hay, se cicla el arreglo {\it botín\/} del jugador, el cual indica con un 1 si el
+  jugador vió ese botin y no lo envió a minar, o 0 en caso contrario. Si ocurre
+   o primero se llama a {\it game_jugador_lanzar_minero\/} con destino al botín
+   no minado pero descubierto y se setea a cero la posicion correspondiente del
+   arreglo botin del jugador.
 
 \item[game_minar_botin]
-  Esta funcion toma dos parametros que indican una posicion por sus coordenadas X e Y.
-  dentro de ella se cicla tantas veces como botines haya y si uno de esos botines esta ubicado en la
-  posicion (X,Y) se le resta una moneda al botin y se sale del ciclo.
+  Esta función toma dos parámetros $X$ e $Y$ que indican las coordenadas de una
+  posición del mapa.
 
-La funcion game_lineal2virtual se encarga de pasar de direcciones lineales del mapa a las direcciones
-virtuales correspondientes a la posicion correspondiente a las estructuras de paginacion para el mapa.
+  Dentro de ella se cicla por el arreglo de botines del mapa y busca el botín
+  correspondiente, al que se le resta una moneda y consecuentemente sale del
+  ciclo.
 
-La funcion game_lineal2physical se encarga de pasar de direcciones lineales del mapa a las direcciones
-fisicas correspondientes a la misma posicion pero del mapa en memoria.
 
-\item[game_actualizar_codigo]
-  Esta funcion toma dos puntos (X0,Y0) y (X1,Y1).
+\item[game_lineal2virtual] Se encarga de pasar de direcciones lineales del mapa
+a las direcciones virtuales correspondientes. Usada para la paginación del mapa.
+
+\item[game_lineal2physical] Se encarga de pasar de direcciones lineales del mapa
+a las direcciones físicas correspondientes. Se utiliza para la paginación del
+mapa.
+
+\item[game_actualizar_codigo] Esta función toma dos puntos (X0,Y0) y (X1,Y1).
   con (X0,Y0) obtiene la direccion virtual para esas coordenadas, que es donde esta el codigo de la tarea ahora
   con (X1,Y1) obtiene la direccion fisica en donde se va a pasar el codigo de la tarea cuando esta se haya movido
   luego se mapea en la direccion 0x400000 la pagina fisica recien obtenida
